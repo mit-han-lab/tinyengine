@@ -1,0 +1,13 @@
+camera_spi.cpp:52:6:void delayUS(uint32_t)	8	static
+camera_spi.cpp:62:6:void setBit(uint8_t, uint8_t)	48	static
+camera_spi.cpp:68:6:void clearBit(uint8_t, uint8_t)	48	static
+camera_spi.cpp:74:9:uint8_t getBit(uint8_t, uint8_t)	32	static
+camera_spi.cpp:115:5:int camSPIErrorTest()	48	static
+camera_spi.cpp:82:5:int camSPISetup()	56	static
+camera_spi.cpp:131:6:void camSPIReset()	24	static
+camera_spi.cpp:141:6:void camWriteReg(uint8_t, uint8_t)	16	static
+camera_spi.cpp:149:9:uint8_t camTransfer(uint8_t)	32	static
+camera_spi.cpp:161:9:uint8_t camTransfers(uint8_t*, uint32_t)	24	static
+camera_spi.cpp:174:9:uint8_t camReadReg(uint8_t)	24	static
+camera_spi.cpp:185:9:uint8_t camReadRegBit(uint8_t, uint8_t)	32	static
+camera_spi.cpp:194:6:void camCoreDump()	40	static

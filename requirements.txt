@@ -1,0 +1,6 @@
+numpy
+matplotlib
+tqdm
+flatbuffers
+torch
+torchvision

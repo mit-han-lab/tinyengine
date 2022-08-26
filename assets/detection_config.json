@@ -1,0 +1,23 @@
+{
+    "output1": {
+      "name": "Yolo3Output",
+      "input_id": "175",
+      "num_class": 1,
+      "anchors": [116, 90, 156, 198, 373, 326],
+      "stride": 32
+    },
+    "output2": {
+      "name": "Yolo3Output",
+      "input_id": "36",
+      "num_class": 1,
+      "anchors": [30, 61, 62, 45, 59, 119],
+      "stride": 16
+    },
+    "output3": {
+      "name": "Yolo3Output",
+      "input_id": "5",
+      "num_class": 1,
+      "anchors": [10, 13, 16, 30, 33, 23],
+      "stride": 8
+    }
+  }
