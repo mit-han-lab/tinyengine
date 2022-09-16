@@ -20,6 +20,7 @@ TinyEngine is a part of MCUNet, which also consists of TinyNAS. MCUNet is a syst
 
 We will soon release **Tiny Training Engine** used in [MCUNetV3: On-Device Training Under 256KB Memory](https://mcunet.mit.edu/#mcunetv3). **If you are interested in getting updates, please sign up [here](https://forms.gle/UW1uUmnfk1k6UJPPA) to get notified!**
 
+- **(2022/09)** Our new work [On-Device Training Under 256KB Memory](https://arxiv.org/abs/2206.15472) is accepted to NeurIPS 2022! It enables tiny on-device training for IoT devices [[demo](https://www.youtube.com/watch?v=XaDCO8YtmBw)]. 
 - **(2022/08)** Our **New Course on TinyML and Efficient Deep Learning** will be released soon in September 2022: [efficientml.ai](https://efficientml.ai/).
 - **(2022/08)** We include the [demo tutorial](tutorial) for deploying a visual wake word (VWW) model onto microcontrollers.
 - **(2022/08)** We opensource the TinyEngine repo.
