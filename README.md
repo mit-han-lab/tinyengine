@@ -207,13 +207,14 @@ If you find the project helpful, please consider citing our paper:
   year={2021}
 }
 
-@inproceedings{
-  lin2022ondevice,
-  title={On-Device Training Under 256KB Memory},
-  author={Lin, Ji and Zhu, Ligeng and Chen, Wei-Ming and Wang, Wei-Chen and Gan, Chuang and Han, Song},
-  booktitle={ArXiv},
-  year={2022}
-} 
+@article{
+  lin2022ondevice, 
+  title = {On-Device Training Under 256KB Memory},
+  author = {Lin, Ji and Zhu, Ligeng and Chen, Wei-Ming and Wang, Wei-Chen and Gan, Chuang and Han, Song}, 
+  journal = {arXiv:2206.15472 [cs]},
+  url = {https://arxiv.org/abs/2206.15472},
+  year = {2022}
+}
 ```
 
 
@@ -223,4 +224,4 @@ If you find the project helpful, please consider citing our paper:
 
 [MCUNetV2: Memory-Efficient Patch-based Inference for Tiny Deep Learning](https://mcunet.mit.edu/#mcunetv2) (NeurIPS'21)
 
-[MCUNetV3: On-Device Training Under 256KB Memory](https://mcunet.mit.edu/#mcunetv3)
+[MCUNetV3: On-Device Training Under 256KB Memory](https://mcunet.mit.edu/#mcunetv3) (NeurIPS'22)
