@@ -137,7 +137,7 @@ class BaseAllocator:
         ax.yaxis.grid(color="gray", linestyle="dashed")
         ax.xaxis.grid(color="gray", linestyle="dashed")
         ax.patch.set_edgecolor("black")
-        ax.patch.set_linewidth("2")
+        ax.patch.set_linewidth(2)
 
         for cnt, rec in enumerate(self.rectangles):
             start, end, placement, size = (
