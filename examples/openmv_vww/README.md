@@ -79,4 +79,7 @@ make -j4 TARGET=OPENMV4 -C src
 Flash the binary `openmv/src/build/bin/firmware.bin` into your OpenMV. Please refer to the official [Instructions](https://github.com/openmv/openmv/blob/master/src/README.md#flashing-the-firmware]).
 
 ## Start the demo
-To start the demo, run the python script `tinyengine/examples/openmv_vww/vww_openmv_demo.py` in OpenMV IDE.
+
+1. download OpenMV IDE
+2. Connect your OpenMV cam to the PC
+3. Run the python script `tinyengine/examples/openmv_vww/vww_openmv_demo.py` in OpenMV IDE.
