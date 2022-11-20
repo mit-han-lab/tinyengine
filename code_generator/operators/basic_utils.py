@@ -156,6 +156,8 @@ sprintf(buf, \""""
             cast_type = "signed char"
         elif dtype == "bool":
             cast_type = "bool"
+        elif dtype == "int32":
+            cast_type = "int32_t"
         cast_str = f"({cast_type}*)"
 
         ret += cast_str

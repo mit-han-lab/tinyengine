@@ -22,13 +22,21 @@ import numpy
 from matplotlib.ticker import MaxNLocator
 from tqdm import tqdm
 
-from code_generator.constant import FIGURE_CONFIG, TTYPE_INFERNECE
+from code_generator.constant import (
+    FIGURE_CONFIG,
+    TTYPE_INFERNECE,
+    TTYPE_STATIC_WEIGHT,
+    TTYPE_TRAINING_ACTIVATION,
+    TTYPE_TRAINING_GRADIENT,
+    TTYPE_TRAINING_WEIGHTS,
+)
 
 
 class BaseAllocator:
-    def __init__(self, SRAM):
+    def __init__(self, SRAM, sort_by_lifetime=False):
         self.rectangles = []
         self.SRAM = SRAM
+        self.sort_by_lifetime = sort_by_lifetime
 
     # Description: add a tensor to schedule, return the index of the rectangle
     # Note: placement -1 indicates no placed yet
@@ -78,12 +86,19 @@ class BaseAllocator:
     def sortSize(self):
         sort_rectangles = []
         while len(self.rectangles) > 0:
+            max_life = 0
             max_size = 0
             max_rectangle = None
             for rec in self.rectangles:
-                if rec["size"] > max_size:
-                    max_size = rec["size"]
-                    max_rectangle = rec
+                if self.sort_by_lifetime:
+                    life = rec["end"] - rec["start"]
+                    if life > max_life:
+                        max_life = life
+                        max_rectangle = rec
+                else:
+                    if rec["size"] > max_size:
+                        max_size = rec["size"]
+                        max_rectangle = rec
             assert max_rectangle is not None
             sort_rectangles.append(max_rectangle)
             self.rectangles.remove(max_rectangle)
@@ -97,7 +112,7 @@ class BaseAllocator:
                 peak = rec_size
         return peak
 
-    def visualize(self, path, scale=1024):
+    def visualize(self, path, train_start_idx=-1, scale=1024):
         fig = plt.figure()
         ax = fig.add_subplot(111)
         max_y = max_x = 0
@@ -149,6 +164,14 @@ class BaseAllocator:
             hatch = None
             if rec["type"] == TTYPE_INFERNECE:
                 color = FIGURE_CONFIG["INFERENCE_COLOR"]
+            elif rec["type"] == TTYPE_TRAINING_WEIGHTS:
+                color = FIGURE_CONFIG["TRAIN_WEIGHT_COLOR"]
+            elif rec["type"] == TTYPE_TRAINING_ACTIVATION:
+                color = FIGURE_CONFIG["TRAIN_ACTIVATION_COLOR"]
+            elif rec["type"] == TTYPE_STATIC_WEIGHT:
+                color = FIGURE_CONFIG["TRAIN_TENSOR_COLOR"]
+            elif rec["type"] == TTYPE_TRAINING_GRADIENT:
+                color = FIGURE_CONFIG["TRAIN_GRADIENT_COLOR"]
             else:
                 raise NotImplementedError
             if rec["stride2_inplace_idx"]:
