@@ -1,0 +1,7 @@
+stm32746g_discovery_eeprom.c:155:10:BSP_EEPROM_Init	8	static
+stm32746g_discovery_eeprom.c:178:9:BSP_EEPROM_DeInit	0	static
+stm32746g_discovery_eeprom.c:454:13:BSP_EEPROM_TIMEOUT_UserCallback	0	static
+stm32746g_discovery_eeprom.c:199:10:BSP_EEPROM_ReadBuffer	16	static
+stm32746g_discovery_eeprom.c:438:10:BSP_EEPROM_WaitEepromStandbyState	8	static
+stm32746g_discovery_eeprom.c:246:10:BSP_EEPROM_WritePage	16	static
+stm32746g_discovery_eeprom.c:281:10:BSP_EEPROM_WriteBuffer	32	static

@@ -1,0 +1,1 @@
+convolve_s8_kernel2x3_inputch3_stride2_pad1.c:26:19:convolve_s8_kernel2x3_inputch3_stride2_pad1	128	static,ignoring_inline_asm

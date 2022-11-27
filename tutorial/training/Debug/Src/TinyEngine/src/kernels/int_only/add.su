@@ -1,0 +1,8 @@
+add.c:23:9:Add	0	static
+add.c:26:9:ShiftRight	0	static
+add.c:29:9:BitAnd	0	static
+add.c:32:9:BitNot	0	static
+add.c:35:9:MaskIfNonZero	0	static
+add.c:39:9:MaskIfGreaterThan	0	static
+add.c:42:9:MaskIfLessThan	0	static
+add.c:70:19:add	64	static
