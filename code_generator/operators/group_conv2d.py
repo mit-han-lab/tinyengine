@@ -290,9 +290,9 @@ class groupConv2d(basicOperator):
                 function_name += "_int8weight"
 
             if (params["output_c"] / params["groups"]) % 16 == 0 or (params["output_c"] / params["groups"]) % 8 == 0:
-                function_name += "_inplace_revised"
-            else:
                 function_name += "_inplace"
+            else:
+                raise NotImplementedError
 
             # weight name
             if isinstance(params["weight_name"], str) and isweightstr(params["weight_name"]):

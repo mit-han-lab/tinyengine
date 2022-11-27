@@ -197,25 +197,38 @@ class transposeConv2d(basicOperator):
                 )
 
             if params["input2_dtype"] == "int8" and params["input_dtype"] in ["float32", "int8"]:
-                if params["first_k_channel"] is not None:
+                if params["first_k_channel"] is None:
                     string += (
-                        f"{function_name}_int8w_partialCH(conv_params,{input_address_string},"
-                        + f"{params['input_h']},{params['input_w']},{params['input_c']},"
-                        + f"(q7_t*){weight_string},(q7_t*){weight_string}Flash,{params['first_k_channel']},"
-                        + f"{params['kernel_h']},{params['kernel_w']},NULL,"
-                        + f"{output_address_string},"
-                        + f"{str(params['output_h'])},{str(params['output_w'])},{str(params['output_c'])},"
-                        + "(float*)sbuf,1);\n"
-                    )
-                else:
-                    string += (
-                        f"{function_name}_int8w(conv_params,{input_address_string},"
+                        f"{function_name}_int8weight(conv_params,{input_address_string},"
                         + f"{params['input_h']},{params['input_w']},{params['input_c']},"
                         + f"(q7_t*){weight_string},{params['kernel_h']},{params['kernel_w']},NULL,"
                         + f"{output_address_string},"
                         + f"{str(params['output_h'])},{str(params['output_w'])},{str(params['output_c'])},"
                         + "(float*)sbuf,1);\n"
                     )
+                else:
+                    if params["first_k_channel"] % 8 == 0:
+                        string += (
+                            f"{function_name}_int8weight_partialCH_8innercol(conv_params,{input_address_string},"
+                            + f"{params['input_h']},{params['input_w']},{params['input_c']},"
+                            + f"(q7_t*){weight_string},(q7_t*){weight_string}Flash,{params['first_k_channel']},"
+                            + f"{params['kernel_h']},{params['kernel_w']},NULL,"
+                            + f"{output_address_string},"
+                            + f"{str(params['output_h'])},{str(params['output_w'])},{str(params['output_c'])},"
+                            + "(float*)sbuf,1);\n"
+                        )
+                    elif params["first_k_channel"] % 4 == 0:
+                        string += (
+                            f"{function_name}_int8weight_partialCH_4innercol(conv_params,{input_address_string},"
+                            + f"{params['input_h']},{params['input_w']},{params['input_c']},"
+                            + f"(q7_t*){weight_string},(q7_t*){weight_string}Flash,{params['first_k_channel']},"
+                            + f"{params['kernel_h']},{params['kernel_w']},NULL,"
+                            + f"{output_address_string},"
+                            + f"{str(params['output_h'])},{str(params['output_w'])},{str(params['output_c'])},"
+                            + "(float*)sbuf,1);\n"
+                        )
+                    else:
+                        raise NotImplementedError
             else:
                 string += (
                     f"{function_name}(conv_params,{input_address_string},"
@@ -272,7 +285,7 @@ class transposeConv2d(basicOperator):
             if params["input2_dtype"] == "int8" and params["input_dtype"] in ["float32", "int8"]:
                 if params["first_k_channel"] is not None:
                     string += (
-                        f"{function_name}_int8w_partialCH("
+                        f"{function_name}_int8weight_partialCH("
                         + f"{self._getBufferstrCast(params['input_buf_add'], params['input_buf_add_offset'])},"
                         + f"{params['input_h']},{params['input_w']},{params['input_c']},"
                         + f"(q7_t*){weight_string},(q7_t*){weight_string}Flash,{params['first_k_channel']},NULL,"
@@ -291,7 +304,7 @@ class transposeConv2d(basicOperator):
                         string += "(float*)sbuf, 1);\n"
                 else:
                     string += (
-                        f"{function_name}_int8w("
+                        f"{function_name}_int8weight("
                         + f"{self._getBufferstrCast(params['input_buf_add'], params['input_buf_add_offset'])},"
                         + f"{params['input_h']},{params['input_w']},{params['input_c']},"
                         + f"(q7_t*){weight_string},NULL,"
@@ -353,7 +366,7 @@ class transposeConv2d(basicOperator):
 
             if params["input2_dtype"] == "int8" and params["input_dtype"] == "float32":
                 string += (
-                    f"{function_name}_int8w(conv_params,"
+                    f"{function_name}_int8weight(conv_params,"
                     + f"{self._getBufferstrCast(params['input_buf_add'], params['input_buf_add_offset'])},"
                     + f"{params['input_h']},{params['input_w']},{params['input_c']},"
                     + f"{weight_string},{params['kernel_h']},{params['kernel_w']},NULL,"
@@ -373,7 +386,7 @@ class transposeConv2d(basicOperator):
                 string += "(float*)sbuf,1);\n"
         elif params["group"] == params["input_c"] and params["group"] == params["output_c"] and not tflite_op:
             # function name
-            function_name = "transpose_depthwise_conv_kernel"
+            function_name = "transpose_depthwise_conv_fp_kernel"
             if params["stride_h"] == 1:
                 outpad = 0
             elif params["stride_h"] == 2:
@@ -384,7 +397,7 @@ class transposeConv2d(basicOperator):
                 raise NotImplementedError
             function_name += (
                 f"{str(params['kernel_h'])}_stride{str(params['stride_h'])}_"
-                + f"inpad{str(params['padding_h'])}_outpad{str(outpad)}_revised"
+                + f"inpad{str(params['padding_h'])}_outpad{str(outpad)}"
             )
 
             if params["kernel_layout"] == "IOHW":
@@ -398,7 +411,7 @@ class transposeConv2d(basicOperator):
 
             if params["input2_dtype"] == "int8" and params["input_dtype"] == "float32":
                 string += (
-                    f"{function_name}_int8w("
+                    f"{function_name}_int8weight("
                     + f"{self._getBufferstrCast(params['input_buf_add'], params['input_buf_add_offset'])},"
                     + f"{params['input_h']},{params['input_w']},{params['input_c']},"
                     + f"{weight_string},NULL,"
