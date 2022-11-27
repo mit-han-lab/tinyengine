@@ -289,7 +289,11 @@ class groupConv2d(basicOperator):
             if not params["float32_input2"]:
                 function_name += "_int8weight"
 
-            if (params["output_c"] / params["groups"]) % 16 == 0 or (params["output_c"] / params["groups"]) % 8 == 0:
+            if (
+                (params["output_c"] / params["groups"]) % 16 == 0
+                or (params["output_c"] / params["groups"]) % 8 == 0
+                or params["output_c"] / params["input_c"] == 10
+            ):
                 function_name += "_inplace"
             else:
                 raise NotImplementedError
