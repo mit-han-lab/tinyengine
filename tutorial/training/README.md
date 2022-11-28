@@ -61,7 +61,7 @@ This is the official demo tutorial for deploying a visual wake words (VWW) train
 - Copy the `tutorial/training` folder and rename it as `TinyEngine_vww_training_tutorial` (for use in STM32CubeIDE later).
 
 ```bash
-cp -r ./tutorial/training ./TinyEngine_vww_training_tutorial
+cp -r ./tutorial/training ./tutorial/TinyEngine_vww_training_tutorial
 ```
 
 - Setup PYTHONPATH, and run the codegen example of VWW: (To generate code for other models or update schemes, please refer to the [Tiny Training repo](https://github.com/mit-han-lab/tiny-training))

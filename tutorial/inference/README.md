@@ -52,7 +52,7 @@ This is the official demo tutorial for deploying a visual wake words (VWW) infer
   * First, please follow the instruction in [`Setup for Users`](https://github.com/mit-han-lab/tinyengine#setup-for-users) to setup your environment.
   * Copy the `tutorial/inference` folder and rename it as `TinyEngine_vww_tutorial` (for use in STM32CubeIDE later).
   ```bash
-  cp -r ./tutorial/inference ./TinyEngine_vww_tutorial
+  cp -r ./tutorial/inference ./tutorial/TinyEngine_vww_tutorial
   ```
   * Setup PYTHONPATH, and run the codegen example of VWW:
   ```bash
