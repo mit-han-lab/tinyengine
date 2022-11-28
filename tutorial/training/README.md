@@ -96,7 +96,7 @@ bash import_arm_training.sh
 
 - Import the `TinyEngine_vww_training_tutorial` codebase into your STM32CubeIDE by: \[File\] -> \[Import…\] -> \[General\] -> \[Existing Projects into Workspace\] (Import the entire `TinyEngine_vww_training_tutorial` folder).
 
-<img src="../../assets/figures/0_import_project_training_0.png" alt="0_import_project_training_0" width="47%"/>  <img src="../../assets/figures/1_import_project_training_1.png" alt="1_import_project_training_1" width="46%"/>
+<img src="../../assets/figures/0_import_project_0.png" alt="0_import_project_0" width="47%"/>  <img src="../../assets/figures/1_import_project_training_1.png" alt="1_import_project_training_1" width="46%"/>
 
 - After the import, `TinyEngine_vww_training_tutorial` should be shown in Project Explorer of your STM32CubeIDE as the example figure below:
 
