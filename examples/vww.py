@@ -16,7 +16,7 @@
 # Target ISA:  ARMv7E-M
 # ----------------------------------------------------------------------
 
-from mcunet.model_zoo import net_id_list, build_model, download_tflite
+from mcunet.mcunet.model_zoo import net_id_list, build_model, download_tflite
 from code_generator.CodegenUtilTFlite import GenerateSourceFilesFromTFlite
 
 # 1: Let's first build our pretrained VWW model
