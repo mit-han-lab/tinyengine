@@ -1,23 +1,27 @@
 /* ----------------------------------------------------------------------
- * Project: TinyEngine
+ * Project: Tiny Training Engine, MCUNetV3
  * Title:   tinyengine_function.h
  *
  * Reference papers:
  *  - MCUNet: Tiny Deep Learning on IoT Device, NeurIPS 2020
  *  - MCUNetV2: Memory-Efficient Patch-based Inference for Tiny Deep Learning, NeurIPS 2021
- *  - MCUNetV3: On-Device Training Under 256KB Memory, arXiv:2206.15472
+ *  - MCUNetV3: On-Device Training Under 256KB Memory, NeurIPS 2022
  * Contact authors:
- *  - Wei-Ming Chen, wmchen@mit.edu
  *  - Wei-Chen Wang, wweichen@mit.edu
+ *  - Wei-Ming Chen, wmchen@mit.edu
  *  - Ji Lin, jilin@mit.edu
  *  - Ligeng Zhu, ligeng@mit.edu
  *  - Song Han, songhan@mit.edu
+ *  - Chuang Gan, ganchuang@csail.mit.edu
  *
  * Target ISA:  ARMv7E-M
  * -------------------------------------------------------------------- */
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <math.h>
+
 typedef int8_t q7_t;
 typedef uint8_t q8_t;
 typedef int16_t q15_t;
@@ -146,9 +150,6 @@ tinyengine_status add_fpreq_bitmask(int size, const int8_t* input1_data, const f
 			const int8_t* input2_data, const float input2_scale, const float input2_zero, const float output_scale,
 			const float zero_y, int8_t* output_data, int8_t* output_mask);
 
-tinyengine_status where_int8(const bool* inMask, const uint16_t size, signed char* input1_data,
-	    const char* input2_data, char* output_data);
-
 tinyengine_status convolve_1x1_s8_fpreq_mask_partialCH(const q7_t *input,
 		const uint16_t input_x, const uint16_t input_y, const uint16_t input_ch,
 		const q7_t *kernel_sram, const q7_t *kernel_flash, const uint16_t first_k_channel, const int32_t *bias, const float *scales,
@@ -157,5 +158,7 @@ tinyengine_status convolve_1x1_s8_fpreq_mask_partialCH(const q7_t *input,
 		q7_t *output, q7_t *mask, const uint16_t output_x, const uint16_t output_y,
 		const uint16_t output_ch, q15_t *runtime_buf);
 
+
 #include "genInclude.h"
 #include "fp_requantize_op.h"
+//#include "int8_bp_op.h"

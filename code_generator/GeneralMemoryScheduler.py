@@ -17,7 +17,16 @@
 # ----------------------------------------------------------------------
 
 from .allocator.firstFit import FirstFit
-from .constant import TTYPE_INFERNECE
+from .constant import (
+    FUSE_SGD_UPDATE_STR,
+    FUSHION_CONFIG,
+    INFERECE_WEIGHT_SIZE,
+    TTYPE_INFERNECE,
+    TTYPE_STATIC_WEIGHT,
+    TTYPE_TRAINING_ACTIVATION,
+    TTYPE_TRAINING_GRADIENT,
+    TTYPE_TRAINING_WEIGHTS,
+)
 
 
 class GeneralMemoryScheduler:
@@ -31,6 +40,7 @@ class GeneralMemoryScheduler:
         outputTables=None,
         mem_visual_path="codegen/allocation.png",
         VisaulizeTrainable=True,
+        sort_by_lifetime=False,
     ):
         self.layer = layer
         self.heads = 0
@@ -48,7 +58,7 @@ class GeneralMemoryScheduler:
         self.bias = 0
         self.scale = 0
         self.code = 0
-        self.allocator = FirstFit(memory_limit)
+        self.allocator = FirstFit(memory_limit, sort_by_lifetime)
         self.outputTables = outputTables
         self.USE_INPLACE = inplace
         self.mem_visual_path = mem_visual_path
@@ -85,8 +95,73 @@ class GeneralMemoryScheduler:
                         for cnt, inp_tensor in enumerate(self.layer[following_idx].input_tensors):
                             if str(inp_tensor.graph_idx) == str(previous_output_idx):
                                 inp_tensor.graph_idx = op.input_tensors[0].graph_idx
+                if (
+                    op.params["op"] == "TRANSPOSE_CONV_2D"
+                    and op.params["group"] == op.params["input_c"]
+                    and op.params["group"] == op.params["output_c"]
+                    and not self.tflite_op
+                    and op.params["stride_h"] == 1
+                    and op.params["stride_w"] == 1
+                ):
+                    # set the idx of output and next layer input
+                    previous_output_idx = op.output_tensors[0].graph_idx
+                    op.output_tensors[0].graph_idx = op.input_tensors[0].graph_idx
+                    # update following ops' tensors
+                    for following_idx in range(i, len(self.layer)):
+                        for cnt, inp_tensor in enumerate(self.layer[following_idx].input_tensors):
+                            if inp_tensor.graph_idx == previous_output_idx:
+                                inp_tensor.graph_idx = op.input_tensors[0].graph_idx
+                                # set the name in params which will be used later
+                                if (
+                                    cnt == 1
+                                    and "CONV" in self.layer[following_idx].params["op"]
+                                    and isinstance(self.layer[following_idx].params["weight_value"], str)
+                                ):
+                                    self.layer[following_idx].params["weight_value"] = op.input_tensors[0].graph_idx
 
         num_layers = len(self.layer)
+        # add all trainable tensors as one tensor
+        length_model = len(self.layer)
+        trainable = 0
+        weight_size = 0
+        bias_size = 0
+        for out_t in self.outputTables:
+            if "bias" in out_t.name:
+                dtype_multiplier = 4
+                trainable += int(out_t.len * dtype_multiplier)
+                bias_size += int(out_t.len * dtype_multiplier)
+            elif "weight" in out_t.name:
+                dtype_multiplier = INFERECE_WEIGHT_SIZE
+                # find the conv2d owning the tensor
+                conv_2d_op = None
+                for lay in self.layer:
+                    if "weight_name" in lay.params and out_t.name in lay.params["weight_name"]:
+                        conv_2d_op = lay
+                        break
+                assert conv_2d_op is not None
+                # check if it is partial
+                if "first_k_channel" in conv_2d_op.params and conv_2d_op.params["first_k_channel"] is not None:
+                    trainable += int(
+                        out_t.len
+                        * dtype_multiplier
+                        * conv_2d_op.params["first_k_channel"]
+                        / conv_2d_op.params["input_c"]
+                    )
+                    weight_size += int(
+                        out_t.len
+                        * dtype_multiplier
+                        * conv_2d_op.params["first_k_channel"]
+                        / conv_2d_op.params["input_c"]
+                    )
+                else:
+                    trainable += int(out_t.len * dtype_multiplier)
+                    weight_size += int(out_t.len * dtype_multiplier)
+            else:
+                pass
+        if self.VisaulizeTrainable:
+            self.allocator.addTensor(0, length_model, trainable, type=TTYPE_STATIC_WEIGHT)
+
+        all_t_size = 0
         # go through all tensors in the model
         for i, op in enumerate(self.layer):
             # get all unallocated tensors for this layer
@@ -95,11 +170,23 @@ class GeneralMemoryScheduler:
                 if t.allocator_idx is None:
                     unallocated_tensors.append(t)
             for cnt, t in enumerate(op.output_tensors):
-                if cnt == 0 and not (
-                    self.USE_INPLACE
-                    and op.params["op"] == "DEPTHWISE_CONV_2D"
-                    and op.params["input_dtype"] == "int8"
-                    and not self.tflite_op
+                if (
+                    cnt == 0
+                    and not (
+                        self.USE_INPLACE
+                        and op.params["op"] == "DEPTHWISE_CONV_2D"
+                        and op.params["input_dtype"] == "int8"
+                        and not self.tflite_op
+                    )
+                    and not (
+                        self.USE_INPLACE
+                        and op.params["op"] == "TRANSPOSE_CONV_2D"
+                        and op.params["group"] == op.params["input_c"]
+                        and op.params["group"] == op.params["output_c"]
+                        and not self.tflite_op
+                        and op.params["stride_h"] == 1
+                        and op.params["stride_w"] == 1
+                    )
                 ):
                     if t.allocator_idx is None:
                         unallocated_tensors.append(t)
@@ -109,15 +196,26 @@ class GeneralMemoryScheduler:
                         unallocated_tensors.append(t)
 
             # add each tensor
+            training_start_idx = _find_training_idx(layers=self.layer)
             for cnt, t in enumerate(unallocated_tensors):
                 start_idx = i
-                end_idx = i + 1 if i == 0 else num_layers
+                # TODO: this is temp solution
+                if training_start_idx > i and "out_multiply" not in t.graph_idx:
+                    end_idx = i + 1 if i == 0 else num_layers
+                else:
+                    end_idx = i + 1
                 for idx in range(start_idx + 1, num_layers):
                     for input_t in self.layer[idx].input_tensors:
                         if str(t.graph_idx) == str(input_t.graph_idx):
                             end_idx = idx + 1
                 # check if this is output
                 ttype = TTYPE_INFERNECE
+                if self.outputTables is not None and not FUSHION_CONFIG[FUSE_SGD_UPDATE_STR]:
+                    for o in self.outputTables:
+                        if o.idx in t.graph_idx:
+                            end_idx = len(self.layer)
+                            all_t_size += o.len
+                            ttype = TTYPE_TRAINING_GRADIENT
                 # add the tensor
                 t.allocator_idx = self.allocator.addTensor(start_idx, end_idx, t.len(), name=t.graph_idx, type=ttype)
                 # propagate the allocation to tensors with the same idx
@@ -173,6 +271,25 @@ class GeneralMemoryScheduler:
             self.__increaseFlash(layermem["scale"])
 
             self.layermem.append(layermem)
+
+        # assign data dtype for each tensor for visualization
+        # we need to figure out training_weight and training_activation here
+        # for training_weight, it should contain weights of "transpose conv"
+        # then, other tensors in training can be categorized as training activation
+        training_start_idx = _find_training_idx(self.layer)
+        # assign every tenosrs labeled as TTYPE_INFERNECE after the index as TTYPE_TRAINING_ACTIVATION
+        for r in self.allocator.rectangles:
+            if r["type"] == TTYPE_INFERNECE and r["end"] > training_start_idx:
+                r["type"] = TTYPE_TRAINING_ACTIVATION
+        # for each tranpose conv, find it
+        for i, op in enumerate(self.layer):
+            if op.params["op"] == "TRANSPOSE_CONV_2D":
+                # if any tenosr used by this layer
+                for r in self.allocator.rectangles:
+                    if r["end"] <= training_start_idx:
+                        continue
+                    if r["name"] == op.params["weight_name"]:
+                        r["type"] = TTYPE_TRAINING_WEIGHTS
 
         # find out int8 inplace depthwise conv and stride == 2
         for i, op in enumerate(self.layer):
@@ -387,3 +504,11 @@ class GeneralMemoryScheduler:
                 self.buffers[buf_str] = size
             else:
                 self.buffers[buf_str] = max(self.buffers[buf_str], size)
+
+
+def _find_training_idx(layers):
+    idx = len(layers)
+    for cnt, l in enumerate(layers):
+        if l.params["op"] in ["CAST"]:
+            return cnt
+    return idx

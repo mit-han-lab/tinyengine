@@ -1,0 +1,2 @@
+depthwise_kernel7x7_stride2_inplace_CHW_fpreq.c:79:6:depthwise_kernel7x7_stride2_inplace_kernel_CHW_fpreq	160	static
+depthwise_kernel7x7_stride2_inplace_CHW_fpreq.c:16:19:depthwise_kernel7x7_stride2_inplace_CHW_fpreq	112	static

@@ -1,23 +1,6 @@
-# ----------------------------------------------------------------------
-# Project: TinyEngine
-# Title:   add.py
-#
-# Reference papers:
-#  - MCUNet: Tiny Deep Learning on IoT Device, NeurIPS 2020
-#  - MCUNetV2: Memory-Efficient Patch-based Inference for Tiny Deep Learning, NeurIPS 2021
-#  - MCUNetV3: On-Device Training Under 256KB Memory, arXiv:2206.15472
-# Contact authors:
-#  - Wei-Ming Chen, wmchen@mit.edu
-#  - Wei-Chen Wang, wweichen@mit.edu
-#  - Ji Lin, jilin@mit.edu
-#  - Ligeng Zhu, ligeng@mit.edu
-#  - Song Han, songhan@mit.edu
-#
-# Target ISA:  ARMv7E-M
-# ----------------------------------------------------------------------
-
 import warnings
 
+from ..constant import USE_BIT_MASK
 from .basic_utils import basicOperator, deep_copy_dicts, overwrite_dicts
 
 __all__ = ["Add"]
@@ -61,6 +44,13 @@ default_params = {
     "input2_shift": None,
     "output_shift": None,
     "left_shift": None,
+    # fof Q training
+    "need_Bmask": False,
+    "output2_h": None,
+    "output2_w": None,
+    "output2_c": None,
+    "output2_idx": None,
+    "output2_dtype": "int8",
 }
 
 
@@ -102,12 +92,31 @@ class Add(basicOperator):
     def generate_inference_str(self):
         string = ""
         params = self.params
-        string += f"add_fpreq({str(int(params['input_h']*params['input_w']*params['input_c']))}, "
-        string += f"{self._getBufferstr(params['input_buf_add'], params['input_buf_add_offset'])},"
-        string += f"{str(params['input_scale'])},{str(params['input_zero_point'])},"
-        string += f"{self._getBufferstr(params['input2_buf_add'], params['input2_buf_add_offset'])},"
-        string += f"{str(params['input2_scale'])},{str(params['input2_zero_point'])},"
-        string += f"{str(params['output_scale'])},{str(params['output_zero_point'])},"
-        string += f"{self._getBufferstr(params['output_buf_add'], params['output_buf_add_offset'])});\n"
-
+        if params["need_Bmask"]:
+            if USE_BIT_MASK:
+                string += (
+                    f"add_fpreq_bitmask({str(int(params['input_h']*params['input_w']*params['input_c']))}, "
+                    + f"{self._getBufferstr(params['input_buf_add'], params['input_buf_add_offset'])},"
+                )
+            else:
+                string += f"add_fpreq_mask({str(int(params['input_h']*params['input_w']*params['input_c']))}, "
+                +f"{self._getBufferstr(params['input_buf_add'], params['input_buf_add_offset'])},"
+            string += (
+                f"{str(params['input_scale'])},{str(params['input_zero_point'])},"
+                + f"{self._getBufferstr(params['input2_buf_add'], params['input2_buf_add_offset'])},"
+                + f"{str(params['input2_scale'])},{str(params['input2_zero_point'])},"
+                + f"{str(params['output_scale'])},{str(params['output_zero_point'])},"
+                + f"{self._getBufferstr(params['output_buf_add'], params['output_buf_add_offset'])},"
+                + f"{self._getBufferstr(params['output2_buf_add'], params['output2_buf_add_offset'])});\n"
+            )
+        else:
+            string += (
+                f"add_fpreq({str(int(params['input_h']*params['input_w']*params['input_c']))}, "
+                + f"{self._getBufferstr(params['input_buf_add'], params['input_buf_add_offset'])},"
+                + f"{str(params['input_scale'])},{str(params['input_zero_point'])},"
+                + f"{self._getBufferstr(params['input2_buf_add'], params['input2_buf_add_offset'])},"
+                + f"{str(params['input2_scale'])},{str(params['input2_zero_point'])},"
+                + f"{str(params['output_scale'])},{str(params['output_zero_point'])},"
+                + f"{self._getBufferstr(params['output_buf_add'], params['output_buf_add_offset'])});\n"
+            )
         return string

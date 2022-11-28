@@ -1,0 +1,9 @@
+camera_i2c.cpp:33:6:void delayUS(int)	8	static
+camera_i2c.cpp:44:5:int camI2CSetup()	40	static
+camera_i2c.cpp:67:5:int camI2CErrorTest()	32	static
+camera_i2c.cpp:80:5:int wrSensorReg16_8(uint16_t, uint16_t)	32	static
+camera_i2c.cpp:96:5:int wrSensorRegs16_8(const sensor_reg*)	48	static
+camera_i2c.cpp:115:5:int rdSensorReg16_8(uint16_t, uint8_t*)	32	static
+camera_i2c.cpp:137:5:int wrSensorReg8_8(uint8_t, uint8_t)	24	static
+camera_i2c.cpp:149:5:int wrSensorRegs8_8(const sensor_reg*)	40	static
+camera_i2c.cpp:163:5:int rdSensorReg8_8(uint8_t, uint8_t*)	32	static

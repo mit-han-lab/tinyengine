@@ -1,0 +1,2 @@
+patchpadding_depthwise_kernel3x3_stride1_inplace_CHW.c:96:6:patch_depthwise_kernel3x3_stride1_inplace_kernel_CHW	136	static
+patchpadding_depthwise_kernel3x3_stride1_inplace_CHW.c:29:19:patchpadding_depthwise_kernel3x3_stride1_inplace_CHW	136	static

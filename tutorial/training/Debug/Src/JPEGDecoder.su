@@ -1,0 +1,13 @@
+JPEGDecoder.cpp:38:9:static uint8_t JPEGDecoder::pjpeg_callback(uint8_t*, uint8_t, uint8_t*, void*)	12	static
+JPEGDecoder.cpp:25:1:JPEGDecoder::JPEGDecoder()	0	static
+JPEGDecoder.cpp:32:1:JPEGDecoder::~JPEGDecoder()	8	static
+JPEGDecoder.cpp:47:9:uint8_t JPEGDecoder::pjpeg_need_bytes_callback(uint8_t*, uint8_t, uint8_t*, void*)	12	static
+JPEGDecoder.cpp:75:5:int JPEGDecoder::decode_mcu()	8	static
+JPEGDecoder.cpp:94:5:int JPEGDecoder::read()	120	static
+JPEGDecoder.cpp:182:5:int JPEGDecoder::readSwappedBytes()	128	static
+JPEGDecoder.cpp:262:5:int JPEGDecoder::decodeFile(const char*)	0	static
+JPEGDecoder.cpp:357:5:int JPEGDecoder::decodeArray(const uint8_t*, uint32_t)	24	static
+JPEGDecoder.cpp:370:5:int JPEGDecoder::decodeCommon()	24	static
+JPEGDecoder.cpp:422:6:void JPEGDecoder::abort()	8	static
+JPEGDecoder.cpp:442:1:cpp)	0	static
+JPEGDecoder.cpp:442:1:cpp)	0	static

@@ -1,0 +1,11 @@
+mat_mult_kernels.c:25:7:mat_mult_kernel_s8_s16	168	static,ignoring_inline_asm
+mat_mult_kernels.c:195:7:mat_mult_unloop18_s8_s16	104	static,ignoring_inline_asm
+mat_mult_kernels.c:349:7:mat_mult_s16_unloop8	136	static,ignoring_inline_asm
+mat_mult_kernels.c:466:7:mat_mult_s16	152	static,ignoring_inline_asm
+mat_mult_kernels.c:578:7:mat_mult_s16_funroll27	112	static,ignoring_inline_asm
+mat_mult_kernels.c:771:7:mat_mult_s16_funroll8	104	static,ignoring_inline_asm
+mat_mult_kernels.c:884:7:mat_mult_s16_funroll16	112	static,ignoring_inline_asm
+mat_mult_kernels.c:1031:7:mat_mult_kernel_s8_s16_reordered_ch8	128	static,ignoring_inline_asm
+mat_mult_kernels.c:1145:7:mat_mult_kernel_s8_s16_reordered_ch16	128	static,ignoring_inline_asm
+mat_mult_kernels.c:1301:7:mat_mult_kernel_s8_s16_reordered_ch24	128	static,ignoring_inline_asm
+mat_mult_kernels.c:1498:7:mat_mult_kernel_s8_s16_reordered_ch48	128	static,ignoring_inline_asm

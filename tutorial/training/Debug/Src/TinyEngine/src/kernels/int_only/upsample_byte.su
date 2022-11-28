@@ -1,0 +1,2 @@
+upsample_byte.c:22:19:upsample_byte	72	static
+upsample_byte.c:50:19:upsample_byte_bilinear	0	static

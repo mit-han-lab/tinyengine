@@ -18,6 +18,7 @@
 
 import os
 
+from .constant import FUSE_SGD_UPDATE_STR, FUSHION_CONFIG
 from .OpGenerator import OpGenerator
 
 Codegen_root = "./codegen/"
@@ -50,6 +51,7 @@ class CodeGenerator:
         dummy_address=False,
         outputTables=None,
         detectionUtils=None,
+        is_training=False,
     ):
         self.MemSche = memsche
 
@@ -73,6 +75,7 @@ class CodeGenerator:
         self.trainSRAMTable = []
         self.outputTables = outputTables
         self.detectionUtils = detectionUtils
+        self.is_training = is_training
 
     def _readOnly(self, name):
         if self.outputTables is None or name is None:
@@ -82,6 +85,34 @@ class CodeGenerator:
                 if o.name in name:
                     return False
         return True
+
+    def _generateSGD(self):
+        if self.outputTables is None or FUSHION_CONFIG[FUSE_SGD_UPDATE_STR]:
+            return
+        else:
+            fp = self.source_handle
+            # generate anchors
+            string = """/* SGD functions */
+void update_SGD(float learning_rate){\n"""
+            for output in self.outputTables:
+                if "bias" not in output.name and "weight" not in output.name:
+                    continue
+                address_str = None
+                # backtrace the location of each gradient tensors
+                for lay in self.MemSche.layer:
+                    # only need to find the output
+                    if len(lay.output_tensors) > 0 and lay.output_tensors[0].graph_idx == output.idx:
+                        address_str = lay._getBufferstr(
+                            lay.params["output_buf_add"],
+                            lay.params["output_buf_add_offset"],
+                        )
+                        break
+                assert address_str is not None
+                # construct the string for SGD
+                string += f"fptr = (float*){address_str}; for(i=0;i < {output.len};i++) v{output.name}[i] += "
+                string += "learning_rate * fptr[i];\n"
+            string += "}\n"
+            fp.write(string)
 
     def codeGeneration(self):
         # buffer in SRAM
@@ -101,6 +132,9 @@ class CodeGenerator:
 
         # generate invoke function
         self._genInvoke()
+
+        # generate SGD update if any
+        self._generateSGD()
 
         self._closefp()
 
@@ -350,6 +384,12 @@ void invoke_1patch(uint16_t pad_t, uint16_t pad_b, uint16_t pad_l ,uint16_t pad_
             elif layer_info["op"] == "DEPTHWISE_CONV_2D":
                 string = self._genOpstr(op, self.fp_requantize)
                 fp.write(string)
+            elif layer_info["op"] == "GROUP_CONV":
+                string = self._genOpstr(op, self.tflite_op, self.dummy_address)
+                fp.write(string)
+            elif layer_info["op"] == "TRANSPOSE_CONV_2D":
+                string = self._genOpstr(op, self.tflite_op, self.dummy_address)
+                fp.write(string)
             else:
                 string = self._genOpstr(op)
                 fp.write(string)
@@ -413,21 +453,26 @@ void invoke_1patch(uint16_t pad_t, uint16_t pad_b, uint16_t pad_l ,uint16_t pad_
         if self.profile_mode:
             include_string += '#include "profile.h"\n'
 
-        include_string += """
+        include_string += (
+            """
 /* Variables used by all ops */
 ADD_params add_params;
 //Conv_Params conv_params;
 //Depthwise_Params dpconv_params;
 int i;
-int8_t *int8ptr;
+int8_t *int8ptr,*int8ptr2;
+int32_t *int32ptr;
 float *fptr,*fptr2,*fptr3;
 
 signed char* getInput() {
-    return &buffer0[""" + f"{self.MemSche.layer[0].params['input_buf_add_offset']}" + """];
+    return &buffer0["""
+            + f"{self.MemSche.layer[0].params['input_buf_add_offset']}"
+            + """];
 }
 signed char* getOutput() {
     return NNoutput;
 }\n"""
+        )
         fp = self.source_handle
         fp.write(include_string)
 
@@ -436,12 +481,30 @@ signed char* getOutput() {
         for i, op in enumerate(schedule.layer):
             layer_info = op.get_layer_info()
             if layer_info["op"] == "CONV_2D":
-                self._parseWeight(
-                    self.parse_count,
-                    layer_info["weight_value"].flatten(),
-                    layer_info["weight_name"],
-                    self._readOnly(layer_info["weight_name"]),
-                )
+                if isinstance(layer_info["weight_value"], str):
+                    memstr = None
+                    for t in op.input_tensors:
+                        if t.graph_idx == layer_info["weight_value"]:
+                            memstr = f"buffer[{t.buffer_address}]"
+                            break
+                    assert memstr is not None
+                    self._parseWeightSRAM(self.parse_count, memstr)
+                else:
+                    if layer_info["first_k_channel"] is not None:
+                        self._parseWeightPartial(
+                            self.parse_count,
+                            layer_info["weight_value"],
+                            layer_info["first_k_channel"],
+                            layer_info["weight_name"],
+                            self._readOnly(layer_info["weight_name"]),
+                        )
+                    else:
+                        self._parseWeight(
+                            self.parse_count,
+                            layer_info["weight_value"].flatten(),
+                            layer_info["weight_name"],
+                            self._readOnly(layer_info["weight_name"]),
+                        )
 
                 if "bias_name" in layer_info:
                     self._parseBias(
@@ -461,6 +524,25 @@ signed char* getOutput() {
 
                 layer_info["parsed_trainable"] = self.parse_count
                 self.parse_count += 1
+            elif layer_info["op"] == "TRANSPOSE_CONV_2D":
+                if isinstance(layer_info["weight_value"], str):
+                    memstr = None
+                    for t in op.input_tensors:
+                        if t.graph_idx == layer_info["weight_value"]:
+                            memstr = f"buffer[{t.buffer_address}]"
+                            break
+                    assert memstr is not None
+                    self._parseWeightSRAM(self.parse_count, memstr)
+                else:
+                    self._parseWeight(
+                        self.parse_count,
+                        layer_info["weight_value"].flatten(),
+                        layer_info["weight_name"],
+                        self._readOnly(layer_info["weight_name"]),
+                    )
+                self._parseBias(self.parse_count, layer_info["bias"].flatten())
+                layer_info["parsed_trainable"] = self.parse_count
+                self.parse_count += 1
             elif layer_info["op"] == "DEPTHWISE_CONV_2D":
                 if layer_info["kernel_h"] > layer_info["kernel_w"]:
                     self._parseCWHWeight(
@@ -471,60 +553,153 @@ signed char* getOutput() {
                         layer_info["input_c"],
                     )
                 else:
-                    if "weight_name" in layer_info:
-                        self._parseCHWWeight(
+                    if layer_info["input_dtype"] == "int8" and layer_info["output_dtype"] == "int8":
+                        if "weight_name" in layer_info:
+                            self._parseCHWWeight(
+                                self.parse_count,
+                                layer_info["weight_value"].flatten(),
+                                layer_info["input_c"],
+                            )
+                            # we may need the them in the OHWI format for bp
+                            if self.is_training:
+                                self._parseWeight(
+                                    self.parse_count,
+                                    layer_info["weight_value"].flatten(),
+                                    layer_info["weight_name"],
+                                    self._readOnly(layer_info["weight_name"]),
+                                )
+                        else:
+                            self._parseCHWWeight(
+                                self.parse_count,
+                                layer_info["weight_value"].flatten(),
+                                layer_info["input_c"],
+                            )
+                        if "bias_name" in layer_info:
+                            self._parseoffsetBias(
+                                self.parse_count,
+                                layer_info["bias"].flatten(),
+                                layer_info["input_zero_point"] * -1,
+                                layer_info["weight_value"].flatten(),
+                                layer_info["input_c"],
+                                layer_info["bias_name"],
+                                self._readOnly(layer_info["bias_name"]),
+                            )
+                        else:
+                            self._parseoffsetBias(
+                                self.parse_count,
+                                layer_info["bias"].flatten(),
+                                layer_info["input_zero_point"] * -1,
+                                layer_info["weight_value"].flatten(),
+                                layer_info["input_c"],
+                            )
+                        self._parseEffectivescales(self.parse_count, layer_info["effective_scale"].flatten())
+                        self._parseRequantize(
                             self.parse_count,
-                            layer_info["weight_value"].flatten(),
-                            layer_info["input_c"],
+                            layer_info["shift"].flatten(),
+                            layer_info["multiplier"].flatten(),
                         )
-                    else:
-                        self._parseCHWWeight(
-                            self.parse_count,
-                            layer_info["weight_value"].flatten(),
-                            layer_info["input_c"],
-                        )
-                    if "bias_name" in layer_info:
-                        self._parseoffsetBias(
-                            self.parse_count,
-                            layer_info["bias"].flatten(),
-                            layer_info["input_zero_point"] * -1,
-                            layer_info["weight_value"].flatten(),
-                            layer_info["input_c"],
-                            layer_info["bias_name"],
-                            self._readOnly(layer_info["bias_name"]),
-                        )
-                    else:
-                        self._parseoffsetBias(
-                            self.parse_count,
-                            layer_info["bias"].flatten(),
-                            layer_info["input_zero_point"] * -1,
-                            layer_info["weight_value"].flatten(),
-                            layer_info["input_c"],
-                        )
-                    self._parseEffectivescales(self.parse_count, layer_info["effective_scale"].flatten())
-                    self._parseRequantize(
+                    else:  # float32
+                        if isinstance(layer_info["weight_value"], str):
+                            memstr = None
+                            for t in op.input_tensors:
+                                if t.graph_idx == layer_info["weight_value"]:
+                                    memstr = f"buffer[{t.buffer_address}]"
+                                    break
+                            assert memstr is not None
+                            self._parseWeightSRAM(self.parse_count, memstr)
+                        else:
+                            self._parseWeight(
+                                self.parse_count,
+                                layer_info["weight_value"].flatten(),
+                                layer_info["weight_name"],
+                                self._readOnly(layer_info["weight_name"]),
+                            )
+                        if "bias_name" in layer_info:
+                            self._parseBias(
+                                self.parse_count,
+                                layer_info["bias"].flatten(),
+                                layer_info["bias_name"],
+                                self._readOnly(layer_info["bias_name"]),
+                            )
+                        else:
+                            self._parseBias(self.parse_count, layer_info["bias"].flatten())
+
+                layer_info["parsed_trainable"] = self.parse_count
+                self.parse_count += 1
+            elif layer_info["op"] in {"DENSE", "MAT_MUL"}:
+                # mapping to some buffer in SRAM
+                if isinstance(layer_info["weight_value"], str):
+                    memstr = None
+                    for t in op.input_tensors:
+                        if t.graph_idx == layer_info["weight_value"]:
+                            memstr = f"buffer[{t.buffer_address}]"
+                            break
+                    assert memstr is not None
+                    self._parseWeightSRAM(self.parse_count, memstr)
+                else:
+                    self._parseWeight(
                         self.parse_count,
-                        layer_info["shift"].flatten(),
-                        layer_info["multiplier"].flatten(),
+                        layer_info["weight_value"].flatten(),
+                        layer_info["weight_name"],
+                        self._readOnly(layer_info["weight_name"]),
                     )
 
                 layer_info["parsed_trainable"] = self.parse_count
                 self.parse_count += 1
-
-            elif layer_info["op"] == "FULLY_CONNECTED":
-                self._parseWeight(
-                    self.parse_count,
-                    layer_info["weight_value"].flatten(),
-                    layer_info["weight_name"],
-                    self._readOnly(layer_info["weight_name"]),
-                )
-                self._parseBias(self.parse_count, layer_info["bias"].flatten())
-
+            elif layer_info["op"] == "BIAS_ADD":
+                if "bias_name" in layer_info:
+                    self._parseBias(
+                        self.parse_count,
+                        layer_info["bias"].flatten(),
+                        layer_info["bias_name"],
+                        self._readOnly(layer_info["bias_name"]),
+                    )
+                else:
+                    self._parseBias(self.parse_count, layer_info["bias"].flatten())
                 layer_info["parsed_trainable"] = self.parse_count
                 self.parse_count += 1
+            elif layer_info["op"] == "GROUP_CONV":
+                if layer_info["input_dtype"] == "int8" and layer_info["output_dtype"] == "int8":
+                    # TODO: check this is correct
+                    if isinstance(layer_info["weight_value"], str):
+                        memstr = None
+                        for t in op.input_tensors:
+                            if t.graph_idx == layer_info["weight_value"]:
+                                memstr = f"buffer[{t.buffer_address}]"
+                                break
+                        assert memstr is not None
+                        self._parseWeightSRAM(self.parse_count, memstr)
+                    else:
+                        self._parseWeight(
+                            self.parse_count,
+                            layer_info["weight_value"].flatten(),
+                            layer_info["weight_name"],
+                            self._readOnly(layer_info["weight_name"]),
+                        )
+                    self._parseBias(self.parse_count, layer_info["bias"].flatten())
 
-            elif layer_info["op"] == "SOFTMAX":
-                pass
+                    layer_info["parsed_trainable"] = self.parse_count
+                    self.parse_count += 1
+                else:
+                    if isinstance(layer_info["weight_value"], str):
+                        memstr = None
+                        for t in op.input_tensors:
+                            if t.graph_idx == layer_info["weight_value"]:
+                                memstr = f"buffer[{t.buffer_address}]"
+                                break
+                        assert memstr is not None
+                        self._parseWeightSRAM(self.parse_count, memstr)
+                    else:
+                        self._parseWeight(
+                            self.parse_count,
+                            layer_info["weight_value"].flatten(),
+                            layer_info["weight_name"],
+                            self._readOnly(layer_info["weight_name"]),
+                        )
+                    self._parseBias(self.parse_count, layer_info["bias"].flatten())
+
+                    layer_info["parsed_trainable"] = self.parse_count
+                    self.parse_count += 1
 
     def _parseCWHWeight(self, Lindex, weight, height, width, channel):
         fp = self.header_handle
@@ -582,6 +757,14 @@ signed char* getOutput() {
             fp.write(str(format(value, "#04x")) + ", ")
         fp.write("};\n")
 
+        if self.is_training:
+            string = f"{const_str}float weight_fp" + str(Lindex) + "[" + str(len(weight)) + "] = {"
+            fp.write(string)
+            for _, w in enumerate(weight):
+                value = float(w)
+                fp.write(str(value) + ", ")
+            fp.write("};\n")
+
         if weight_name is not None:
             for r in self.trainSRAMTable:
                 if r.name == weight_name:
@@ -593,6 +776,50 @@ signed char* getOutput() {
             else:
                 raise NotImplementedError
             fp.write(string)
+
+    def _parseWeightPartial(self, Lindex, weight, first_k_channel=None, weight_name=None, is_const=True):
+        fp = self.header_handle
+        assert not is_const
+        weight_SRAM = weight[:, :, :, 0:first_k_channel]
+        # weight in SRAM
+        string = "unsigned char weight" + str(Lindex) + "[" + str(len(weight_SRAM.flatten())) + "] = {"
+        fp.write(string)
+        for i in range(len(weight_SRAM.flatten())):
+            value = int(weight_SRAM.flatten()[i])
+            if value < 0:
+                value += 256
+            fp.write(str(format(value, "#04x")) + ", ")
+        fp.write("};\n")
+
+        weight_Flash = weight[:, :, :, first_k_channel:]
+        # weight in Flash
+        string = "const unsigned char weight" + str(Lindex) + "Flash[" + str(len(weight_Flash.flatten())) + "] = {"
+        fp.write(string)
+        for i in range(len(weight_Flash.flatten())):
+            value = int(weight_Flash.flatten()[i])
+            if value < 0:
+                value += 256
+            fp.write(str(format(value, "#04x")) + ", ")
+        fp.write("};\n")
+
+        if weight_name is not None:
+            for r in self.trainSRAMTable:
+                if r.name == weight_name:
+                    return
+            self.trainSRAMTable.append(tensorRecorder(weight_name, len(weight), "unknown"))
+
+            if weight.dtype == "int8":
+                string = f"unsigned char* {weight_name}=weight" + str(Lindex) + ";\n"
+                string += f"const unsigned char* {weight_name}Flash=weight" + str(Lindex) + "Flash;\n"
+            else:
+                raise NotImplementedError
+            fp.write(string)
+
+    def _parseWeightSRAM(self, Lindex, mem_str):
+        fp = self.header_handle
+        string = f"signed char *weight{str(Lindex)} = &{mem_str};\n"
+        string += f"float *weight_fp{str(Lindex)} = (float *)&{mem_str};\n"
+        fp.write(string)
 
     def _parseoffsetBias(self, Lindex, bias, input_offset, weight, channel, bias_name=None, is_const=True):
         fp = self.header_handle
@@ -617,6 +844,10 @@ signed char* getOutput() {
             fp.write(str(bias[i] + tmpW * input_offset - self.int32_clip(bias[i] + tmpW * input_offset)) + ", ")
         fp.write("};\n")
 
+        if bias_name is not None:
+            string = f"{const_str}int32_t* {bias_name}=offsetRBias" + str(Lindex) + ";\n"
+            fp.write(string)
+
     def _parseBias(self, Lindex, bias, bias_name=None, is_const=True):
         fp = self.header_handle
         const_str = "const " if is_const else ""
@@ -626,6 +857,17 @@ signed char* getOutput() {
             value = int(value)
             fp.write(str(value) + ", ")
         fp.write("};\n")
+
+        if self.is_training:
+            string = f"{const_str}float bias_fp" + str(Lindex) + "[" + str(len(bias)) + "] = {"
+            fp.write(string)
+            for _, b in enumerate(bias):
+                fp.write(str(float(b)) + ", ")
+            fp.write("};\n")
+
+        if bias_name is not None:
+            string = f"{const_str}int32_t* {bias_name}=bias" + str(Lindex) + ";\n"
+            fp.write(string)
 
     def _parseRequantize(self, Lindex, shift, multiplier):
         fp = self.header_handle
