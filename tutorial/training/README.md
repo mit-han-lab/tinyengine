@@ -96,7 +96,7 @@ bash import_arm_training.sh
 
 - Import the `TinyEngine_vww_training_tutorial` codebase into your STM32CubeIDE by: \[File\] -> \[Import…\] -> \[General\] -> \[Existing Projects into Workspace\] (Import the entire `TinyEngine_vww_training_tutorial` folder).
 
-<img src="../../assets/figures/0_import_project_0.png" alt="0_import_project_0" width="47%"/>  <img src="../../assets/figures/1_import_project_training_1.png" alt="1_import_project_training_1" width="46%"/>
+<img src="../../assets/figures/0_import_project_0.png" alt="0_import_project_0" width="46%"/>  <img src="../../assets/figures/1_import_project_training_1.png" alt="1_import_project_training_1" width="51%"/>
 
 - After the import, `TinyEngine_vww_training_tutorial` should be shown in Project Explorer of your STM32CubeIDE as the example figure below:
 
@@ -130,7 +130,7 @@ bash import_arm_training.sh
 
   - Point to the correct elf file (file path: `Debug/TinyEngine_vww_training_tutorial.elf`) to correctly run the program, as shown in the figure below:
 
-<img src="../../assets/figures/8_run_configurations_training_0.png" alt="8_run_configurations_training_0" width="49%"/>  <img src="../../assets/figures/9_run_configurations_training_1.png" alt="9_run_configurations_training_1" width="49%"/>
+<img src="../../assets/figures/8_run_configurations_training_0.png" alt="8_run_configurations_training_0" width="47%"/>  <img src="../../assets/figures/9_run_configurations_training_1.png" alt="9_run_configurations_training_1" width="51%"/>
 
 4. Setup your STM32F746G-DISCO discovery board to connect the Arducam to the board and also establish the USB connection with the board.
 
