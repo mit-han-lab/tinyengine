@@ -20,6 +20,7 @@
 #define ARMNN_INCLUDE_IMG2COL_ELEMENT_H_
 
 #include "arm_nnsupportfunctions.h"
+#include "arm_math_memory.h"
 
 #define b2_q7_q15_offset_ele(src,dst)													\
 /* convert from q7 to q15 and then store the results in the destination buffer */	\

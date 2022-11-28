@@ -1,0 +1,4 @@
+pointwise_conv_fp.c:26:22:pointwise_conv_fp_1row10col_10inputdepth_IOHW_int8weight	288	static
+pointwise_conv_fp.c:117:22:pointwise_conv_fp_4row4col_IOHW_int8weight	280	static
+pointwise_conv_fp.c:239:22:pointwise_conv_fp_4row4col_IOHW_int8weight_partialCH_8innercol	336	static
+pointwise_conv_fp.c:429:22:pointwise_conv_fp_4row4col_IOHW_int8weight_partialCH_4innercol	280	static

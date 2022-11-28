@@ -1,6 +1,5 @@
 ################################################################################
 # Automatically-generated file. Do not edit!
-# Toolchain: GNU Tools for STM32 (10.3-2021.10)
 ################################################################################
 
 ELF_SRCS := 
@@ -22,11 +21,9 @@ OBJCOPY_BIN :=
 CC_DEPS := 
 SIZE_OUTPUT := 
 C++_DEPS := 
-SU_FILES := 
 EXECUTABLES := 
 OBJS := 
 CXX_DEPS := 
-MAP_FILES := 
 S_UPPER_DEPS := 
 CPP_DEPS := 
 
@@ -44,8 +41,9 @@ Drivers/BSP/STM32746G-Discovery \
 Drivers/STM32F7xx_HAL_Driver/Src \
 Src \
 Src/TinyEngine/codegen/Source \
+Src/TinyEngine/src/kernels/fp_backward_op \
 Src/TinyEngine/src/kernels/fp_requantize_op \
-Src/TinyEngine/src/kernels/int_only \
+Src/TinyEngine/src/kernels/int_forward_op \
 Src/sys \
 Utilities/Fonts \
 

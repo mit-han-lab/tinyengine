@@ -1,6 +1,5 @@
 ################################################################################
 # Automatically-generated file. Do not edit!
-# Toolchain: GNU Tools for STM32 (10.3-2021.10)
 ################################################################################
 
 -include ../makefile.init
@@ -11,8 +10,9 @@ RM := rm -rf
 -include sources.mk
 -include Utilities/Fonts/subdir.mk
 -include Src/sys/subdir.mk
--include Src/TinyEngine/src/kernels/int_only/subdir.mk
+-include Src/TinyEngine/src/kernels/int_forward_op/subdir.mk
 -include Src/TinyEngine/src/kernels/fp_requantize_op/subdir.mk
+-include Src/TinyEngine/src/kernels/fp_backward_op/subdir.mk
 -include Src/TinyEngine/codegen/Source/subdir.mk
 -include Src/subdir.mk
 -include Drivers/STM32F7xx_HAL_Driver/Src/subdir.mk
@@ -25,6 +25,7 @@ RM := rm -rf
 -include Drivers/BSP/Components/mfxstm32l152/subdir.mk
 -include Drivers/BSP/Components/ft5336/subdir.mk
 -include Drivers/BSP/Components/exc7200/subdir.mk
+-include subdir.mk
 -include objects.mk
 
 ifneq ($(MAKECMDGOALS),clean)
@@ -56,23 +57,14 @@ endif
 
 -include ../makefile.defs
 
-OPTIONAL_TOOL_DEPS := \
-$(wildcard ../makefile.defs) \
-$(wildcard ../makefile.init) \
-$(wildcard ../makefile.targets) \
-
-
 BUILD_ARTIFACT_NAME := TinyEngine_vww_tutorial
 BUILD_ARTIFACT_EXTENSION := elf
-BUILD_ARTIFACT_PREFIX :=
-BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME)$(if $(BUILD_ARTIFACT_EXTENSION),.$(BUILD_ARTIFACT_EXTENSION),)
+BUILD_ARTIFACT_PREFIX := 
+BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME).$(BUILD_ARTIFACT_EXTENSION)
 
 # Add inputs and outputs from these tool invocations to the build variables 
 EXECUTABLES += \
 TinyEngine_vww_tutorial.elf \
-
-MAP_FILES += \
-TinyEngine_vww_tutorial.map \
 
 SIZE_OUTPUT += \
 default.size.stdout \
@@ -91,29 +83,29 @@ all: main-build
 main-build: TinyEngine_vww_tutorial.elf secondary-outputs
 
 # Tool invocations
-TinyEngine_vww_tutorial.elf TinyEngine_vww_tutorial.map: $(OBJS) $(USER_OBJS) ../STM32F746NGHx_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+TinyEngine_vww_tutorial.elf: $(OBJS) $(USER_OBJS) ../STM32F746NGHx_FLASH.ld
 	arm-none-eabi-g++ -o "TinyEngine_vww_tutorial.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m7 -T"../STM32F746NGHx_FLASH.ld" --specs=nosys.specs -Wl,-Map="TinyEngine_vww_tutorial.map" -Wl,--gc-sections -static  -mfpu=fpv5-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
-default.size.stdout: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
+default.size.stdout: $(EXECUTABLES)
 	arm-none-eabi-size  $(EXECUTABLES)
 	@echo 'Finished building: $@'
 	@echo ' '
 
-TinyEngine_vww_tutorial.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
+TinyEngine_vww_tutorial.list: $(EXECUTABLES)
 	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "TinyEngine_vww_tutorial.list"
 	@echo 'Finished building: $@'
 	@echo ' '
 
-TinyEngine_vww_tutorial.bin: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
+TinyEngine_vww_tutorial.bin: $(EXECUTABLES)
 	arm-none-eabi-objcopy  -O binary $(EXECUTABLES) "TinyEngine_vww_tutorial.bin"
 	@echo 'Finished building: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) TinyEngine_vww_tutorial.bin TinyEngine_vww_tutorial.elf TinyEngine_vww_tutorial.list TinyEngine_vww_tutorial.map default.size.stdout
+	-$(RM) *
 	-@echo ' '
 
 secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST) $(OBJCOPY_BIN)
@@ -125,6 +117,7 @@ fail-specified-linker-script-missing:
 warn-no-linker-script-specified:
 	@echo 'Warning: No linker script specified. Check the linker settings in the build configuration.'
 
-.PHONY: all clean dependents main-build fail-specified-linker-script-missing warn-no-linker-script-specified
+.PHONY: all clean dependents fail-specified-linker-script-missing warn-no-linker-script-specified
+.SECONDARY:
 
 -include ../makefile.targets
