@@ -1,6 +1,6 @@
 /* ----------------------------------------------------------------------
  * Project: Tiny Training Engine, MCUNetV3
- * Title:   tinyengine_function_fp.h
+ * Title:   main.cpp
  *
  * Reference papers:
  *  - MCUNet: Tiny Deep Learning on IoT Device, NeurIPS 2020
