@@ -167,11 +167,11 @@ bash import_arm_training.sh
 
 6. If you successfully run the demo, the LCD screen on your STM32F746G-DISCO discovery board should display inference/training results and frames per second (FPS), as shown in the example figure below:
 
-   <img src="../../assets/figures/15_demo_inference.png" alt="15_demo_inference" width="40%"/>
-    <img src="../../assets/figures/16_demo_training.png" alt="16_demo_training" width="40%"/>
+   <img src="../../assets/figures/15_demo_inference.png" alt="15_demo_inference" width="48%"/>
+    <img src="../../assets/figures/16_demo_training.png" alt="16_demo_training" width="48%"/>
 
    ```
-                    (Inference)                                       (Training)
+                      (Inference)                                                  (Training)
    ```
 - The rules of controlling the inference/training modes are as follows: (The rules are defined in `main.cpp`.)
 
