@@ -45,7 +45,7 @@ This is the official demo tutorial for deploying a visual wake words (VWW) train
 2. Download and import this project into your STM32CubeIDE.
 3. Connect your Arducam to the board with jumper wires.
 4. Compile and flash program into your STM32F746G-DISCO discovery board.
-5. Done! In the demo, the LCD screen on your STM32F746G-DISCO discovery board should display person detection results (person/no person) and frames per second (FPS).
+5. Done! In the demo, the LCD screen on your STM32F746G-DISCO discovery board should display inference/training results and frames per second (FPS).
 
 ## Detailed Instruction
 
@@ -173,7 +173,7 @@ bash import_arm_training.sh
    ```
                       (Inference)                                                  (Training)
    ```
-- The rules of controlling the inference/training modes are as follows: (The rules are defined in `main.cpp`.)
+- The rules of controlling the inference/training modes are as follows: (The rules are defined in `main.cpp`)
 
   - Send "4" to the UART input for the MCU: Inference mode
   - Send "3" to the UART input for the MCU: Training mode
