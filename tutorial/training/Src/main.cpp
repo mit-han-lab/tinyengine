@@ -1,17 +1,18 @@
 /* ----------------------------------------------------------------------
- * Project: TinyEngine
- * Title:   main.cpp
+ * Project: Tiny Training Engine, MCUNetV3
+ * Title:   tinyengine_function_fp.h
  *
  * Reference papers:
  *  - MCUNet: Tiny Deep Learning on IoT Device, NeurIPS 2020
  *  - MCUNetV2: Memory-Efficient Patch-based Inference for Tiny Deep Learning, NeurIPS 2021
- *  - MCUNetV3: On-Device Training Under 256KB Memory, arXiv:2206.15472
+ *  - MCUNetV3: On-Device Training Under 256KB Memory, NeurIPS 2022
  * Contact authors:
- *  - Wei-Ming Chen, wmchen@mit.edu
  *  - Wei-Chen Wang, wweichen@mit.edu
+ *  - Wei-Ming Chen, wmchen@mit.edu
  *  - Ji Lin, jilin@mit.edu
  *  - Ligeng Zhu, ligeng@mit.edu
  *  - Song Han, songhan@mit.edu
+ *  - Chuang Gan, ganchuang@csail.mit.edu
  *
  * Target ISA:  ARMv7E-M
  * -------------------------------------------------------------------- */
@@ -28,7 +29,7 @@ extern "C" {
 #include "genNN.h"
 #include "tinyengine_function.h"
 }
-//#define TESTTENSOR
+#define SHOWIMG
 
 #include "stm32746g_discovery.h"
 
@@ -37,9 +38,11 @@ static void Error_Handler(void);
 static void CPU_CACHE_Enable(void);
 static void MX_GPIO_Init(void);
 
-#define RES_W 80
-#define RES_H 80
+#define IMAGE_H 80
+#define IMAGE_W 80
+#define INPUT_CH 160
 #define OUTPUT_CH 2
+#define IMAGES 6
 
 void SystemClock_Config(void);
 void StartDefaultTask(void const *argument);
@@ -47,11 +50,21 @@ void StartDefaultTask(void const *argument);
 signed char out_int[OUTPUT_CH];
 
 float labels[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+void train(int cls) {
+  char cbuf[20];
+  for (int i = 0; i < 10; i++) {
+    if (i == cls) {
+      labels[i] = 1.0f;
+    } else
+      labels[i] = 0.0f;
+  }
+  invoke(labels);
+}
 
 void invoke_new_weights_givenimg(signed char *out_int8) {
-  invoke(labels);
+  invoke_inf();
   signed char *output = (signed char *)getOutput();
-  for (int i = 0; i < OUTPUT_CH; i++)
+  for (int i = 0; i < 10; i++)
     out_int8[i] = output[i];
 }
 
@@ -60,8 +73,11 @@ void invoke_new_weights_givenimg(signed char *out_int8) {
 #define BUTTON2_Pin GPIO_PIN_10
 #define BUTTON2_GPIO_Port GPIOF
 
-uint16_t *RGBbuf;
+#define RES_W 128
+#define RES_H 120
 
+uint16_t *RGBbuf;
+#define ENABLE_TRAIN
 int main(void) {
   char buf[150];
   char showbuf[150];
@@ -77,42 +93,27 @@ int main(void) {
 
   lcdsetup();
 
-#ifdef TESTTENSOR
-  {
-    uint32_t start, end;
-    setRGBTestImage();
-    start = HAL_GetTick();
-    invoke(labels);
-    end = HAL_GetTick();
-    uint8_t *output = (uint8_t *)getOutput();
-    int i;
-    for (i = 0; i < 100; i++) {
-      sprintf(buf, "%d,", output[i]);
-      printLog(buf);
-    }
-    printLog("\r\n");
-    return 0;
-  }
-#endif
-
   int camErr = initCamera();
 
-  uint32_t start, end;
+  uint32_t start, end, starti, endi;
   StartCapture();
   signed char *input = getInput();
 
-  RGBbuf = (uint16_t *)&input[80 * 80 * 4];
+  RGBbuf = (uint16_t *)&input[128 * 128 * 4];
   int t_mode = 0;
   while (1) {
-    start = HAL_GetTick();
+    starti = HAL_GetTick();
     ReadCapture();
     StartCapture();
     DecodeandProcessAndRGB(RES_W, RES_H, input, RGBbuf, 1);
+    for (int i = 0; i < 128 * 8 * 3; i++) {
+      input[120 * 128 * 3 + i] = -128;
+    }
     for (int i = 0; i < RES_W; i++) {
       for (int j = 0; j < RES_W; j++) {
-        uint8_t red = (int32_t)input[(80 * i + j) * 3] + 128;
-        uint8_t green = (int32_t)input[(80 * i + j) * 3 + 1] + 128;
-        uint8_t blue = (int32_t)input[(80 * i + j) * 3 + 2] + 128;
+        uint8_t red = (int32_t)input[(128 * i + j) * 3] + 128;
+        uint8_t green = (int32_t)input[(128 * i + j) * 3 + 1] + 128;
+        uint8_t blue = (int32_t)input[(128 * i + j) * 3 + 2] + 128;
 
         uint16_t b = (blue >> 3) & 0x1f;
         uint16_t g = ((green >> 2) & 0x3f) << 5;
@@ -121,23 +122,83 @@ int main(void) {
         RGBbuf[j + RES_W * i] = (uint16_t)(r | g | b);
       }
     }
-    loadRGB565LCD(10, 10, RES_W, RES_W, RGBbuf, 3);
 
-  	invoke_new_weights_givenimg(out_int);
-  	int person = 0;
-  	if (out_int[0] > out_int[1]) {
-  	  person = 0;
-  	}
-  	else {
-  	  person = 1;
-  	}
-  	end = HAL_GetTick();
-  	sprintf(showbuf, " Inference ");
-  	displaystring(showbuf, 273, 10);
-  	detectResponse(person, end - start, t_mode, 0, 0);
+    loadRGB565LCD(10, 10, RES_W, RES_W, RGBbuf, 2);
+    endi = HAL_GetTick();
+
+    uint8_t button0 = BSP_PB_GetState(BUTTON_KEY) == GPIO_PIN_SET;
+    uint8_t button1 = !HAL_GPIO_ReadPin(BUTTON1_GPIO_Port, BUTTON1_Pin);
+    uint8_t button2 = !HAL_GPIO_ReadPin(BUTTON2_GPIO_Port, BUTTON2_Pin);
+
+    char s[1];
+    s[0] = 'c';
+    recieveChar(s);
+    if (s[0] == '3')
+      t_mode = 1;
+    if (s[0] == '4')
+      t_mode = 0;
+    if (t_mode) {
+      if ((button2 || button1 || s[0] == '1' || s[0] == '2')) {
+        int label = 0;
+        if (button2 || s[0] == '1') {
+          sprintf(showbuf, "Train cls 1");
+          label = 1;
+        } else {
+          sprintf(showbuf, "Train cls 0");
+          label = 0;
+        }
+
+        start = HAL_GetTick();
+        invoke_new_weights_givenimg(out_int);
+        int answer_right = 0;
+        int p;
+        if (out_int[0] > out_int[1]) {
+          p = 0;
+          if (label == 1)
+            answer_right = 0;
+          else
+            answer_right = 1;
+        } else {
+          p = 1;
+          if (label == 1)
+            answer_right = 1;
+          else
+            answer_right = 0;
+        }
+        end = HAL_GetTick();
+        detectResponse(answer_right, 0, t_mode, p, label);
+
+        ReadCapture();
+        StartCapture();
+        DecodeandProcessAndRGB(RES_W, RES_H, input, RGBbuf, 1);
+        displaystring(showbuf, 273, 10);
+        start = HAL_GetTick();
+        train(label);
+        end = HAL_GetTick();
+        sprintf(showbuf, "Train done ");
+        displaystring(showbuf, 273, 10);
+        detectResponse(answer_right, end - start, t_mode, p, label);
+      }
+    } else {
+
+      start = HAL_GetTick();
+      invoke_new_weights_givenimg(out_int);
+      int person = 0;
+      if (out_int[0] > out_int[1]) {
+        person = 1;
+      } else {
+        person = 0;
+      }
+      end = HAL_GetTick();
+      sprintf(showbuf, " Inference ");
+      displaystring(showbuf, 273, 10);
+      detectResponse(person, end - starti, t_mode, 0, 0);
+    }
+  }
+
+  while (1) {
   }
 }
-
 void SystemClock_Config(void) {
   RCC_ClkInitTypeDef RCC_ClkInitStruct;
   RCC_OscInitTypeDef RCC_OscInitStruct;
