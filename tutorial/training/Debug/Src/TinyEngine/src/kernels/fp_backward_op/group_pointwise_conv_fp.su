@@ -1,0 +1,2 @@
+group_pointwise_conv_fp.c:26:22:group_pointwise_conv_fp_in1x1_out1x1_1row10col_uniweight_int8input_inplace	64	static
+group_pointwise_conv_fp.c:83:22:group_pointwise_conv_fp_in1x1_out1x1_1row10col_uniweight_inplace	64	static

@@ -1,0 +1,2 @@
+depthwise_kernel3x3_stride2_inplace_CHW_fpreq_mask.c:16:19:depthwise_kernel3x3_stride2_inplace_CHW_fpreq_mask	160	static
+depthwise_kernel3x3_stride2_inplace_CHW_fpreq_mask.c:72:6:depthwise_kernel3x3_stride2_inplace_kernel_CHW_fpreq_mask	120	static

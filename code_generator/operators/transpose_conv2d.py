@@ -283,12 +283,12 @@ class transposeConv2d(basicOperator):
                 weight_string = f"weight_fp{params['parsed_trainable']}"
 
             if params["input2_dtype"] == "int8" and params["input_dtype"] in ["float32", "int8"]:
-                if params["first_k_channel"] is not None:
+                if params["first_k_channel"] is None:
                     string += (
-                        f"{function_name}_int8weight_partialCH("
+                        f"{function_name}_int8weight("
                         + f"{self._getBufferstrCast(params['input_buf_add'], params['input_buf_add_offset'])},"
                         + f"{params['input_h']},{params['input_w']},{params['input_c']},"
-                        + f"(q7_t*){weight_string},(q7_t*){weight_string}Flash,{params['first_k_channel']},NULL,"
+                        + f"(q7_t*){weight_string},NULL,"
                         + f"{self._getBufferstrCast(params['output_buf_add'], params['output_buf_add_offset'])},"
                         + f"{str(params['output_h'])},{str(params['output_w'])},{str(params['output_c'])},"
                         + f"{params['float_min']},{params['float_max']},"
@@ -302,12 +302,21 @@ class transposeConv2d(basicOperator):
                         )
                     else:
                         string += "(float*)sbuf, 1);\n"
+                
                 else:
+                    function_name += "_int8weight_partialCH"
+                    if params["first_k_channel"] % 8 == 0:
+                        function_name += "_8innercol"
+                    elif params["first_k_channel"] % 4 == 0:
+                        function_name += "_4innercol"
+                    else:
+                        raise NotImplementedError
+
                     string += (
-                        f"{function_name}_int8weight("
+                        f"{function_name}("
                         + f"{self._getBufferstrCast(params['input_buf_add'], params['input_buf_add_offset'])},"
                         + f"{params['input_h']},{params['input_w']},{params['input_c']},"
-                        + f"(q7_t*){weight_string},NULL,"
+                        + f"(q7_t*){weight_string},(q7_t*){weight_string}Flash,{params['first_k_channel']},NULL,"
                         + f"{self._getBufferstrCast(params['output_buf_add'], params['output_buf_add_offset'])},"
                         + f"{str(params['output_h'])},{str(params['output_w'])},{str(params['output_c'])},"
                         + f"{params['float_min']},{params['float_max']},"

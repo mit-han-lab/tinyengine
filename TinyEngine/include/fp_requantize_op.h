@@ -66,6 +66,14 @@ tinyengine_status convolve_1x1_s8_fpreq_bitmask(const q7_t *input,
 		q7_t *output, q7_t *mask, const uint16_t output_x, const uint16_t output_y,
 		const uint16_t output_ch, q15_t *runtime_buf);
 
+tinyengine_status convolve_1x1_s8_fpreq_bitmask_partialCH(const q7_t *input,
+		const uint16_t input_x, const uint16_t input_y, const uint16_t input_ch,
+		const q7_t *kernel_sram, const q7_t *kernel_flash, const uint16_t first_k_channel, const int32_t *bias, const float *scales,
+		const int32_t out_offset, const int32_t input_offset,
+		const int32_t out_activation_min, const int32_t out_activation_max,
+		q7_t *output, q7_t *mask, const uint16_t output_x, const uint16_t output_y,
+		const uint16_t output_ch, q15_t *runtime_buf);
+
 q7_t* mat_mult_kernel_s8_s16_reordered_fpreq(const q7_t *input_a,
 		const q15_t *input_b, const uint16_t output_ch, const float *scales,
 		const int32_t out_offset, const int16_t activation_min,

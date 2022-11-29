@@ -133,6 +133,9 @@ void update_SGD(float learning_rate){\n"""
         # generate invoke function
         self._genInvoke()
 
+        # generate inference-only invoke function
+        self._genInvokeInf()
+
         # generate SGD update if any
         self._generateSGD()
 
@@ -397,6 +400,51 @@ void invoke_1patch(uint16_t pad_t, uint16_t pad_b, uint16_t pad_l ,uint16_t pad_
         string = "}\n"
         fp.write(string)
 
+    def _genInvokeInf(self):
+        fp = self.source_handle
+        string = "void invoke_inf(){\n"
+        fp.write(string)
+
+        schedule = self.MemSche
+        for i, op in enumerate(schedule.layer):
+            layer_info = op.get_layer_info()
+
+            if layer_info["op"] == "CAST":
+                string = "}\n"
+                fp.write(string)
+                return
+                
+            string = "/* layer " + str(i) + ":" + layer_info["op"] + " */\n"
+            fp.write(string)
+
+            if layer_info["op"] == "CONV_2D":
+                if (
+                    self.FP_output
+                    and "effective_scale" in layer_info
+                    and layer_info["output_scale"] is not None
+                    and layer_info["effective_scale"] is not None
+                ):
+                    use_fp = True
+                else:
+                    use_fp = False
+                string = self._genOpstr(
+                    op,
+                    self.unsigned_input,
+                    use_fp,
+                    use_aggressive_unroll,
+                    use_hard_switsh,
+                    self.fp_requantize,
+                    self.tflite_op,
+                    self.dummy_address,
+                )
+                fp.write(string)
+            elif layer_info["op"] == "DEPTHWISE_CONV_2D":
+                string = self._genOpstr(op, self.fp_requantize)
+                fp.write(string)
+            else:
+                string = self._genOpstr(op)
+                fp.write(string)
+
     def _getBufferIndex(self, location):
         if location == "front":
             return 0
@@ -447,7 +495,7 @@ void invoke_1patch(uint16_t pad_t, uint16_t pad_b, uint16_t pad_l ,uint16_t pad_
 #include "genModel.h"
 
 #include "tinyengine_function.h"
-//#include "tinyengine_function_fp.h"
+#include "tinyengine_function_fp.h"
 
 """
         if self.profile_mode:
