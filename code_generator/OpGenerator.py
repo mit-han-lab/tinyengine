@@ -17,6 +17,8 @@
 # ----------------------------------------------------------------------
 
 from .codetemplate.depthwiseTemplate import depthwiseInplace
+from .codetemplate.depthwiseTemplate_bitmask import depthwiseInplace_bitmask
+from .codetemplate.depthwiseTemplate_mask import depthwiseInplace_mask
 
 
 class OpGenerator:
@@ -42,26 +44,24 @@ class OpGenerator:
             if op.isDepthwise:
                 if op.kernel_h > op.kernel_w:
                     depthwise_template = depthwiseInplace(
-                        op.kernel_h,
-                        op.kernel_w,
-                        op.pad_h,
-                        op.pad_w,
-                        op.stride,
-                        "CWH",
-                        self.fp_requantize,
+                        op.kernel_h, op.kernel_w, op.pad_h, op.pad_w, op.stride, "CWH", self.fp_requantize
                     )
                 else:
                     depthwise_template = depthwiseInplace(
-                        op.kernel_h,
-                        op.kernel_w,
-                        op.pad_h,
-                        op.pad_w,
-                        op.stride,
-                        "CHW",
-                        self.fp_requantize,
+                        op.kernel_h, op.kernel_w, op.pad_h, op.pad_w, op.stride, "CHW", self.fp_requantize
+                    )
+                    depthwise_template_mask = depthwiseInplace_mask(
+                        op.kernel_h, op.kernel_w, op.pad_h, op.pad_w, op.stride, "CHW", self.fp_requantize
+                    )
+                    depthwise_template_bitmask = depthwiseInplace_bitmask(
+                        op.kernel_h, op.kernel_w, op.pad_h, op.pad_w, op.stride, "CHW", self.fp_requantize
                     )
                 depthwise_template.genFile(self.srcpath)
                 incfile.addDefine(depthwise_template.genFuncDefine())
+                depthwise_template_mask.genFile(self.srcpath)
+                incfile.addDefine(depthwise_template_mask.genFuncDefine())
+                depthwise_template_bitmask.genFile(self.srcpath)
+                incfile.addDefine(depthwise_template_bitmask.genFuncDefine())
 
         incfile.writeFile()
 
