@@ -18,18 +18,20 @@ TinyEngine is a part of MCUNet, which also consists of TinyNAS. MCUNet is a syst
 
 ## News
 
-We will soon release **Tiny Training Engine** used in [MCUNetV3: On-Device Training Under 256KB Memory](https://mcunet.mit.edu/#mcunetv3). **If you are interested in getting updates, please sign up [here](https://forms.gle/UW1uUmnfk1k6UJPPA) to get notified!**
+We will soon release the **INT8 verson of Tiny Training Engine** used in [MCUNetV3: On-Device Training Under 256KB Memory](https://mcunet.mit.edu/#mcunetv3). **If you are interested in getting updates, please sign up [here](https://forms.gle/UW1uUmnfk1k6UJPPA) to get notified!**
 
+- **(2022/11)** We release the source code of the FP32 version of Tiny Training Engine, and include the [tutorial of our training demo](tutorial/training) for training a visual wake words (VWW) model on microcontrollers. The INT8 version will also be released soon, so please stay tuned!
+- **(2022/11)** We release the source code of the algorithm and compilation parts of MCUNetV3 in [this repo](https://github.com/mit-han-lab/tiny-training). Please take a look!
 - **(2022/10)** Our new work [On-Device Training Under 256KB Memory](https://arxiv.org/abs/2206.15472) is highlighted on the [MIT homepage](http://web.mit.edu/spotlight/learning-edge/)!
 - **(2022/09)** Our new work [On-Device Training Under 256KB Memory](https://arxiv.org/abs/2206.15472) is accepted to NeurIPS 2022! It enables tiny on-device training for IoT devices [[demo](https://www.youtube.com/watch?v=XaDCO8YtmBw)]. 
 - **(2022/08)** Our **New Course on TinyML and Efficient Deep Learning** will be released soon in September 2022: [efficientml.ai](https://efficientml.ai/).
-- **(2022/08)** We include the [demo tutorial](tutorial) for deploying a visual wake word (VWW) model onto microcontrollers.
+- **(2022/08)** We include the [tutorial of our inference demo](tutorial/inference) for deploying a visual wake words (VWW) model onto microcontrollers.
 - **(2022/08)** We opensource the TinyEngine repo.
 - **(2022/07)** We include the person detection model used in the video demo above in the [MCUNet repo](https://github.com/mit-han-lab/mcunet).
 - **(2022/06)** We refactor the [MCUNet repo](https://github.com/mit-han-lab/mcunet) as a standalone repo (previous repo: https://github.com/mit-han-lab/tinyml)
 - **(2021/10)** **MCUNetV2** is accepted to NeurIPS 2021: https://arxiv.org/abs/2110.15352 !
 - **(2020/10)** **MCUNet** is accepted to NeurIPS 2020 as **spotlight**: https://arxiv.org/abs/2007.10319 !
-- Our projects are covered by: [MIT News](https://news.mit.edu/2020/iot-deep-learning-1113), [MIT News (v2)](https://news.mit.edu/2021/tiny-machine-learning-design-alleviates-bottleneck-memory-usage-iot-devices-1208), [WIRED](https://www.wired.com/story/ai-algorithms-slimming-fit-fridge/), [Morning Brew](https://www.morningbrew.com/emerging-tech/stories/2020/12/07/researchers-figured-fit-ai-ever-onto-internet-things-microchips), [Stacey on IoT](https://staceyoniot.com/researchers-take-a-3-pronged-approach-to-edge-ai/), [Analytics Insight](https://www.analyticsinsight.net/amalgamating-ml-and-iot-in-smart-home-devices/), [Techable](https://techable.jp/archives/142462), etc.
+- Our projects are covered by: [MIT Spotlight News (v3)](http://web.mit.edu/spotlight/learning-edge/), [MIT News (v2)](https://news.mit.edu/2021/tiny-machine-learning-design-alleviates-bottleneck-memory-usage-iot-devices-1208), [MIT News (v1)](https://news.mit.edu/2020/iot-deep-learning-1113), [WIRED](https://www.wired.com/story/ai-algorithms-slimming-fit-fridge/), [Morning Brew](https://www.morningbrew.com/emerging-tech/stories/2020/12/07/researchers-figured-fit-ai-ever-onto-internet-things-microchips), [Stacey on IoT](https://staceyoniot.com/researchers-take-a-3-pronged-approach-to-edge-ai/), [Analytics Insight](https://www.analyticsinsight.net/amalgamating-ml-and-iot-in-smart-home-devices/), [Techable](https://techable.jp/archives/142462), etc.
 
 
 ## Overview
@@ -77,7 +79,7 @@ To sum up, our **TinyEngine** inference engine could be a useful infrastructure 
 
 `examples` contains the examples of transforming TFLite models into our TinyEngine models.
 
-`tutorial` contains the demo tutorial of deploying a visual wake word (VWW) model onto microcontrollers.
+`tutorial` contains the demo tutorial (of inference and training) of deploying a visual wake words (VWW) model onto microcontrollers.
 
 `assets` contains misc assets.
 
@@ -121,7 +123,7 @@ pre-commit install
 
 ## Deployment Example
 
-Please see [tutorial](tutorial) to learn how to deploy a visual wake word (VWW) model onto microcontrollers by using TinyEngine.
+Please see [tutorial](tutorial) to learn how to deploy a visual wake words (VWW) model onto microcontrollers by using TinyEngine. We include both [the inference demo](tutorial/inference) and [the training demo](tutorial/training) in the tutorial, please take a look!
 
 
 ## Measured Results

@@ -408,12 +408,6 @@ void invoke_1patch(uint16_t pad_t, uint16_t pad_b, uint16_t pad_l ,uint16_t pad_
         schedule = self.MemSche
         for i, op in enumerate(schedule.layer):
             layer_info = op.get_layer_info()
-
-            if layer_info["op"] == "CAST":
-                string = "}\n"
-                fp.write(string)
-                return
-                
             string = "/* layer " + str(i) + ":" + layer_info["op"] + " */\n"
             fp.write(string)
 
@@ -438,6 +432,12 @@ void invoke_1patch(uint16_t pad_t, uint16_t pad_b, uint16_t pad_l ,uint16_t pad_
                     self.dummy_address,
                 )
                 fp.write(string)
+
+                if layer_info["output_h"] == 1 and layer_info["output_w"] == 1 and (layer_info["output_c"] == 2 or layer_info["output_c"] == 10):
+                    string = "}\n"
+                    fp.write(string)
+                    return
+
             elif layer_info["op"] == "DEPTHWISE_CONV_2D":
                 string = self._genOpstr(op, self.fp_requantize)
                 fp.write(string)
