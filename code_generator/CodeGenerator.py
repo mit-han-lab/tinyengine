@@ -433,7 +433,11 @@ void invoke_1patch(uint16_t pad_t, uint16_t pad_b, uint16_t pad_l ,uint16_t pad_
                 )
                 fp.write(string)
 
-                if layer_info["output_h"] == 1 and layer_info["output_w"] == 1 and (layer_info["output_c"] == 2 or layer_info["output_c"] == 10):
+                if (
+                    layer_info["output_h"] == 1
+                    and layer_info["output_w"] == 1
+                    and (layer_info["output_c"] == 2 or layer_info["output_c"] == 10)
+                ):
                     string = "}\n"
                     fp.write(string)
                     return
@@ -444,6 +448,9 @@ void invoke_1patch(uint16_t pad_t, uint16_t pad_b, uint16_t pad_l ,uint16_t pad_
             else:
                 string = self._genOpstr(op)
                 fp.write(string)
+
+        string = "}\n"
+        fp.write(string)
 
     def _getBufferIndex(self, location):
         if location == "front":

@@ -22,6 +22,8 @@
 
 #include <stdint.h>
 
+#include "yoloOutput.h"
+
 signed char* getInput();
 signed char* getOutput();
 float* getOutput_fp();
@@ -32,8 +34,9 @@ static float blr = 0.0004;
 void setupBuffer();
 void invoke(float* labels);
 void invoke_inf();
-void getResult(uint8_t *P, uint8_t *NP);
+void getResult(uint8_t* P, uint8_t* NP);
 int* getKbuffer();
 void end2endinference();
+void det_post_procesing(int* box_cnt, det_box** ret_box, float threshold);
 
 #endif /* INC_GENNN_H_ */
