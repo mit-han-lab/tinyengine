@@ -22,4 +22,5 @@ __all__ = [
     "transpose_conv2d",
     "div",
     "strided_slice",
+    "se_element_mult",
 ]

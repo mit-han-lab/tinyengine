@@ -257,7 +257,7 @@ class Conv2d(basicOperator):
             else:
                 raise NotImplementedError
 
-            if fp_requantize:
+            if fp_requantize and not ("is_patch" in params and params["is_patch"] and kernel_h > 1):
                 function_name += "_fpreq"
 
             if params["need_Bmask"]:
@@ -292,6 +292,7 @@ class Conv2d(basicOperator):
             # scales or multiplier and shift
             if (
                 fp_requantize
+                and not ("is_patch" in params and params["is_patch"] and kernel_h > 1)
                 or FP_output
                 and "effective_scale" in params
                 and params["output_scale"] is not None
@@ -317,12 +318,7 @@ class Conv2d(basicOperator):
 
             # intemediate buffers
             string += "sbuf"
-            if (
-                kernel_h == 3
-                and params["stride_h"] == 2
-                and params["padding"] == 1
-                and not ("is_patch" in params and params["is_patch"])
-            ):
+            if kernel_h == 3 and params["stride_h"] == 2 and params["padding"] == 1:
                 string += ",kbuf"
 
             # pad value for kernel size > 1
