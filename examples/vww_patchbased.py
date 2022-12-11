@@ -1,6 +1,6 @@
 # ----------------------------------------------------------------------
 # Project: TinyEngine
-# Title:   vww_to_c.py
+# Title:   vww_patchbased.py
 #
 # Reference papers:
 #  - MCUNet: Tiny Deep Learning on IoT Device, NeurIPS 2020
@@ -32,10 +32,11 @@ from code_generator.TfliteConvertor import TfliteConvertor
 # get the weight parameters and scale parameters.
 tflite_path = download_tflite(net_id="mcunet-5fps-vww")
 life_cycle_path = "./lifecycle.png"
-# 3. Let's generate source code for on-device deployment
+# 3. Set up patchbased parameters
 use_inplace = True
-n_patches = 2
-split_index = 3
+n_patches = 2  # 2x2 patches
+split_index = 5  # split at the fifth conv later
+# 4. Let's generate source code for on-device deployment
 
 with TemporaryDirectory() as WORKING_DIR:
     if life_cycle_path is None:
@@ -75,7 +76,7 @@ with TemporaryDirectory() as WORKING_DIR:
         patch_params=patch_params,
         FP_output=False,
         profile_mode=False,
-        fp_requantize=True,
+        fp_requantize=False,
         tflite_op=False,
         dummy_address=False,
         outputTables=outTable,

@@ -216,6 +216,14 @@ class GeneralMemoryScheduler:
                             end_idx = len(self.layer)
                             all_t_size += o.len
                             ttype = TTYPE_TRAINING_GRADIENT
+
+                # for patchbased inference, we need the input tensro to be allocated in the patch inference stage
+                if (
+                    "is_start_of_normal_inference_block" in op.params
+                    and op.params["is_start_of_normal_inference_block"]
+                ):
+                    if t in op.input_tensors:
+                        start_idx = 0
                 # add the tensor
                 t.allocator_idx = self.allocator.addTensor(start_idx, end_idx, t.len(), name=t.graph_idx, type=ttype)
                 # propagate the allocation to tensors with the same idx

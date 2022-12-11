@@ -201,7 +201,9 @@ void update_SGD(float learning_rate){\n"""
             patch_out_h = last_patch_op.params["output_h"]
             out_w = self.patch_params["output_w"]
             # output_idx for data movement
-            output_idx_str = f"((w + j * {patch_out_w}) + (h + i * {patch_out_h}) * {out_w}) * 8 + c;"
+            output_idx_str = (
+                f"((w + j * {patch_out_w}) + (h + i * {patch_out_h}) * {out_w}) * {self.patch_params['output_c']} + c;"
+            )
             # generate code for testing whole inference time
             string += (
                 """void end2endinference(q7_t* img){

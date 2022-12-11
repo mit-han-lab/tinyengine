@@ -166,10 +166,13 @@ class PatchResizer:
             else:
                 layer_info["is_patch"] = False
 
-        # We need to cut off the link between patch blocks and normal inference blocks,
+        # We need to:
+        # 1. cut off the link between patch blocks and normal inference blocks,
+        # 2. set the lifetime of the input tensor of the first layer in the second stage to start from begging
         # so the memory buffers can be allocated successfully
         if PatchLayers > 0:
             self.layer[PatchLayers].params["input_idx"] = (
                 str(self.layer[PatchLayers].params["input_idx"]) + "_start_normal_infernece_block"
             )
             self.layer[PatchLayers].input_tensors[0].graph_idx = self.layer[PatchLayers].params["input_idx"]
+            self.layer[PatchLayers].params["is_start_of_normal_inference_block"] = True
