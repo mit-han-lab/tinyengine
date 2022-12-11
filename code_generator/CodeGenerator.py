@@ -176,6 +176,9 @@ void update_SGD(float learning_rate){\n"""
                 break  # end of patch-based
             last_patch_op = op
         assert first_normal_op, "Cannot find the first op for normal inference."
+        last_patch_op_output_buffer_str_for_patch_inference = last_patch_op._getBufferstr(
+            last_patch_op.params["output_buf_add"], last_patch_op.params["output_buf_add_offset"]
+        )
         first_bufferstr_for_normal_inference = first_normal_op._getBufferstr(
             first_normal_op.params["input_buf_add"], first_normal_op.params["input_buf_add_offset"]
         )
@@ -197,6 +200,8 @@ void update_SGD(float learning_rate){\n"""
             # patch_out_h = int((first_height - self.patch_params["pad_l"]) / 8)
             patch_out_h = last_patch_op.params["output_h"]
             out_w = self.patch_params["output_w"]
+            # output_idx for data movement
+            output_idx_str = f"((w + j * {patch_out_w}) + (h + i * {patch_out_h}) * {out_w}) * 8 + c;"
             # generate code for testing whole inference time
             string += (
                 """void end2endinference(q7_t* img){
@@ -237,12 +242,12 @@ void update_SGD(float learning_rate){\n"""
             /* load partial input from the img */
             q7_t* patch_input = getInput(); // for partial input
             int start_x = TN_MAX("""
-                + str(first_width - self.patch_params["pad_l"])
+                + str(first_width - self.patch_params["pad_l"] - self.patch_params["pad_r"])
                 + """ * j - """
                 + str(self.patch_params["pad_l"])
                 + """,0);
             int start_y = TN_MAX("""
-                + str(first_height - self.patch_params["pad_l"])
+                + str(first_height - self.patch_params["pad_l"] - self.patch_params["pad_r"])
                 + """ * i - """
                 + str(self.patch_params["pad_l"])
                 + """,0);
@@ -274,15 +279,11 @@ void update_SGD(float learning_rate){\n"""
             invoke_1patch(pad_t,pad_b,pad_l,pad_r);
             /* concat the output from buffer0 (this is set manually for now) */
             q7_t* output_ptr = """
-                + f"{first_bufferstr_for_normal_inference} + (i * "
-                + str(patch_out_w)
-                + """ * """
-                + str(out_w)
-                + """ + j * """
-                + str(patch_out_w)
-                + """) * """
-                + str(self.patch_params["output_c"])
-                + """ ;
+                + f"{first_bufferstr_for_normal_inference};"
+                + """;
+            q7_t* patch_output = """
+                + f"{last_patch_op_output_buffer_str_for_patch_inference}"
+                + """;
             for (h = 0; h < """
                 + str(patch_out_h)
                 + """; h++){
@@ -292,11 +293,10 @@ void update_SGD(float learning_rate){\n"""
                     for (c = 0; c < """
                 + str(self.patch_params["output_c"])
                 + """; c++){
-                        output_ptr[(w + h * """
-                + str(out_w)
-                + """) * """
-                + str(self.patch_params["output_c"])
-                + """ + c] = buffer0[(w + h * """
+                        int output_idx = """
+                + f"{output_idx_str};"
+                + """
+                        output_ptr[output_idx] = patch_output[(w + h * """
                 + str(patch_out_w)
                 + """) * """
                 + str(self.patch_params["output_c"])
