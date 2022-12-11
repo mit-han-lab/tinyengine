@@ -19,7 +19,7 @@ TinyEngine is a part of MCUNet, which also consists of TinyNAS. MCUNet is a syst
 
 We will soon release the **INT8 verson of Tiny Training Engine** used in [MCUNetV3: On-Device Training Under 256KB Memory](https://mcunet.mit.edu/#mcunetv3). **If you are interested in getting updates, please sign up [here](https://forms.gle/UW1uUmnfk1k6UJPPA) to get notified!**
 
-- **(2022/12)** We release the source code for patch-based inference, and include the [example script](examples/vww_patchbased.py) for generating patch-based inference code for the VWW demo.
+- **(2022/12)** We release the source code for patch-based inference, and include the [example script](examples/vww_patchbased.py) that generates patch-based inference code for the VWW demo.
 - **(2022/11)** We release the source code of the FP32 version of Tiny Training Engine, and include the [tutorial of our training demo](tutorial/training) for training a visual wake words (VWW) model on microcontrollers. The INT8 version will also be released soon, so please stay tuned!
 - **(2022/11)** We release the source code of the algorithm and compilation parts of MCUNetV3 in [this repo](https://github.com/mit-han-lab/tiny-training). Please take a look!
 - **(2022/10)** Our new work [On-Device Training Under 256KB Memory](https://arxiv.org/abs/2206.15472) is highlighted on the [MIT homepage](http://web.mit.edu/spotlight/learning-edge/)!
