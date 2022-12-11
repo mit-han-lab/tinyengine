@@ -254,8 +254,8 @@ class DepthwiseConv2d(basicOperator):
                     )
                 else:
                     string += (
-                        "pad_t = MAX(0, pad_t-1);pad_b = MAX(0, pad_b-1);pad_l = MAX(0, pad_l-1);"
-                        + "pad_r = MAX(0, pad_r-1);\n"
+                        "pad_t = TN_MAX(0, pad_t-1);pad_b = TN_MAX(0, pad_b-1);pad_l = TN_MAX(0, pad_l-1);"
+                        + "pad_r = TN_MAX(0, pad_r-1);\n"
                     )
             else:
                 string += ");\n"

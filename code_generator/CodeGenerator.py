@@ -168,11 +168,13 @@ void update_SGD(float learning_rate){\n"""
 
         # Find out the first layer for normal infernece
         first_normal_op = None
+        last_patch_op = None
         for i, op in enumerate(schedule.layer):
             layer_info = op.get_layer_info()
             if "is_patch" not in layer_info or not layer_info["is_patch"]:
                 first_normal_op = op
                 break  # end of patch-based
+            last_patch_op = op
         assert first_normal_op, "Cannot find the first op for normal inference."
         first_bufferstr_for_normal_inference = first_normal_op._getBufferstr(
             first_normal_op.params["input_buf_add"], first_normal_op.params["input_buf_add_offset"]
@@ -180,6 +182,7 @@ void update_SGD(float learning_rate){\n"""
 
         layer_info = schedule.layer[0].get_layer_info()
         if "is_patch" in layer_info and layer_info["is_patch"]:
+            assert last_patch_op
             fp = self.source_handle
             string = ""
             first_height = layer_info["input_h"]
@@ -188,9 +191,11 @@ void update_SGD(float learning_rate){\n"""
                 "n_patch"
             ]
             # by default, we go three stride 2 conv in the patch-based inference
-            patch_out_w = int((first_width - self.patch_params["pad_l"]) / 8)
+            # patch_out_w = int((first_width - self.patch_params["pad_l"]) / 8)
+            patch_out_w = last_patch_op.params["output_w"]
             # by default, we go three stride 2 conv in the patch-based inference
-            patch_out_h = int((first_height - self.patch_params["pad_l"]) / 8)
+            # patch_out_h = int((first_height - self.patch_params["pad_l"]) / 8)
+            patch_out_h = last_patch_op.params["output_h"]
             out_w = self.patch_params["output_w"]
             # generate code for testing whole inference time
             string += (
