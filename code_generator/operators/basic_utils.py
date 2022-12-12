@@ -5,7 +5,7 @@
 # Reference papers:
 #  - MCUNet: Tiny Deep Learning on IoT Device, NeurIPS 2020
 #  - MCUNetV2: Memory-Efficient Patch-based Inference for Tiny Deep Learning, NeurIPS 2021
-#  - MCUNetV3: On-Device Training Under 256KB Memory, arXiv:2206.15472
+#  - MCUNetV3: On-Device Training Under 256KB Memory, NeurIPS 2022
 # Contact authors:
 #  - Wei-Ming Chen, wmchen@mit.edu
 #  - Wei-Chen Wang, wweichen@mit.edu
