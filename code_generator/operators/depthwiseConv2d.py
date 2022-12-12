@@ -202,7 +202,7 @@ class DepthwiseConv2d(basicOperator):
                 f"{str(params['kernel_h'])}x{str(params['kernel_w'])}_stride{str(params['stride_h'])}_inplace_CHW"
             )
 
-            if fp_requantize:
+            if fp_requantize and not ("is_patch" in params and params["is_patch"]):
                 function_name += "_fpreq"
 
             if params["need_Bmask"]:
@@ -218,7 +218,7 @@ class DepthwiseConv2d(basicOperator):
             string += f"(const q7_t*) CHWweight{parsed_idx},offsetBias{parsed_idx},offsetRBias{parsed_idx},"
 
             # scales or multiplier and shift
-            if fp_requantize:
+            if fp_requantize and not ("is_patch" in params and params["is_patch"]):
                 string += f"scales{parsed_idx},"
             else:
                 string += f"shift{parsed_idx},multiplier{parsed_idx},"
@@ -254,8 +254,8 @@ class DepthwiseConv2d(basicOperator):
                     )
                 else:
                     string += (
-                        "pad_t = MAX(0, pad_t-1);pad_b = MAX(0, pad_b-1);pad_l = MAX(0, pad_l-1);"
-                        + "pad_r = MAX(0, pad_r-1);\n"
+                        "pad_t = TN_MAX(0, pad_t-1);pad_b = TN_MAX(0, pad_b-1);pad_l = TN_MAX(0, pad_l-1);"
+                        + "pad_r = TN_MAX(0, pad_r-1);\n"
                     )
             else:
                 string += ");\n"
