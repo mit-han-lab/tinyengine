@@ -17,10 +17,10 @@ TinyEngine is a part of MCUNet, which also consists of TinyNAS. MCUNet is a syst
 
 ## News
 
-We will soon release the **INT8 verson of Tiny Training Engine** used in [MCUNetV3: On-Device Training Under 256KB Memory](https://mcunet.mit.edu/#mcunetv3). **If you are interested in getting updates, please sign up [here](https://forms.gle/UW1uUmnfk1k6UJPPA) to get notified!**
+**If you are interested in getting updates, please sign up [here](https://forms.gle/UW1uUmnfk1k6UJPPA) to get notified!**
 
-- **(2022/12)** We release the source code for patch-based inference, and include the [example script](examples/vww_patchbased.py) that generates patch-based inference code for the visual wake words (VWW) demo.
-- **(2022/11)** We release the source code of the FP32 version of Tiny Training Engine, and include the [tutorial of our training demo](tutorial/training) for training a visual wake words (VWW) model on microcontrollers. The INT8 version will also be released soon, so please stay tuned!
+- **(2022/12)** We release the source code for patch-based inference and update the [tutorial of our inference demo](tutorial/inference/README.md) to provide option that generates patch-based inference code for the visual wake words (VWW) demo.
+- **(2022/11)** We release the source code of the FP32 version of Tiny Training Engine, and include the [tutorial of our training demo](tutorial/training) for training a visual wake words (VWW) model on microcontrollers.
 - **(2022/11)** We release the source code of the algorithm and compilation parts of MCUNetV3 in [this repo](https://github.com/mit-han-lab/tiny-training). Please take a look!
 - **(2022/10)** Our new work [On-Device Training Under 256KB Memory](https://arxiv.org/abs/2206.15472) is highlighted on the [MIT homepage](http://web.mit.edu/spotlight/learning-edge/)!
 - **(2022/09)** Our new work [On-Device Training Under 256KB Memory](https://arxiv.org/abs/2206.15472) is accepted to NeurIPS 2022! It enables tiny on-device training for IoT devices \[[demo](https://www.youtube.com/watch?v=XaDCO8YtmBw)\].
@@ -46,6 +46,7 @@ Specifically, TinyEngine is a memory-efficient inference library. TinyEngine ada
 TinyEngine adopts the following optimization techniques to accelerate inference speed and minimize memory footprint.
 
 - [**In-place depth-wise convolution**](https://mcunet.mit.edu/#mcunetv1): A unique data placement technique for depth-wise convolution that overwrites input data by intermediate/output data to reduce peak SRAM memory.
+- [**Patch-based inference**](https://mcunet.mit.edu/#mcunetv2): A generic patch-by-patch inference scheduling, which operates only on a small spatial region of the feature map and significantly cuts down the peak memory.
 - [**Operator fusion**](https://docs.microsoft.com/en-us/windows/ai/directml/dml-fused-activations): A method that improves performance by merging one operator into a different operator so that they are executed together without requiring a roundtrip to memory.
 - [**SIMD (Single instruction, multiple data) programming**](https://en.wikipedia.org/wiki/Single_instruction,_multiple_data): A computing method that performs the same operation on multiple data points simultaneously.
 - [**HWC to CHW weight format transformation**](https://oneapi-src.github.io/oneDNN/dev_guide_understanding_memory_formats.html): A weight format transformation technique that increases cache hit ratio for in-place depth-wise convolution.
@@ -67,6 +68,16 @@ By adopting the abovementioned optimization techniques, TinyEngine can not only 
 To sum up, our **TinyEngine** inference engine could be a useful infrastructure for MCU-based AI applications. It significantly **improves the inference speed and reduces the memory usage** compared to existing libraries like [TF-Lite Micro](https://www.tensorflow.org/lite/microcontrollers), [CMSIS-NN](https://arxiv.org/abs/1801.06601), [X-CUBE-AI](https://www.st.com/en/embedded-software/x-cube-ai.html), etc. It improves the inference speed by **1.1-18.6x**, and reduces the peak memory by **1.3-3.6x**.
 
 ![measured_result](assets/figures/measured_result.png)
+
+**Save Memory with Patch-based Inference:**
+We can dramastically reduce the inference peak memory by using patch-based inference for the memory-intensive stage of CNNs.
+![measured_result](assets/figures/layer_vs_patch.gif)
+
+For MobileNetV2, using patch-based inference allows us to reduce the peak memory by 8x.
+![measured_result](assets/figures/mbv2_mem_compare.gif)
+
+With patch-based infernece, tinyengine achieves higher accuracy at the same memory budgets.
+![measured_result](assets/figures/imagenet_result.png)
 
 ## Code Structure
 
