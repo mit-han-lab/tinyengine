@@ -176,15 +176,15 @@ void update_SGD(float learning_rate){\n"""
                 break  # end of patch-based
             last_patch_op = op
         assert first_normal_op, "Cannot find the first op for normal inference."
-        last_patch_op_output_buffer_str_for_patch_inference = last_patch_op._getBufferstr(
-            last_patch_op.params["output_buf_add"], last_patch_op.params["output_buf_add_offset"]
-        )
-        first_bufferstr_for_normal_inference = first_normal_op._getBufferstr(
-            first_normal_op.params["input_buf_add"], first_normal_op.params["input_buf_add_offset"]
-        )
 
         layer_info = schedule.layer[0].get_layer_info()
         if "is_patch" in layer_info and layer_info["is_patch"]:
+            last_patch_op_output_buffer_str_for_patch_inference = last_patch_op._getBufferstr(
+                last_patch_op.params["output_buf_add"], last_patch_op.params["output_buf_add_offset"]
+            )
+            first_bufferstr_for_normal_inference = first_normal_op._getBufferstr(
+                first_normal_op.params["input_buf_add"], first_normal_op.params["input_buf_add_offset"]
+            )
             assert last_patch_op
             fp = self.source_handle
             string = ""
