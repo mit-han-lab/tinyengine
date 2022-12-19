@@ -19,6 +19,7 @@ TinyEngine is a part of MCUNet, which also consists of TinyNAS. MCUNet is a syst
 
 **If you are interested in getting updates, please sign up [here](https://forms.gle/UW1uUmnfk1k6UJPPA) to get notified!**
 
+- **(2022/12)** We update the [measured results](README.md#measured-results) on STM32H743 with the new versions of the inference libraries.
 - **(2022/12)** We release the source code for patch-based inference and update the [tutorial of our inference demo](tutorial/inference/README.md) to provide option that generates patch-based inference code for the visual wake words (VWW) demo.
 - **(2022/11)** We release the source code of Tiny Training Engine, and include the [tutorial of our training demo](tutorial/training) for training a visual wake words (VWW) model on microcontrollers.
 - **(2022/11)** We release the source code of the algorithm and compilation parts of MCUNetV3 in [this repo](https://github.com/mit-han-lab/tiny-training). Please take a look!
@@ -132,62 +133,66 @@ Please see [tutorial](tutorial) to learn how to deploy a visual wake words (VWW)
 ## Measured Results
 
 - All the tflite models are from [Model Zoo in MCUNet repo](https://github.com/mit-han-lab/mcunet#model-zoo). Please see MCUNet repo to know how to build the pre-trained int8 quantized models in TF-Lite format.
-- All the **latency**, **peak memory (SRAM)** and **Flash memory usage** results are profiled on STM32F746G-DISCO discovery boards.
+- All the **latency**, **peak memory (SRAM)** and **Flash memory usage** results are profiled on STM32H743 with the limitations of 512 KB peak memory and 2 MB storage.
 - Note that we measure the newer versions of libraries in this repo, so that the results in this repo might be different from the ones in the MCUNet papers.
-- Since TF-Lite Micro no longer has version numbers anymore, we use the git commit ID to indicate its newer version.
+- For each inference library, we use the git commit ID to indicate the version.
 - All the tflite models are compiled by `-Ofast` optimization level in STM32CubeIDE.
 - OOM denotes Out Of Memory.
+- Measurement for X-Cube-AI 7.3.0 was conducted with the default compilation setting of balanced mode.
 
 The **latency** results:
 
-| net_id                       | TF-Lite Micro<br>v2.1.0 | TF-Lite Micro<br>[@ 713b6ed](https://github.com/tensorflow/tflite-micro/tree/713b6ed6bd81d8d6906d885e14f444aaf9c154f6) | CMSIS-NN<br>v2.0.0 | X-CUBE-AI<br>v7.1.0 | TinyEngine |
-| ---------------------------- | ----------------------- | -------------------------- | ------------------ | --------- | ---------- |
-| *# mcunet models (VWW)*      |                         |                            |                    |           |            |
-| mcunet-5fps-vww              |          624ms          |          2346ms            |        269ms       |   137ms   |   128ms    |
-| mcunet-10fps-vww             |          345ms          |          1230ms            |        143ms       |    76ms   |    66ms    |
-| mcunet-320kB-vww             |           OOM           |            OOM             |         OOM        |   657ms   |   570ms    |
-| *# mcunet models (ImageNet)* |                         |                            |                    |           |            |
-| mcunet-5fps                  |           OOM           |            OOM             |         OOM        |   149ms   |   135ms    |
-| mcunet-10fps                 |           OOM           |            OOM             |         OOM        |    84ms   |    62ms    |
-| mcunet-256kB                 |           OOM           |            OOM             |         OOM        |   839ms   |   681ms    |
-| mcunet-320kB                 |           OOM           |            OOM             |         OOM        |    OOM    |   819ms    |
-| *# baseline models*          |                         |                            |                    |           |            |
-| mbv2-320kB                   |           OOM           |            OOM             |         OOM        |    OOM    |   292ms    |
-| proxyless-320kB              |           OOM           |            OOM             |         OOM        |   484ms   |   425ms    |
+| net_id                       | TF-Lite Micro<br>[@ 713b6ed](https://github.com/tensorflow/tflite-micro/tree/713b6ed6bd81d8d6906d885e14f444aaf9c154f6) | CMSIS-NN<br>[@ 011bf32](https://github.com/ARM-software/CMSIS-NN/tree/011bf3228a64cd70ba6bfac91ac6840a88b829ee) | X-CUBE-AI<br>7.3.0 | TinyEngine<br>[@ 0363956](https://github.com/mit-han-lab/tinyengine/tree/03639563ebf6538fff557515e31667fca6448cd3) |
+| ---------------------------- | ----------------------- | ------------------ | --------- | ---------- |
+| *# mcunet models (VWW)*      |                         |                    |           |            |
+| mcunet-vww0                  |          587ms          |        53ms        |   32ms    |   27ms    |
+| mcunet-vww1                  |          1120ms         |        97ms        |    57ms   |    51ms    |
+| mcunet-vww2                  |          5310ms         |        478ms       |   269ms   |   234ms    |
+| *# mcunet models (ImageNet)* |                         |                    |           |            |
+| mcunet-in0                   |           586ms         |         51ms       |   35ms    |   25ms    |
+| mcunet-in1                   |           1227ms        |         103ms      |    63ms   |    56ms    |
+| mcunet-in2                   |           6463ms        |         642ms      |   351ms   |   280ms    |
+| mcunet-in3                   |           7821ms        |         770ms      |    414ms  |   336ms    |
+| mcunet-in4                   |           OOM           |         OOM        |    516ms  |   463ms    |
+| *# baseline models*          |                         |                    |           |            |
+| mbv2-w0.35                   |           OOM           |         OOM        |   118ms   |   124ms    |
+| proxyless-w0.3              |           3801ms        |         380ms      |   205ms   |   176ms    |
 
 The **peak memory (SRAM)** results:
 
-| net_id                       | TF-Lite Micro<br>v2.1.0 | TF-Lite Micro<br>[@ 713b6ed](https://github.com/tensorflow/tflite-micro/tree/713b6ed6bd81d8d6906d885e14f444aaf9c154f6) | CMSIS-NN<br>v2.0.0 | X-CUBE-AI<br>v7.1.0 | TinyEngine |
-| ---------------------------- | ----------------------- | -------------------------- | ------------------ | --------- | ---------- |
-| *# mcunet models (VWW)*      |                         |                            |                    |           |            |
-| mcunet-5fps-vww              |          227kB          |            220kB           |        248kB       |   123kB   |    88kB    |
-| mcunet-10fps-vww             |          169kB          |            163kB           |        199kB       |    98kB   |    56kB    |
-| mcunet-320kB-vww             |           OOM           |             OOM            |         OOM        |   259kB   |   162kB    |
-| *# mcunet models (ImageNet)* |                         |                            |                    |           |            |
-| mcunet-5fps                  |           OOM           |             OOM            |         OOM        |   126kB   |    90kB    |
-| mcunet-10fps                 |           OOM           |             OOM            |         OOM        |    76kB   |    45kB    |
-| mcunet-256kB                 |           OOM           |             OOM            |         OOM        |   311kB   |   200kB    |
-| mcunet-320kB                 |           OOM           |             OOM            |         OOM        |    OOM    |   242kB    |
-| *# baseline models*          |                         |                            |                    |           |            |
-| mbv2-320kB                   |           OOM           |             OOM            |         OOM        |    OOM    |   284kB    |
-| proxyless-320kB              |           OOM           |             OOM            |         OOM        |   312kB   |   242kB    |
+| net_id                       | TF-Lite Micro<br>[@ 713b6ed](https://github.com/tensorflow/tflite-micro/tree/713b6ed6bd81d8d6906d885e14f444aaf9c154f6) | CMSIS-NN<br>[@ 011bf32](https://github.com/ARM-software/CMSIS-NN/tree/011bf3228a64cd70ba6bfac91ac6840a88b829ee) | X-CUBE-AI<br>7.3.0 | TinyEngine<br>[@ 0363956](https://github.com/mit-han-lab/tinyengine/tree/03639563ebf6538fff557515e31667fca6448cd3) |
+| ---------------------------- | ----------------------- | ------------------ | --------- | ---------- |
+| *# mcunet models (VWW)*      |                         |                    |           |            |
+| mcunet-vww0                  |          163kB          |        163kB       |   88kB    |   59kB     |
+| mcunet-vww1                  |          220kB          |        220kB       |   113kB   |    92kB    |
+| mcunet-vww2                  |          385kB          |        390kB       |   201kB   |   174kB    |
+| *# mcunet models (ImageNet)* |                         |                    |           |            |
+| mcunet-in0                   |           161kB         |        161kB       |   69kB    |   49kB     |
+| mcunet-in1                   |           219kB         |        219kB       |   106kB   |   96kB     |
+| mcunet-in2                   |           460kB         |        469kB       |   238kB   |   215kB    |
+| mcunet-in3                   |           493kB         |        493kB       |    243kB  |   260kB    |
+| mcunet-in4                   |           OOM           |         OOM        |    342kB  |   416kB    |
+| *# baseline models*          |                         |                    |           |            |
+| mbv2-w0.35                   |           OOM           |         OOM        |   296kB   |   295kB    |
+| proxyless-w0.3              |           453kB         |        453kB       |   221kB   |   259kB    |
 
 The **Flash memory usage** results:
 
-| net_id                       | TF-Lite Micro<br>v2.1.0 | TF-Lite Micro<br>[@ 713b6ed](https://github.com/tensorflow/tflite-micro/tree/713b6ed6bd81d8d6906d885e14f444aaf9c154f6) | CMSIS-NN<br>v2.0.0 | X-CUBE-AI<br>v7.1.0 | TinyEngine |
-| ---------------------------- | ----------------------- | -------------------------- | ------------------ | --------- | ---------- |
-| *# mcunet models (VWW)*      |                         |                            |                    |           |            |
-| mcunet-5fps-vww              |          782kB          |             733kB          |        743kB       |   534kB   |   517kB    |
-| mcunet-10fps-vww             |          691kB          |             643kB          |        653kB       |   463kB   |   447kB    |
-| mcunet-320kB-vww             |           OOM           |              OOM           |         OOM        |   773kB   |   742kB    |
-| *# mcunet models (ImageNet)* |                         |                            |                    |           |            |
-| mcunet-5fps                  |           OOM           |              OOM           |         OOM        |   737kB   |   720kB    |
-| mcunet-10fps                 |           OOM           |              OOM           |         OOM        |   856kB   |   837kB    |
-| mcunet-256kB                 |           OOM           |              OOM           |         OOM        |   850kB   |   827kB    |
-| mcunet-320kB                 |           OOM           |              OOM           |         OOM        |    OOM    |   835kB    |
-| *# baseline models*          |                         |                            |                    |           |            |
-| mbv2-320kB                   |           OOM           |              OOM           |         OOM        |    OOM    |   828kB    |
-| proxyless-320kB              |           OOM           |              OOM           |         OOM        |   866kB   |   835kB    |
+| net_id                       | TF-Lite Micro<br>[@ 713b6ed](https://github.com/tensorflow/tflite-micro/tree/713b6ed6bd81d8d6906d885e14f444aaf9c154f6) | CMSIS-NN<br>[@ 011bf32](https://github.com/ARM-software/CMSIS-NN/tree/011bf3228a64cd70ba6bfac91ac6840a88b829ee) | X-CUBE-AI<br>7.3.0 | TinyEngine<br>[@ 0363956](https://github.com/mit-han-lab/tinyengine/tree/03639563ebf6538fff557515e31667fca6448cd3) |
+| ---------------------------- | ----------------------- | ------------------ | --------- | ---------- |
+| *# mcunet models (VWW)*      |                         |                    |           |            |
+| mcunet-vww0                  |          627kB          |        646kB       |   463kB   |   453kB    |
+| mcunet-vww1                  |          718kB          |        736kB       |   534kB   |   521kB    |
+| mcunet-vww2                  |         1016kB          |        1034kB      |   774kB   |   741kB    |
+| *# mcunet models (ImageNet)* |                         |                    |           |            |
+| mcunet-in0                   |          1072kB         |        1090kB      |   856kB   |   842kB    |
+| mcunet-in1                   |           937kB         |        956kB       |   737kB   |   727kB    |
+| mcunet-in2                   |          1084kB         |        1102kB      |   849kB   |   830kB    |
+| mcunet-in3                   |          1091kB         |        1106kB      |    867kB  |   835kB    |
+| mcunet-in4                   |           OOM           |         OOM        |    1843kB |  1825kB    |
+| *# baseline models*          |                         |                    |           |            |
+| mbv2-w0.35                   |           OOM           |         OOM        |    857kB  |   839kB    |
+| proxyless-w0.3              |          1065kB         |        1075kB      |   865kB   |   842kB    |
 
 ## Citation
 
