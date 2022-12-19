@@ -19,7 +19,7 @@ TinyEngine is a part of MCUNet, which also consists of TinyNAS. MCUNet is a syst
 
 **If you are interested in getting updates, please sign up [here](https://forms.gle/UW1uUmnfk1k6UJPPA) to get notified!**
 
-- **(2022/12)** We update the [measured results](README.md#measured-results) on STM32H743 with the updated inference libraries.
+- **(2022/12)** We update the [measured results](README.md#measured-results) on STM32H743 with the new versions of the inference libraries.
 - **(2022/12)** We release the source code for patch-based inference and update the [tutorial of our inference demo](tutorial/inference/README.md) to provide option that generates patch-based inference code for the visual wake words (VWW) demo.
 - **(2022/11)** We release the source code of Tiny Training Engine, and include the [tutorial of our training demo](tutorial/training) for training a visual wake words (VWW) model on microcontrollers.
 - **(2022/11)** We release the source code of the algorithm and compilation parts of MCUNetV3 in [this repo](https://github.com/mit-han-lab/tiny-training). Please take a look!
