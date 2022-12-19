@@ -154,8 +154,8 @@ The **latency** results:
 | mcunet-in3                   |           7821ms        |         770ms      |    414ms  |   336ms    |
 | mcunet-in4                   |           OOM           |         OOM        |    516ms  |   463ms    |
 | *# baseline models*          |                         |                    |           |            |
-| mbv2-320kB                   |           OOM           |         OOM        |   118ms   |   124ms    |
-| proxyless-320kB              |           3801ms        |         380ms      |   205ms   |   176ms    |
+| mbv2-w0.35                   |           OOM           |         OOM        |   118ms   |   124ms    |
+| proxyless-w0.3              |           3801ms        |         380ms      |   205ms   |   176ms    |
 
 The **peak memory (SRAM)** results:
 
@@ -172,8 +172,8 @@ The **peak memory (SRAM)** results:
 | mcunet-in3                   |           493kB         |        493kB       |    243kB  |   260kB    |
 | mcunet-in4                   |           OOM           |         OOM        |    342kB  |   416kB    |
 | *# baseline models*          |                         |                    |           |            |
-| mbv2-320kB                   |           OOM           |         OOM        |   296kB   |   295kB    |
-| proxyless-320kB              |           453kB         |        453kB       |   221kB   |   259kB    |
+| mbv2-w0.35                   |           OOM           |         OOM        |   296kB   |   295kB    |
+| proxyless-w0.3              |           453kB         |        453kB       |   221kB   |   259kB    |
 
 The **Flash memory usage** results:
 
@@ -190,8 +190,8 @@ The **Flash memory usage** results:
 | mcunet-in3                   |          1091kB         |        1106kB      |    867kB  |   835kB    |
 | mcunet-in4                   |           OOM           |         OOM        |    1843kB |  1825kB    |
 | *# baseline models*          |                         |                    |           |            |
-| mbv2-320kB                   |           OOM           |         OOM        |    857kB  |   839kB    |
-| proxyless-320kB              |          1065kB         |        1075kB      |   865kB   |   842kB    |
+| mbv2-w0.35                   |           OOM           |         OOM        |    857kB  |   839kB    |
+| proxyless-w0.3              |          1065kB         |        1075kB      |   865kB   |   842kB    |
 
 ## Citation
 
