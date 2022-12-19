@@ -138,6 +138,7 @@ Please see [tutorial](tutorial) to learn how to deploy a visual wake words (VWW)
 - For each inference library, we use the git commit ID to indicate the version.
 - All the tflite models are compiled by `-Ofast` optimization level in STM32CubeIDE.
 - OOM denotes Out Of Memory.
+- Measurement for X-Cube-AI 7.3.0 was conducted with the default compilation setting of balanced mode.
 
 The **latency** results:
 
