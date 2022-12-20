@@ -138,11 +138,11 @@ Please see [tutorial](tutorial) to learn how to deploy a visual wake words (VWW)
 - For each inference library, we use the git commit ID to indicate the version.
 - All the tflite models are compiled by `-Ofast` optimization level in STM32CubeIDE.
 - OOM denotes Out Of Memory.
-- Measurement for X-Cube-AI 7.3.0 was conducted with the default compilation setting of balanced mode.
+- Measurement for X-Cube-AI v7.3.0 was conducted with the default compilation setting of balanced mode.
 
 The **latency** results:
 
-| net_id                       | TF-Lite Micro<br>[@ 713b6ed](https://github.com/tensorflow/tflite-micro/tree/713b6ed6bd81d8d6906d885e14f444aaf9c154f6) | CMSIS-NN<br>[@ 011bf32](https://github.com/ARM-software/CMSIS-NN/tree/011bf3228a64cd70ba6bfac91ac6840a88b829ee) | X-CUBE-AI<br>7.3.0 | TinyEngine<br>[@ 0363956](https://github.com/mit-han-lab/tinyengine/tree/03639563ebf6538fff557515e31667fca6448cd3) |
+| net_id                       | TF-Lite Micro<br>[@ 713b6ed](https://github.com/tensorflow/tflite-micro/tree/713b6ed6bd81d8d6906d885e14f444aaf9c154f6) | CMSIS-NN<br>[@ 011bf32](https://github.com/ARM-software/CMSIS-NN/tree/011bf3228a64cd70ba6bfac91ac6840a88b829ee) | X-CUBE-AI<br>v7.3.0 | TinyEngine<br>[@ 0363956](https://github.com/mit-han-lab/tinyengine/tree/03639563ebf6538fff557515e31667fca6448cd3) |
 | ---------------------------- | ----------------------- | ------------------ | --------- | ---------- |
 | *# mcunet models (VWW)*      |                         |                    |           |            |
 | mcunet-vww0                  |          587ms          |        53ms        |   32ms    |   27ms    |
@@ -160,7 +160,7 @@ The **latency** results:
 
 The **peak memory (SRAM)** results:
 
-| net_id                       | TF-Lite Micro<br>[@ 713b6ed](https://github.com/tensorflow/tflite-micro/tree/713b6ed6bd81d8d6906d885e14f444aaf9c154f6) | CMSIS-NN<br>[@ 011bf32](https://github.com/ARM-software/CMSIS-NN/tree/011bf3228a64cd70ba6bfac91ac6840a88b829ee) | X-CUBE-AI<br>7.3.0 | TinyEngine<br>[@ 0363956](https://github.com/mit-han-lab/tinyengine/tree/03639563ebf6538fff557515e31667fca6448cd3) |
+| net_id                       | TF-Lite Micro<br>[@ 713b6ed](https://github.com/tensorflow/tflite-micro/tree/713b6ed6bd81d8d6906d885e14f444aaf9c154f6) | CMSIS-NN<br>[@ 011bf32](https://github.com/ARM-software/CMSIS-NN/tree/011bf3228a64cd70ba6bfac91ac6840a88b829ee) | X-CUBE-AI<br>v7.3.0 | TinyEngine<br>[@ 0363956](https://github.com/mit-han-lab/tinyengine/tree/03639563ebf6538fff557515e31667fca6448cd3) |
 | ---------------------------- | ----------------------- | ------------------ | --------- | ---------- |
 | *# mcunet models (VWW)*      |                         |                    |           |            |
 | mcunet-vww0                  |          163kB          |        163kB       |   88kB    |   59kB     |
@@ -178,7 +178,7 @@ The **peak memory (SRAM)** results:
 
 The **Flash memory usage** results:
 
-| net_id                       | TF-Lite Micro<br>[@ 713b6ed](https://github.com/tensorflow/tflite-micro/tree/713b6ed6bd81d8d6906d885e14f444aaf9c154f6) | CMSIS-NN<br>[@ 011bf32](https://github.com/ARM-software/CMSIS-NN/tree/011bf3228a64cd70ba6bfac91ac6840a88b829ee) | X-CUBE-AI<br>7.3.0 | TinyEngine<br>[@ 0363956](https://github.com/mit-han-lab/tinyengine/tree/03639563ebf6538fff557515e31667fca6448cd3) |
+| net_id                       | TF-Lite Micro<br>[@ 713b6ed](https://github.com/tensorflow/tflite-micro/tree/713b6ed6bd81d8d6906d885e14f444aaf9c154f6) | CMSIS-NN<br>[@ 011bf32](https://github.com/ARM-software/CMSIS-NN/tree/011bf3228a64cd70ba6bfac91ac6840a88b829ee) | X-CUBE-AI<br>v7.3.0 | TinyEngine<br>[@ 0363956](https://github.com/mit-han-lab/tinyengine/tree/03639563ebf6538fff557515e31667fca6448cd3) |
 | ---------------------------- | ----------------------- | ------------------ | --------- | ---------- |
 | *# mcunet models (VWW)*      |                         |                    |           |            |
 | mcunet-vww0                  |          627kB          |        646kB       |   463kB   |   453kB    |
@@ -220,8 +220,7 @@ If you find the project helpful, please consider citing our paper:
   lin2022ondevice,
   title = {On-Device Training Under 256KB Memory},
   author = {Lin, Ji and Zhu, Ligeng and Chen, Wei-Ming and Wang, Wei-Chen and Gan, Chuang and Han, Song},
-  journal = {arXiv:2206.15472 [cs]},
-  url = {https://arxiv.org/abs/2206.15472},
+  booktitle={Annual Conference on Neural Information Processing Systems (NeurIPS)},
   year = {2022}
 }
 ```
