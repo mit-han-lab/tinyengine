@@ -32,7 +32,7 @@ tinyengine_status patchpadding_convolve_s8_kernel3_inputch3_stride2(const q7_t *
 		const int32_t output_activation_min,
 		const int32_t output_activation_max, q7_t *output,
 		const uint16_t output_x, const uint16_t output_y,
-		const uint16_t output_ch, q15_t *runtime_buf, q7_t pad_value,
+		const uint16_t output_ch, q15_t *runtime_buf, q15_t *kbuf, q7_t pad_value,
 		const uint16_t pad_t, const uint16_t pad_b, const uint16_t pad_l, const uint16_t pad_r) {
 	const int kernel_y = 3;
 	const int kernel_x = 3;
@@ -49,7 +49,6 @@ tinyengine_status patchpadding_convolve_s8_kernel3_inputch3_stride2(const q7_t *
 	q31_t pad_out_q15x2 = __PKHBT(pad_out, pad_out, 16);
 	q31_t offset_q15x2 = __PKHBT(inoff16, inoff16, 16);
 
-	q15_t *kbuf = (q15_t*) get_kernel_buffer();
 	const q7_t *ip_a0 = kernel;
 
 #ifdef HOLD_KERNEL
