@@ -1,6 +1,6 @@
-[submodule "mcunet"]
-	path = mcunet
-	url = https://github.com/mit-han-lab/mcunet.git
 [submodule "TinyEngine/third_party/CMSIS"]
 	path = TinyEngine/third_party/CMSIS
 	url = https://github.com/ARM-software/CMSIS_5.git
+[submodule "mcunet"]
+	path = mcunet
+	url = https://github.com/mit-han-lab/mcunet
