@@ -19,13 +19,12 @@
 import os
 from tempfile import TemporaryDirectory
 
-from mcunet.model_zoo import download_tflite
-
 from code_generator.CodeGenerator import CodeGenerator
 from code_generator.GeneralMemoryScheduler import GeneralMemoryScheduler
 from code_generator.InputResizer import PatchResizer
 from code_generator.PatchBasedUtil import getPatchParams
 from code_generator.TfliteConvertor import TfliteConvertor
+from mcunet.mcunet.model_zoo import download_tflite
 
 # 1: Let's first build our pretrained VWW model
 # 2: To deploy the model on MCU, we need to first convert the model to an Intermediate Representation (IR) and
