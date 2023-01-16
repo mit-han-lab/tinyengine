@@ -75,7 +75,7 @@ with TemporaryDirectory() as WORKING_DIR:
         patch_params=patch_params,
         FP_output=False,
         profile_mode=False,
-        fp_requantize=True,
+        fp_requantize=False,
         tflite_op=False,
         dummy_address=False,
         outputTables=outTable,
