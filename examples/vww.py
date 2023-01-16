@@ -22,7 +22,7 @@ from mcunet.mcunet.model_zoo import download_tflite
 # 1: Let's first build our pretrained VWW model
 # 2: To deploy the model on MCU, we need to first convert the model to an Intermediate Representation (IR) and
 # get the weight parameters and scale parameters.
-tflite_path = download_tflite(net_id="mcunet-in4")
+tflite_path = download_tflite(net_id="mcunet-vww1")
 
 # 3. Let's generate source code for on-device deployment
 peakmem = GenerateSourceFilesFromTFlite(

@@ -29,7 +29,7 @@ from mcunet.mcunet.model_zoo import download_tflite
 # 1: Let's first build our pretrained VWW model
 # 2: To deploy the model on MCU, we need to first convert the model to an Intermediate Representation (IR) and
 # get the weight parameters and scale parameters.
-tflite_path = download_tflite(net_id="mcunet-in4")
+tflite_path = download_tflite(net_id="mcunet-vww1")
 life_cycle_path = "./lifecycle.png"
 # 3. Set up patchbased parameters
 use_inplace = True
