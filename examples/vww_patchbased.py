@@ -19,18 +19,17 @@
 import os
 from tempfile import TemporaryDirectory
 
-from mcunet.model_zoo import download_tflite
-
 from code_generator.CodeGenerator import CodeGenerator
 from code_generator.GeneralMemoryScheduler import GeneralMemoryScheduler
 from code_generator.InputResizer import PatchResizer
 from code_generator.PatchBasedUtil import getPatchParams
 from code_generator.TfliteConvertor import TfliteConvertor
+from mcunet.mcunet.model_zoo import download_tflite
 
 # 1: Let's first build our pretrained VWW model
 # 2: To deploy the model on MCU, we need to first convert the model to an Intermediate Representation (IR) and
 # get the weight parameters and scale parameters.
-tflite_path = download_tflite(net_id="mcunet-vww1")
+tflite_path = download_tflite(net_id="mcunet-in4")
 life_cycle_path = "./lifecycle.png"
 # 3. Set up patchbased parameters
 use_inplace = True
@@ -76,7 +75,7 @@ with TemporaryDirectory() as WORKING_DIR:
         patch_params=patch_params,
         FP_output=False,
         profile_mode=False,
-        fp_requantize=False,
+        fp_requantize=True,
         tflite_op=False,
         dummy_address=False,
         outputTables=outTable,
