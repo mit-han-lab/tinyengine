@@ -52,7 +52,7 @@ You should see the compiled binary at `openmv/src/build/bin/firmware.bin`.
 
 The patch is to
 
-1. disable some features in the firmware for SRAM and Flash space
+1. disable some features in the firmware for SRAM and flash space
 1. setup for TinyEngine source
 1. add the application code for training in `exampleemodule.c`
 
@@ -61,7 +61,7 @@ cd tinyengine/examples/openmv_training_sparse/openmv
 git apply ../openmv_training_sparse.patch
 ```
 
-## Generate model-specific code and Recompile the firmware with TinyEngine
+## Generate model-specific code and recompile the firmware with TinyEngine
 
 ```
 cd tinyengine/examples/openmv_training_sparse
@@ -74,6 +74,6 @@ Flash the binary `openmv/src/build/bin/firmware.bin` into your OpenMV. Please re
 
 ## Start the demo
 
-1. download OpenMV IDE
+1. Open OpenMV IDE
 1. Connect your OpenMV cam to the PC
 1. Run the python script `tinyengine/examples/openmv_vww/vww_openmv_demo.py` in OpenMV IDE.
