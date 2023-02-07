@@ -150,10 +150,10 @@ index 84601904..abc6fe04 100644
   * @brief defition to adding rouding offset
   */
 diff --git a/src/omv/Makefile b/src/omv/Makefile
-index 159d07a5..6bdfd47a 100644
+index 159d07a5..239fa50a 100644
 --- a/src/omv/Makefile
 +++ b/src/omv/Makefile
-@@ -96,6 +96,25 @@ SRCS += $(addprefix imlib/,     \
+@@ -96,6 +96,50 @@ SRCS += $(addprefix imlib/,     \
  	zbar.c                      \
     )
  
@@ -162,18 +162,43 @@ index 159d07a5..6bdfd47a 100644
 +	codegen/Source/depthwise_kernel3x3_stride1_inplace_CHW_fpreq.c                     \
 +	codegen/Source/depthwise_kernel3x3_stride2_inplace_CHW_fpreq.c                     \
 +	codegen/Source/depthwise_kernel5x5_stride1_inplace_CHW_fpreq.c                     \
-+	codegen/Source/depthwise_kernel5x5_stride2_inplace_CHW_fpreq.c                     \
 +	codegen/Source/depthwise_kernel7x7_stride1_inplace_CHW_fpreq.c                     \
 +	codegen/Source/depthwise_kernel7x7_stride2_inplace_CHW_fpreq.c                     \
++	codegen/Source/depthwise_kernel3x3_stride1_inplace_CHW_fpreq_bitmask.c           \
++	codegen/Source/depthwise_kernel3x3_stride2_inplace_CHW_fpreq_bitmask.c           \
++	codegen/Source/depthwise_kernel5x5_stride1_inplace_CHW_fpreq_bitmask.c           \
++	codegen/Source/depthwise_kernel7x7_stride1_inplace_CHW_fpreq_bitmask.c           \
++	codegen/Source/depthwise_kernel7x7_stride2_inplace_CHW_fpreq_bitmask.c           \
 +	src/kernels/fp_requantize_op/add_fpreq.c \
 +	src/kernels/fp_requantize_op/convolve_1x1_s8_ch8_fpreq.c \
 +	src/kernels/fp_requantize_op/convolve_1x1_s8_ch16_fpreq.c \
 +	src/kernels/fp_requantize_op/convolve_1x1_s8_ch24_fpreq.c \
 +	src/kernels/fp_requantize_op/convolve_1x1_s8_ch48_fpreq.c \
 +	src/kernels/fp_requantize_op/convolve_1x1_s8_fpreq.c \
-+	src/kernels/int_only/avgpooling.c \
++	src/kernels/int_forward_op/avgpooling.c \
 +	src/kernels/fp_requantize_op/convolve_s8_kernel3_inputch3_stride2_pad1_fpreq.c \
 +	src/kernels/fp_requantize_op/mat_mul_kernels_fpreq.c \
++	src/kernels/fp_requantize_op/convolve_1x1_s8_fpreq_mask.c \
++	src/kernels/fp_requantize_op/convolve_1x1_s8_fpreq_mask_partialCH.c \
++	src/kernels/fp_backward_op/sum_4D_exclude_fp.c \
++	src/kernels/fp_backward_op/where_fp.c \
++	src/kernels/fp_backward_op/transpose_depthwise_conv_fp_kernel3_stride1_inpad1_outpad0.c \
++	src/kernels/fp_backward_op/transpose_depthwise_conv_fp_kernel3_stride2_inpad1_outpad1.c \
++	src/kernels/fp_backward_op/transpose_depthwise_conv_fp_kernel5_stride1_inpad2_outpad0.c \
++	src/kernels/fp_backward_op/transpose_depthwise_conv_fp_kernel5_stride2_inpad2_outpad1.c \
++	src/kernels/fp_backward_op/transpose_depthwise_conv_fp_kernel7_stride1_inpad3_outpad0.c \
++	src/kernels/fp_backward_op/transpose_depthwise_conv_fp_kernel7_stride2_inpad3_outpad1.c \
++	src/kernels/fp_backward_op/tte_exp_fp.c \
++	src/kernels/fp_backward_op/sub_fp.c \
++	src/kernels/fp_backward_op/mul_fp.c \
++	src/kernels/fp_backward_op/pointwise_conv_fp.c \
++	src/kernels/fp_backward_op/group_pointwise_conv_fp.c \
++	src/kernels/fp_backward_op/group_conv_fp_kernel4_stride1_pad0.c \
++	src/kernels/fp_backward_op/group_conv_fp_kernel8_stride1_pad0.c \
++	src/kernels/fp_backward_op/strided_slice_4Dto4D_fp.c \
++	src/kernels/fp_backward_op/sum_3D_fp.c \
++	src/kernels/fp_backward_op/nll_loss_fp.c \
++	src/kernels/fp_backward_op/log_softmax_fp.c \
 +   )
 +
  SRCS += $(wildcard ports/$(PORT)/*.c)
@@ -406,10 +431,10 @@ index 412de472..f7da2c03 100644
  
  // Domain 2 DMA buffers region.
 diff --git a/src/omv/modules/examplemodule.c b/src/omv/modules/examplemodule.c
-index 37e2b4f4..1f6ce7d4 100644
+index 37e2b4f4..52d1bda2 100644
 --- a/src/omv/modules/examplemodule.c
 +++ b/src/omv/modules/examplemodule.c
-@@ -1,17 +1,277 @@
+@@ -1,17 +1,81 @@
  // Include MicroPython API.
  #include "py/runtime.h"
 +#include "genNN.h"
@@ -417,224 +442,27 @@ index 37e2b4f4..1f6ce7d4 100644
 +#include <stdio.h>
 +#include "py_image.h"
  
-+#define TEST_SIZE 1 * 1024
-+// signed char w[TEST_SIZE];
- // This is the function which will be called from Python as cexample.add_ints(a, b).
- STATIC mp_obj_t example_add_ints(mp_obj_t a_obj, mp_obj_t b_obj) {
+-// This is the function which will be called from Python as cexample.add_ints(a, b).
+-STATIC mp_obj_t example_add_ints(mp_obj_t a_obj, mp_obj_t b_obj) {
 -    // Extract the ints from the micropython input objects.
 -    int a = mp_obj_get_int(a_obj);
 -    int b = mp_obj_get_int(b_obj);
-+    invoke(NULL);
-+    return mp_obj_new_int(999);
-+}
-+
++#define TEST_SIZE 1 * 1024
 +#define TN_MAX(A,B) ((A) > (B) ? (A) : (B))
 +#define TN_MIN(A,B) ((A) < (B) ? (A) : (B))``
 +
 +// for fc only
-+#define ORIGIN_H 72
-+#define ORIGIN_W 88
-+#define IMAGE_H 80
-+#define IMAGE_W 80
-+#define INPUT_CH 160
-+#define OUTPUT_CH 2
-+#define IMAGES 6
-+
-+float feat_fp[INPUT_CH];
-+int8_t feat[INPUT_CH];
-+float w[INPUT_CH * OUTPUT_CH];
-+float b[OUTPUT_CH];
-+float out[OUTPUT_CH];
-+float dw[OUTPUT_CH*INPUT_CH];
-+float lr = 0.1;
-+const signed char zero_x = 6;
-+const float scale_x = 0.060486205;
-+
-+void fully_connected_fp(
-+		const float *input, const uint16_t input_x, const uint16_t input_y,
-+		const uint16_t input_ch, const uint16_t output_ch, const float *bias,
-+		const float *weights, float *output)
-+{
-+	int h, w, out_c, in_c;
-+	for (h = 0; h < input_y; h++){
-+		for (w = 0; w < input_x; w++){
-+			int pixel_cnt = w + input_x * h;
-+			for (out_c = 0; out_c < output_ch; out_c++){
-+				float intermediate = bias[out_c];
-+				const float *start_weight = weights + out_c * input_ch;
-+				const float *start_input = input + input_ch * pixel_cnt;
-+				float *start_out = output + output_ch * pixel_cnt;
-+				for (in_c = 0; in_c < input_ch; in_c++){
-+					intermediate += start_weight[in_c] * start_input[in_c];
-+				}
-+				start_out[out_c] = intermediate;
-+			}
-+		}
-+	}
-+}
-+
-+void mat_mul_fp(
-+				const float *matA, const uint16_t matA_row, const uint16_t matA_col,
-+				const float* matB, const uint16_t matB_col, float* output)
-+{
-+	int m, n, i;
-+	for (n = 0; n < matA_row; n++){
-+		for (m = 0; m < matB_col; m++){
-+			float sum = 0;
-+			for (i = 0; i < matA_col; i++){
-+				sum += matA[i + n * matA_col] * matB[m + i * matA_col];
-+			}
-+			output[m + n * matB_col] = sum;
-+		}
-+	}
-+}
-+
-+void statble_softmax_inplace(float *input, const uint16_t length)
-+{
-+	float max = FLT_MIN;
-+	float exp_sum = 0;
-+	uint16_t i;
-+	for (i = 0; i < length; i++){
-+		if (input[i] > max) max = input[i];
-+	}
-+
-+	// inplace update
-+	for (i = 0; i < length; i++){
-+		input[i] = exp(input[i] - max);
-+		exp_sum += input[i];
-+	}
-+	for (i = 0; i < length; i++){
-+		input[i] = input[i] / exp_sum;
-+	}
-+}
-+
-+
-+void invoke_new_weights(const int8_t* img, float *out){
-+  int i;
-+  signed char *input = getInput();
-+  const int8_t* image = img;
-+  for (i = 0; i < IMAGE_H * IMAGE_W * 3; i++){
-+	  input[i] = *image++;
-+  }
-+  invoke(NULL);
-+  signed char *output = getOutput();
-+  for (i = 0; i < INPUT_CH; i++){
-+	  feat_fp[i] = (output[i] - zero_x)*scale_x;
-+  }
-+
-+  // out = new_w @ feat + new_b
-+  fully_connected_fp(feat_fp, 1, 1, INPUT_CH, OUTPUT_CH, b, w, out);
-+}
-+
-+void invoke_new_weights_givenimg(float *out){
-+  int i;
-+  invoke(NULL);
-+  signed char *output = getOutput();
-+  for (i = 0; i < INPUT_CH; i++){
-+	  feat_fp[i] = (output[i] - zero_x)*scale_x;
-+  }
-+
-+  // out = new_w @ feat + new_b
-+  fully_connected_fp(feat_fp, 1, 1, INPUT_CH, OUTPUT_CH, b, w, out);
-+}
-+
-+void train_one_img(const int8_t* img, int cls)
-+{
-+  int i;
-+  signed char *input = getInput();
-+  const int8_t* image = img;
-+  for (i = 0; i < IMAGE_H * IMAGE_W * 3; i++){
-+	  input[i] = *image++;
-+  }
-+  invoke(NULL);
-+  signed char *output = getOutput();
-+  for (i = 0; i < INPUT_CH; i++){
-+	  feat_fp[i] = (output[i] - zero_x)*scale_x;
-+  }
-+
-+  // out = new_w @ feat + new_b
-+  fully_connected_fp(feat_fp, 1, 1, INPUT_CH, OUTPUT_CH, b, w, out);
-+
-+  // softmax = _stable_softmax(out)
-+  statble_softmax_inplace(out, OUTPUT_CH);
++#define ORIGIN_H 128
++#define ORIGIN_W 128
++#define IMAGE_H 128
++#define IMAGE_W 128
  
 -    // Calculate the addition and convert to MicroPython object.
 -    return mp_obj_new_int(a + b);
-+  out[cls] -= 1;
-+
-+  //dw = dy.reshape(-1, 1) @ feat.reshape(1, -1)
-+  mat_mul_fp(out, OUTPUT_CH, 1, feat_fp, INPUT_CH, dw);
-+
-+  for (i = 0; i < OUTPUT_CH * INPUT_CH; i++){
-+	  w[i] = w[i] - lr * dw[i];
-+  }
-+  //new_w = new_w - lr * dw
-+  //new_b = new_b - lr *
-+  b[0] = b[0] - lr * out[0];
-+  b[1] = b[1] - lr * out[1];
- }
-+
-+void train(int cls)
-+{
-+  int i;
-+  invoke(NULL);
-+  signed char *output = getOutput();
-+  for (i = 0; i < INPUT_CH; i++){
-+	  feat_fp[i] = (output[i] - zero_x)*scale_x;
-+  }
-+
-+  // out = new_w @ feat + new_b
-+  fully_connected_fp(feat_fp, 1, 1, INPUT_CH, OUTPUT_CH, b, w, out);
-+
-+  // softmax = _stable_softmax(out)
-+  statble_softmax_inplace(out, OUTPUT_CH);
-+
-+  out[cls] -= 1;
-+
-+  //dw = dy.reshape(-1, 1) @ feat.reshape(1, -1)
-+  mat_mul_fp(out, OUTPUT_CH, 1, feat_fp, INPUT_CH, dw);
-+
-+  for (i = 0; i < OUTPUT_CH * INPUT_CH; i++){
-+	  w[i] = w[i] - lr * dw[i];
-+  }
-+  //new_w = new_w - lr * dw
-+  //new_b = new_b - lr *
-+  b[0] = b[0] - lr * out[0];
-+  b[1] = b[1] - lr * out[1];
-+}
-+
-+void train_one_feat(const float* feat, int cls)
-+{
-+  int i;
-+  signed char *input = getInput();
-+  for (i = 0; i < IMAGE_H * IMAGE_W * 3; i++){
-+	  input[i] = feat[i];
-+  }
-+
-+  // out = new_w @ feat + new_b
-+  fully_connected_fp(feat, 1, 1, INPUT_CH, OUTPUT_CH, b, w, out);
-+
-+  // softmax = _stable_softmax(out)
-+  statble_softmax_inplace(out, OUTPUT_CH);
-+
-+  out[cls] -= 1;
-+
-+  //dw = dy.reshape(-1, 1) @ feat.reshape(1, -1)
-+  mat_mul_fp(out, OUTPUT_CH, 1, feat, INPUT_CH, dw);
-+
-+  for (i = 0; i < OUTPUT_CH * INPUT_CH; i++){
-+	  w[i] = w[i] - lr * dw[i];
-+  }
-+  //new_w = new_w - lr * dw
-+  //new_b = new_b - lr *
-+  b[0] = b[0] - lr * out[0];
-+  b[1] = b[1] - lr * out[1];
-+}
-+
-+
 +uint16_t color;
++float labels[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 +// This is the function which will be called from Python as cexample.add_ints(a, b).
-+STATIC mp_obj_t example_VWW(mp_obj_t a, mp_obj_t b) {
++STATIC mp_obj_t example_train_demo_fn(mp_obj_t a, mp_obj_t b) {
 +    image_t* img = py_image_cobj(a);
 +    // >= 0, for training with the label, -1 is for inference
 +    int command = mp_obj_get_int(b);
@@ -663,12 +491,16 @@ index 37e2b4f4..1f6ce7d4 100644
 +        }
 +    }
 +    if (command >= 0){
++        labels[0] = 0;
++        labels[1] = 0;
++        labels[command] = 1;
++        invoke(labels);
 +        printf("train class %d\n", command);
-+        train(command);
 +    }
 +    else{
-+        invoke_new_weights_givenimg(out);
-+        if(out[0] > out[1]){
++        invoke_inf();
++        uint8_t* output = (uint8_t*)getOutput();
++        if(output[0] > output[1]){
 +            printf("infer class 0\n");
 +            color = 63488;
 +		}
@@ -684,30 +516,31 @@ index 37e2b4f4..1f6ce7d4 100644
 +        }
 +    }
 +    return mp_obj_new_int(0);
-+}
+ }
 +
  // Define a Python reference to the function above.
- STATIC MP_DEFINE_CONST_FUN_OBJ_2(example_add_ints_obj, example_add_ints);
-+STATIC MP_DEFINE_CONST_FUN_OBJ_2(example_VWW_obj, example_VWW);
+-STATIC MP_DEFINE_CONST_FUN_OBJ_2(example_add_ints_obj, example_add_ints);
++STATIC MP_DEFINE_CONST_FUN_OBJ_2(example_train_demo, example_train_demo_fn);
  
  // Define all properties of the module.
  // Table entries are key/value pairs of the attribute name (a string)
-@@ -21,6 +281,7 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_2(example_add_ints_obj, example_add_ints);
+@@ -20,7 +84,7 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_2(example_add_ints_obj, example_add_ints);
+ // optimized to word-sized integers by the build system (interned strings).
  STATIC const mp_rom_map_elem_t example_module_globals_table[] = {
      { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_cexample) },
-     { MP_ROM_QSTR(MP_QSTR_add_ints), MP_ROM_PTR(&example_add_ints_obj) },
-+    { MP_ROM_QSTR(MP_QSTR_VWW), MP_ROM_PTR(&example_VWW_obj) },
+-    { MP_ROM_QSTR(MP_QSTR_add_ints), MP_ROM_PTR(&example_add_ints_obj) },
++    { MP_ROM_QSTR(MP_QSTR_train_demo), MP_ROM_PTR(&example_train_demo) },
  };
  STATIC MP_DEFINE_CONST_DICT(example_module_globals, example_module_globals_table);
  
-@@ -33,4 +294,4 @@ const mp_obj_module_t example_user_cmodule = {
+@@ -33,4 +97,4 @@ const mp_obj_module_t example_user_cmodule = {
  // Register the module to make it available in Python.
  // Note: This module is disabled, set the thrid argument to 1 to enable it, or
  // use a macro like MODULE_CEXAMPLE_ENABLED to conditionally enable this module.
 -MP_REGISTER_MODULE(MP_QSTR_cexample, example_user_cmodule, 0);
 +MP_REGISTER_MODULE(MP_QSTR_cexample, example_user_cmodule, 1);
 diff --git a/src/omv/ports/stm32/omv_portconfig.mk b/src/omv/ports/stm32/omv_portconfig.mk
-index 200ffb7d..e742c135 100644
+index 200ffb7d..b3049e25 100644
 --- a/src/omv/ports/stm32/omv_portconfig.mk
 +++ b/src/omv/ports/stm32/omv_portconfig.mk
 @@ -4,7 +4,7 @@ STARTUP   ?= st/startup_$(shell echo $(MCU) | tr '[:upper:]' '[:lower:]')
@@ -715,7 +548,7 @@ index 200ffb7d..e742c135 100644
  
  # Compiler Flags
 -CFLAGS += -std=gnu99 -Wall -Werror -Warray-bounds -mthumb -nostartfiles -fdata-sections -ffunction-sections
-+CFLAGS += -std=gnu99 -Wall -Warray-bounds -mthumb -nostartfiles -fdata-sections -ffunction-sections 
++CFLAGS += -std=gnu99 -Warray-bounds -mthumb -nostartfiles -fdata-sections -ffunction-sections -lm
  CFLAGS += -fno-inline-small-functions -D$(MCU) -D$(CFLAGS_MCU) -D$(ARM_MATH) -DARM_NN_TRUNCATE\
            -fsingle-precision-constant -Wdouble-promotion -mcpu=$(CPU) -mtune=$(CPU) -mfpu=$(FPU) -mfloat-abi=hard
  CFLAGS += -D__FPU_PRESENT=1 -D__VFP_FP__ -DUSE_USB_FS -DUSE_DEVICE_MODE -DUSE_USB_OTG_ID=0 -DHSE_VALUE=$(OMV_HSE_VALUE)\
@@ -730,7 +563,7 @@ index 200ffb7d..e742c135 100644
  OMV_CFLAGS += -I$(TOP_DIR)/$(OMV_DIR)/sensors/
  OMV_CFLAGS += -I$(TOP_DIR)/$(OMV_DIR)/ports/$(PORT)/
  OMV_CFLAGS += -I$(TOP_DIR)/$(OMV_DIR)/ports/$(PORT)/modules/
-@@ -213,6 +217,25 @@ FIRM_OBJ += $(addprefix $(BUILD)/$(OMV_DIR)/imlib/, \
+@@ -213,6 +217,50 @@ FIRM_OBJ += $(addprefix $(BUILD)/$(OMV_DIR)/imlib/, \
  	zbar.o                      \
     )
  
@@ -739,20 +572,63 @@ index 200ffb7d..e742c135 100644
 +	codegen/Source/depthwise_kernel3x3_stride1_inplace_CHW_fpreq.o                     \
 +	codegen/Source/depthwise_kernel3x3_stride2_inplace_CHW_fpreq.o                     \
 +	codegen/Source/depthwise_kernel5x5_stride1_inplace_CHW_fpreq.o                     \
-+	codegen/Source/depthwise_kernel5x5_stride2_inplace_CHW_fpreq.o                     \
 +	codegen/Source/depthwise_kernel7x7_stride1_inplace_CHW_fpreq.o                     \
 +	codegen/Source/depthwise_kernel7x7_stride2_inplace_CHW_fpreq.o                     \
++	codegen/Source/depthwise_kernel3x3_stride1_inplace_CHW_fpreq_bitmask.o           \
++	codegen/Source/depthwise_kernel3x3_stride2_inplace_CHW_fpreq_bitmask.o           \
++	codegen/Source/depthwise_kernel5x5_stride1_inplace_CHW_fpreq_bitmask.o           \
++	codegen/Source/depthwise_kernel7x7_stride1_inplace_CHW_fpreq_bitmask.o           \
++	codegen/Source/depthwise_kernel7x7_stride2_inplace_CHW_fpreq_bitmask.o           \
 +	src/kernels/fp_requantize_op/add_fpreq.o \
 +	src/kernels/fp_requantize_op/convolve_1x1_s8_ch8_fpreq.o \
 +	src/kernels/fp_requantize_op/convolve_1x1_s8_ch16_fpreq.o \
 +	src/kernels/fp_requantize_op/convolve_1x1_s8_ch24_fpreq.o \
 +	src/kernels/fp_requantize_op/convolve_1x1_s8_ch48_fpreq.o \
 +	src/kernels/fp_requantize_op/convolve_1x1_s8_fpreq.o \
-+	src/kernels/int_only/avgpooling.o \
++	src/kernels/int_forward_op/avgpooling.o \
 +	src/kernels/fp_requantize_op/convolve_s8_kernel3_inputch3_stride2_pad1_fpreq.o \
 +	src/kernels/fp_requantize_op/mat_mul_kernels_fpreq.o \
++	src/kernels/fp_requantize_op/convolve_1x1_s8_fpreq_mask.o \
++	src/kernels/fp_requantize_op/convolve_1x1_s8_fpreq_mask_partialCH.o \
++	src/kernels/fp_backward_op/sum_4D_exclude_fp.o \
++	src/kernels/fp_backward_op/where_fp.o \
++	src/kernels/fp_backward_op/transpose_depthwise_conv_fp_kernel3_stride1_inpad1_outpad0.o \
++	src/kernels/fp_backward_op/transpose_depthwise_conv_fp_kernel3_stride2_inpad1_outpad1.o \
++	src/kernels/fp_backward_op/transpose_depthwise_conv_fp_kernel5_stride1_inpad2_outpad0.o \
++	src/kernels/fp_backward_op/transpose_depthwise_conv_fp_kernel5_stride2_inpad2_outpad1.o \
++	src/kernels/fp_backward_op/transpose_depthwise_conv_fp_kernel7_stride1_inpad3_outpad0.o \
++	src/kernels/fp_backward_op/transpose_depthwise_conv_fp_kernel7_stride2_inpad3_outpad1.o \
++	src/kernels/fp_backward_op/tte_exp_fp.o \
++	src/kernels/fp_backward_op/sub_fp.o \
++	src/kernels/fp_backward_op/mul_fp.o \
++	src/kernels/fp_backward_op/pointwise_conv_fp.o \
++	src/kernels/fp_backward_op/group_pointwise_conv_fp.o \
++	src/kernels/fp_backward_op/group_conv_fp_kernel4_stride1_pad0.o \
++	src/kernels/fp_backward_op/group_conv_fp_kernel8_stride1_pad0.o \
++	src/kernels/fp_backward_op/strided_slice_4Dto4D_fp.o \
++	src/kernels/fp_backward_op/sum_3D_fp.o \
++	src/kernels/fp_backward_op/nll_loss_fp.o \
++	src/kernels/fp_backward_op/log_softmax_fp.o \
 +	)	
 +
  FIRM_OBJ += $(wildcard $(BUILD)/$(OMV_DIR)/ports/$(PORT)/*.o)
  FIRM_OBJ += $(wildcard $(BUILD)/$(MICROPY_DIR)/modules/*.o)
  FIRM_OBJ += $(wildcard $(BUILD)/$(MICROPY_DIR)/ports/$(PORT)/modules/*.o)
+@@ -625,7 +673,7 @@ endif
+ # This target generates the main/app firmware image located at 0x08010000
+ $(FIRMWARE): FIRMWARE_OBJS
+ 	$(CPP) -P -E -I$(OMV_BOARD_CONFIG_DIR) $(OMV_DIR)/ports/$(PORT)/$(LDSCRIPT).ld.S > $(BUILD)/$(LDSCRIPT).lds
+-	$(CC) $(LDFLAGS) $(FIRM_OBJ) -o $(FW_DIR)/$(FIRMWARE).elf $(LIBS) -lgcc
++	$(CC) $(LDFLAGS) $(FIRM_OBJ) -o $(FW_DIR)/$(FIRMWARE).elf $(LIBS) -lgcc -lm
+ 	$(OBJCOPY) -Obinary -R .big_const* $(FW_DIR)/$(FIRMWARE).elf $(FW_DIR)/$(FIRMWARE).bin
+ 	$(PYTHON) $(MKDFU) -D $(DFU_DEVICE) -b $(MAIN_APP_ADDR):$(FW_DIR)/$(FIRMWARE).bin $(FW_DIR)/$(FIRMWARE).dfu
+ 
+@@ -633,7 +681,7 @@ ifeq ($(OMV_ENABLE_BL), 1)
+ # This target generates the bootloader.
+ $(BOOTLOADER): FIRMWARE_OBJS BOOTLOADER_OBJS
+ 	$(CPP) -P -E -I$(OMV_BOARD_CONFIG_DIR) $(BOOTLDR_DIR)/stm32fxxx.ld.S > $(BUILD)/$(BOOTLDR_DIR)/stm32fxxx.lds
+-	$(CC) $(BL_LDFLAGS) $(BOOT_OBJ) -o $(FW_DIR)/$(BOOTLOADER).elf -lgcc
++	$(CC) $(BL_LDFLAGS) $(BOOT_OBJ) -o $(FW_DIR)/$(BOOTLOADER).elf -lgcc -lm
+ 	$(OBJCOPY) -Obinary $(FW_DIR)/$(BOOTLOADER).elf $(FW_DIR)/$(BOOTLOADER).bin
+ 	$(PYTHON) $(MKDFU) -D $(DFU_DEVICE) -b 0x08000000:$(FW_DIR)/$(BOOTLOADER).bin $(FW_DIR)/$(BOOTLOADER).dfu
+ endif

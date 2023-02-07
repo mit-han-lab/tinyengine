@@ -1,6 +1,6 @@
-# Deploy VWW on OpenMV Cam H7
+# Training on OpenMV Cam H7
 
-This is an example showing how to deploy the VWW model on OpenMV Cam H7 with TinyEngine.
+This is an example showing how to train a model using a predefined sparse update schema with TinyEngine.
 
 ## Install build dependencies on Linux
 
@@ -25,7 +25,7 @@ export PATH=${TOOLCHAIN_PATH}/bin:${PATH}
 ## Clone the OpenMV source
 
 ```
-cd tinyengine/examples/openmv_vww/
+cd tinyengine/examples/openmv_training_sparse/
 git clone https://github.com/openmv/openmv.git
 ```
 
@@ -52,40 +52,31 @@ You should see the compiled binary at `openmv/src/build/bin/firmware.bin`.
 
 The patch is to
 
-1. disable some features in the firmware for SRAM and Flash space
+1. disable some features in the firmware for SRAM and flash space
 1. setup for TinyEngine source
-1. add vww application code in `exampleemodule.c`
+1. add the application code for training in `exampleemodule.c`
 
 ```
-cd tinyengine/examples/openmv_vww/openmv
-git apply ../openmv.patch
+git apply ../openmv_sparse_training.patch
 ```
 
-# Add the Tinyengine into openmv
+## Generate model-specific code and recompile the firmware with TinyEngine
 
 ```
-cd tinyengine
-cp -r TinyEngine examples/openmv_vww/openmv/src/omv/modules/
-```
-
-## Generate model-specific code for VWW
-
-```
-cd tinyengine/examples/openmv_vww/
-python ../vww.py
-cp -r codegen/ openmv/src/omv/modules/TinyEngine/
-```
-
-Copy the generated code at `tinyengine/example/openmv_vww/codegen` into TinyEngie.
-
-## Recompile the firmware with TinyEngine
-
-```
-cd tinyengine/examples/openmv_vww/openmv/
+cd ..
+sh gen_code.sh
+cd openmv
 make -j4 TARGET=OPENMV4 -C src
 ```
 
 Flash the binary `openmv/src/build/bin/firmware.bin` into your OpenMV. Please refer to the official [Instructions](https://github.com/openmv/openmv/blob/master/src/README.md#flashing-the-firmware%5D).
+
+## Connect two buttons to your board
+
+Connect two buttons with jump wires to pin1 and pin4. Please refer to the [pinout](http://wiki.amperka.ru/_media/products:openmv-cam-h7:openmv-cam-h7-pinout.pdf).
+
+These two buttons will be used to label images captured by the camera.
+![image](https://user-images.githubusercontent.com/17592131/217367877-6a500f31-be3b-4258-a86e-4eabbb947a7e.png)
 
 ## Start the demo
 
