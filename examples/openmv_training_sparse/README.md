@@ -1,6 +1,6 @@
-# Deploy VWW on OpenMV Cam H7
+# Training on OpenMV Cam H7
 
-This is an example showing how to deploy the VWW model on OpenMV Cam H7 with TinyEngine.
+This is an example showing how to train a model using a predefined sparse update schema with TinyEngine.
 
 ## Install build dependencies on Linux
 
@@ -54,25 +54,18 @@ The patch is to
 
 1. disable some features in the firmware for SRAM and Flash space
 1. setup for TinyEngine source
-1. add vww application code in `exampleemodule.c`
+1. add the application code for training in `exampleemodule.c`
 
 ```
 cd tinyengine/examples/openmv_training_sparse/openmv
-git apply ../openmv.patch
+git apply ../openmv_training_sparse.patch
 ```
 
-## Generate model-specific code for VWW
+## Generate model-specific code and Recompile the firmware with TinyEngine
 
 ```
 cd tinyengine/examples/openmv_training_sparse
 sh gen_code.sh
-```
-
-Copy the generated code at `tinyengine/example/openmv_vww/codegen` into TinyEngie.
-
-## Recompile the firmware with TinyEngine
-
-```
 cd tinyengine/examples/openmv_training_sparse/openmv/
 make -j4 TARGET=OPENMV4 -C src
 ```
