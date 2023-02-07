@@ -72,6 +72,14 @@ make -j4 TARGET=OPENMV4 -C src
 
 Flash the binary `openmv/src/build/bin/firmware.bin` into your OpenMV. Please refer to the official [Instructions](https://github.com/openmv/openmv/blob/master/src/README.md#flashing-the-firmware%5D).
 
+## Connect two buttons to your board
+
+Connect two buttons with jump wires to pin1 and pin4. Please refer to the [pinout](http://wiki.amperka.ru/_media/products:openmv-cam-h7:openmv-cam-h7-pinout.pdf).
+
+These two buttons will be used to label images captured by the camera. 
+![image](https://user-images.githubusercontent.com/17592131/217367877-6a500f31-be3b-4258-a86e-4eabbb947a7e.png)
+
+
 ## Start the demo
 
 1. Open OpenMV IDE
