@@ -57,16 +57,15 @@ The patch is to
 1. add the application code for training in `exampleemodule.c`
 
 ```
-cd tinyengine/examples/openmv_training_sparse/openmv
-git apply ../openmv_training_sparse.patch
+git apply ../openmv_sparse_training.patch
 ```
 
 ## Generate model-specific code and recompile the firmware with TinyEngine
 
 ```
-cd tinyengine/examples/openmv_training_sparse
+cd ..
 sh gen_code.sh
-cd tinyengine/examples/openmv_training_sparse/openmv/
+cd openmv
 make -j4 TARGET=OPENMV4 -C src
 ```
 
@@ -76,9 +75,8 @@ Flash the binary `openmv/src/build/bin/firmware.bin` into your OpenMV. Please re
 
 Connect two buttons with jump wires to pin1 and pin4. Please refer to the [pinout](http://wiki.amperka.ru/_media/products:openmv-cam-h7:openmv-cam-h7-pinout.pdf).
 
-These two buttons will be used to label images captured by the camera. 
+These two buttons will be used to label images captured by the camera.
 ![image](https://user-images.githubusercontent.com/17592131/217367877-6a500f31-be3b-4258-a86e-4eabbb947a7e.png)
-
 
 ## Start the demo
 
