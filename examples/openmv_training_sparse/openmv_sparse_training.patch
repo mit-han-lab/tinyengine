@@ -431,10 +431,10 @@ index 412de472..f7da2c03 100644
  
  // Domain 2 DMA buffers region.
 diff --git a/src/omv/modules/examplemodule.c b/src/omv/modules/examplemodule.c
-index 37e2b4f4..f29366f7 100644
+index 37e2b4f4..52d1bda2 100644
 --- a/src/omv/modules/examplemodule.c
 +++ b/src/omv/modules/examplemodule.c
-@@ -1,17 +1,89 @@
+@@ -1,17 +1,81 @@
  // Include MicroPython API.
  #include "py/runtime.h"
 +#include "genNN.h"
@@ -442,17 +442,12 @@ index 37e2b4f4..f29366f7 100644
 +#include <stdio.h>
 +#include "py_image.h"
  
-+#define TEST_SIZE 1 * 1024
-+// signed char w[TEST_SIZE];
- // This is the function which will be called from Python as cexample.add_ints(a, b).
- STATIC mp_obj_t example_add_ints(mp_obj_t a_obj, mp_obj_t b_obj) {
+-// This is the function which will be called from Python as cexample.add_ints(a, b).
+-STATIC mp_obj_t example_add_ints(mp_obj_t a_obj, mp_obj_t b_obj) {
 -    // Extract the ints from the micropython input objects.
 -    int a = mp_obj_get_int(a_obj);
 -    int b = mp_obj_get_int(b_obj);
-+    invoke(NULL);
-+    return mp_obj_new_int(999);
-+}
-+
++#define TEST_SIZE 1 * 1024
 +#define TN_MAX(A,B) ((A) > (B) ? (A) : (B))
 +#define TN_MIN(A,B) ((A) < (B) ? (A) : (B))``
 +
@@ -467,7 +462,7 @@ index 37e2b4f4..f29366f7 100644
 +uint16_t color;
 +float labels[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 +// This is the function which will be called from Python as cexample.add_ints(a, b).
-+STATIC mp_obj_t example_VWW(mp_obj_t a, mp_obj_t b) {
++STATIC mp_obj_t example_train_demo_fn(mp_obj_t a, mp_obj_t b) {
 +    image_t* img = py_image_cobj(a);
 +    // >= 0, for training with the label, -1 is for inference
 +    int command = mp_obj_get_int(b);
@@ -524,20 +519,21 @@ index 37e2b4f4..f29366f7 100644
  }
 +
  // Define a Python reference to the function above.
- STATIC MP_DEFINE_CONST_FUN_OBJ_2(example_add_ints_obj, example_add_ints);
-+STATIC MP_DEFINE_CONST_FUN_OBJ_2(example_VWW_obj, example_VWW);
+-STATIC MP_DEFINE_CONST_FUN_OBJ_2(example_add_ints_obj, example_add_ints);
++STATIC MP_DEFINE_CONST_FUN_OBJ_2(example_train_demo, example_train_demo_fn);
  
  // Define all properties of the module.
  // Table entries are key/value pairs of the attribute name (a string)
-@@ -21,6 +93,7 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_2(example_add_ints_obj, example_add_ints);
+@@ -20,7 +84,7 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_2(example_add_ints_obj, example_add_ints);
+ // optimized to word-sized integers by the build system (interned strings).
  STATIC const mp_rom_map_elem_t example_module_globals_table[] = {
      { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_cexample) },
-     { MP_ROM_QSTR(MP_QSTR_add_ints), MP_ROM_PTR(&example_add_ints_obj) },
-+    { MP_ROM_QSTR(MP_QSTR_VWW), MP_ROM_PTR(&example_VWW_obj) },
+-    { MP_ROM_QSTR(MP_QSTR_add_ints), MP_ROM_PTR(&example_add_ints_obj) },
++    { MP_ROM_QSTR(MP_QSTR_train_demo), MP_ROM_PTR(&example_train_demo) },
  };
  STATIC MP_DEFINE_CONST_DICT(example_module_globals, example_module_globals_table);
  
-@@ -33,4 +106,4 @@ const mp_obj_module_t example_user_cmodule = {
+@@ -33,4 +97,4 @@ const mp_obj_module_t example_user_cmodule = {
  // Register the module to make it available in Python.
  // Note: This module is disabled, set the thrid argument to 1 to enable it, or
  // use a macro like MODULE_CEXAMPLE_ENABLED to conditionally enable this module.
