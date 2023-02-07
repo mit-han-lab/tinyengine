@@ -15,7 +15,7 @@ pin4 = Pin("P4", Pin.IN, Pin.PULL_UP)
 # class 0: red
 pin1 = Pin("P1", Pin.IN, Pin.PULL_UP)
 
-while 1:
+while True:
     img = sensor.snapshot()  # Take a picture and return the image.
 
     pin4_value = pin4.value()
