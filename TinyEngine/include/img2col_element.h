@@ -19,6 +19,7 @@
 #ifndef ARMNN_INCLUDE_IMG2COL_ELEMENT_H_
 #define ARMNN_INCLUDE_IMG2COL_ELEMENT_H_
 
+#include "arm_math.h"
 #include "arm_nnsupportfunctions.h"
 
 #define b2_q7_q15_offset_ele(src, dst)                                                \
