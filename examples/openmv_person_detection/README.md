@@ -82,4 +82,4 @@ Flash the binary `openmv/src/build/bin/firmware.bin` into your OpenMV. Please re
 
 1. Open OpenMV IDE
 1. Connect your OpenMV cam to the PC
-1. Run the python script `tinyengine/examples/openmv_person_detection/vww_openmv_demo.py` in OpenMV IDE.
+1. Run the python script `tinyengine/examples/openmv_person_detection/person_detection_demo.py` in OpenMV IDE.
