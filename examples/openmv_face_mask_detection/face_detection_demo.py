@@ -1,4 +1,4 @@
-# This example shows how to invoke to training or inference function calls of tinyengine.
+# This example shows how to invoke training or inference function calls of tinyengine.
 import cexample
 import lcd
 import sensor
@@ -11,5 +11,5 @@ lcd.init()  # Initialize the lcd screen.
 while True:
     img = sensor.snapshot()  # Take a picture and return the image.
 
-    ret = cexample.face_mask_detection(img, 0.1)
+    ret = cexample.face_mask(img, 0.15)
     lcd.display(img)  # Display the image.
