@@ -407,7 +407,7 @@ index 412de472..f7da2c03 100644
  
  // Domain 2 DMA buffers region.
 diff --git a/src/omv/modules/examplemodule.c b/src/omv/modules/examplemodule.c
-index 37e2b4f4..cbc704ab 100644
+index 37e2b4f4..3365a0b2 100644
 --- a/src/omv/modules/examplemodule.c
 +++ b/src/omv/modules/examplemodule.c
 @@ -1,17 +1,99 @@
@@ -434,7 +434,7 @@ index 37e2b4f4..cbc704ab 100644
 -    // Extract the ints from the micropython input objects.
 -    int a = mp_obj_get_int(a_obj);
 -    int b = mp_obj_get_int(b_obj);
-+STATIC mp_obj_t person_detection_demo(mp_obj_t a, mp_obj_t b) {
++STATIC mp_obj_t face_mask_demo(mp_obj_t a, mp_obj_t b) {
 +    image_t* img = py_image_cobj(a);
 +    float threshold = mp_obj_get_float(b);
 +    // preprocessing
@@ -468,7 +468,7 @@ index 37e2b4f4..cbc704ab 100644
 +
 +	invoke(NULL);
 +	det_post_procesing(cnt, boxes, threshold);
-+    printf("Get: class 0: %d\n", cnt[0]);
++    printf("Get: class 0: %d, class 1: %d\n", cnt[0], cnt[1]);
  
 -    // Calculate the addition and convert to MicroPython object.
 -    return mp_obj_new_int(a + b);
@@ -477,10 +477,10 @@ index 37e2b4f4..cbc704ab 100644
 +        det_box* box = boxes[class];
 +        uint16_t color;
 +        if (class == 0)
-+            color = 2016;
-+        else
 +            color = 63488;
-+        for(bcnt = 0; bcnt < cnt[0]; bcnt++){
++        else
++            color = 2016;
++        for(bcnt = 0; bcnt < cnt[class]; bcnt++){
 +
 +            // convert back to the image x,y space
 +            int y1 = TN_MIN((int)box[bcnt].x1, IMAGE_H-1);
@@ -513,7 +513,7 @@ index 37e2b4f4..cbc704ab 100644
 +
  // Define a Python reference to the function above.
 -STATIC MP_DEFINE_CONST_FUN_OBJ_2(example_add_ints_obj, example_add_ints);
-+STATIC MP_DEFINE_CONST_FUN_OBJ_2(detection, person_detection_demo);
++STATIC MP_DEFINE_CONST_FUN_OBJ_2(face_mask_obj, face_mask_demo);
  
  // Define all properties of the module.
  // Table entries are key/value pairs of the attribute name (a string)
@@ -522,7 +522,7 @@ index 37e2b4f4..cbc704ab 100644
  STATIC const mp_rom_map_elem_t example_module_globals_table[] = {
      { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_cexample) },
 -    { MP_ROM_QSTR(MP_QSTR_add_ints), MP_ROM_PTR(&example_add_ints_obj) },
-+    { MP_ROM_QSTR(MP_QSTR_face_mask_detection), MP_ROM_PTR(&detection) },
++    { MP_ROM_QSTR(MP_QSTR_face_mask), MP_ROM_PTR(&face_mask_obj) },
  };
  STATIC MP_DEFINE_CONST_DICT(example_module_globals, example_module_globals_table);
  
