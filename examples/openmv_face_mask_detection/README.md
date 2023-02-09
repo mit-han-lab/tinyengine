@@ -25,14 +25,14 @@ export PATH=${TOOLCHAIN_PATH}/bin:${PATH}
 ## Clone the OpenMV source
 
 ```
-cd tinyengine/examples/openmv_person_detection/
+cd examples/openmv_face_mask_detection/
 git clone https://github.com/openmv/openmv.git
 ```
 
 Currently, we don't have compatibility tests for the OpenMV source, so let's use the version that has been manually tested before.
 
 ```
-cd openmv
+cd tinyengine/examples/openmv_face_mask_detection/openmv
 git checkout 918ccb937730cc759ee5709df089d9de516dc7bf
 git submodule update --init --recursive
 ```
@@ -42,6 +42,7 @@ git submodule update --init --recursive
 Let's first build the firmware from the source to make sure all required dependencies are correctly installed. The `TARGET `is set to `OPENMV4` for OpenMV Cam H7.
 
 ```
+cd tinyengine/examples/openmv_face_mask_detection/openmv
 make -j4 -C src/micropython/mpy-cross
 make -j4 TARGET=OPENMV4 -C src
 ```
@@ -64,6 +65,7 @@ git apply ../openmv_face_mask_detection.patch
 # Generate model-specific code for person detectopn
 
 ```
+cd tinyengine/examples/openmv_face_mask_detection
 sh gen_code.sh
 ```
 
