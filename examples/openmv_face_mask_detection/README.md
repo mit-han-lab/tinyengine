@@ -69,7 +69,7 @@ cd tinyengine/examples/openmv_face_mask_detection
 sh gen_code.sh
 ```
 
-Copy the generated code at `tinyengine/example/openmv_face_mask_detection/codegen` into TinyEngie.
+Copy the generated code at `tinyengine/example/openmv_face_mask_detection/codegen` into the openvm source.
 
 ## Recompile the firmware with TinyEngine
 
@@ -78,7 +78,7 @@ cd openmv/
 make -j4 TARGET=OPENMV4 -C src
 ```
 
-Flash the binary `openmv/src/build/bin/firmware.bin` into your OpenMV. Please refer to the official [Instructions](https://github.com/openmv/openmv/blob/master/src/README.md#flashing-the-firmware%5D).
+Flash the binary `openmv/src/build/bin/firmware.bin` into your OpenMV Cam. Please refer to the official [Instructions](https://github.com/openmv/openmv/blob/master/src/README.md#flashing-the-firmware%5D).
 
 ## Start the demo
 
