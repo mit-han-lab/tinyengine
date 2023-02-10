@@ -58,12 +58,13 @@ The patch is to
 
 ```
 cd tinyengine/examples/openmv_person_detection/openmv
-git apply ../openmv.patch
+git apply ../openmv_person_detection.patch
 ```
 
 # Generate model-specific code for person detectopn
 
 ```
+cd tinyengine/examples/openmv_person_detection
 sh gen_code.sh
 ```
 
