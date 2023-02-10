@@ -11,5 +11,5 @@ lcd.init()  # Initialize the lcd screen.
 while True:
     img = sensor.snapshot()  # Take a picture and return the image.
 
-    ret = cexample.face_mask(img, 0.15)
+    ret = cexample.person_detection(img, 0.15)
     lcd.display(img)  # Display the image.
