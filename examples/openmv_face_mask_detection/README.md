@@ -2,7 +2,7 @@
 
 This is an example showing how to deploy the face mask detection model on OpenMV Cam H7 with TinyEngine.
 
-![demo](assets/figures/face_mask_demo.gif)
+![demo](../../assets/figures/face_mask_demo.gif)
 
 ## Install build dependencies on Linux
 
