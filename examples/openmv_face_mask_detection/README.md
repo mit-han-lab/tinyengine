@@ -64,7 +64,7 @@ cd tinyengine/examples/openmv_face_mask_detection/openmv
 git apply ../openmv_face_mask_detection.patch
 ```
 
-# Generate model-specific code for person detectopn
+## Generate model-specific code for face mask detection
 
 ```
 cd tinyengine/examples/openmv_face_mask_detection
@@ -86,4 +86,4 @@ Flash the binary `openmv/src/build/bin/firmware.bin` into your OpenMV Cam. Pleas
 
 1. Open OpenMV IDE
 1. Connect your OpenMV cam to the PC
-1. Run the python script `tinyengine/examples/openmv_person_detection/face_detection_demo.py` in OpenMV IDE.
+1. Run the python script `tinyengine/examples/openmv_face_mask_detection/face_detection_demo.py ` in OpenMV IDE.

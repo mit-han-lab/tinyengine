@@ -63,7 +63,7 @@ cd tinyengine/examples/openmv_person_detection/openmv
 git apply ../openmv_person_detection.patch
 ```
 
-# Generate model-specific code for person detectopn
+## Generate model-specific code for person detectopn
 
 ```
 cd tinyengine/examples/openmv_person_detection
