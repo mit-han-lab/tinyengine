@@ -19,6 +19,7 @@ jobs:
       - name: Install tinyengine
         run: |
           python setup.py install
+          git submodule update --init --recursive
       - name: Generate code for detection
         run: |
           PYTHONPATH=${PYTHONPATH}:$(pwd) python examples/${{ matrix.target }}.py
