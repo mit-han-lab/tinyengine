@@ -4,6 +4,10 @@ on: push
 jobs:
   code-gen-test:
     runs-on: xps-runner
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [${{ matrix.target }}, vww]
     name: Detection FPN
     steps:
       - name: Check out repository code
@@ -15,34 +19,17 @@ jobs:
       - name: Install tinyengine
         run: |
           python setup.py install
-          python examples/detection_fpn.py
-      # person detection
       - name: Generate code for detection
         run: |
-          PYTHONPATH=${PYTHONPATH}:$(pwd) python examples/detection_fpn.py
-          unzip tests/examples/assets/detection_fpn/codegen.zip -d tests/examples/assets/detection_fpn/
+          PYTHONPATH=${PYTHONPATH}:$(pwd) python examples/${{ matrix.target }}.py
+          unzip tests/examples/assets/${{ matrix.target }}/codegen.zip -d tests/examples/assets/${{ matrix.target }}/
       - id: diff-person-detection
         run: |
-          diff -r codegen/ tests/examples/assets/detection_fpn/codegen/
+          diff -r codegen/ tests/examples/assets/${{ matrix.target }}/codegen/
       - uses: nick-fields/assert-action@v1
         with:
           expected: ''
           actual: ${{ steps.diff-person-detection.outputs.value }}
-      - name: clean up
-        run: |
-          rm -rf codegen
-      # vww
-      - name: Generate code for vww
-        run: |
-          python examples/vww.py
-          unzip tests/examples/assets/vww/codegen.zip -d tests/examples/assets/vww/
-      - id: diff-vww
-        run: |
-          diff -r codegen/ tests/examples/assets/vww/codegen/
-      - uses: nick-fields/assert-action@v1
-        with:
-          expected: ''
-          actual: ${{ steps.diff-vww.outputs.value }}
       - name: clean up
         run: |
           rm -rf codegen
