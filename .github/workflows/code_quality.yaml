@@ -21,13 +21,13 @@ jobs:
         run: |
           PYTHONPATH=${PYTHONPATH}:$(pwd) python examples/detection_fpn.py
           unzip tests/examples/assets/detection_fpn/codegen.zip -d tests/examples/assets/detection_fpn/
-      - id: diff-with-ground-true
+      - id: diff-person-detection
         run: |
           diff -r codegen/ tests/examples/assets/detection_fpn/codegen/
       - uses: nick-fields/assert-action@v1
         with:
           expected: ''
-          actual: ${{ steps.diff-with-ground-true.outputs.value }}
+          actual: ${{ steps.diff-person-detection.outputs.value }}
       - name: clean up
         run: |
           rm -rf codegen
@@ -36,13 +36,13 @@ jobs:
         run: |
           python examples/vww.py
           unzip tests/examples/assets/vww/codegen.zip -d tests/examples/assets/vww/
-      - id: diff-with-ground-true
+      - id: diff-vww
         run: |
           diff -r codegen/ tests/examples/assets/vww/codegen/
       - uses: nick-fields/assert-action@v1
         with:
           expected: ''
-          actual: ${{ steps.diff-with-ground-true.outputs.value }}
+          actual: ${{ steps.diff-vww.outputs.value }}
       - name: clean up
         run: |
           rm -rf codegen
