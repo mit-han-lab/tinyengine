@@ -8,8 +8,9 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
-      - name: Generate code from the script
+      - name: Install tinyengine and generate code
         run: |
+          python setup.py install
           PYTHONPATH=${PYTHONPATH}:$(pwd) python examples/detection_fpn.py
           unzip tests/examples/assets/detection_fpn/codegen.zip -d tests/examples/assets/detection_fpn/
       - id: diff-with-ground-true
