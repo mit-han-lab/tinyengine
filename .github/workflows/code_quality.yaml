@@ -22,7 +22,7 @@ jobs:
           git submodule update --init --recursive
       - name: Generate code for detection
         run: |
-          sh ${{ matrix.target }}.sh
+          sh tests/examples/${{ matrix.target }}.sh
           unzip tests/examples/assets/${{ matrix.target }}/codegen.zip -d tests/examples/assets/${{ matrix.target }}/
       - id: diff-person-detection
         run: |
