@@ -12,16 +12,37 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: 3.8
-      - name: Install tinyengine and generate code
+      - name: Install tinyengine
         run: |
           python setup.py install
+          python examples/detection_fpn.py
+      # person detection
+      - name: Generate code for detection
+        run: |
           PYTHONPATH=${PYTHONPATH}:$(pwd) python examples/detection_fpn.py
           unzip tests/examples/assets/detection_fpn/codegen.zip -d tests/examples/assets/detection_fpn/
       - id: diff-with-ground-true
-        name: Compare with ground true
         run: |
           diff -r codegen/ tests/examples/assets/detection_fpn/codegen/
       - uses: nick-fields/assert-action@v1
         with:
           expected: ''
           actual: ${{ steps.diff-with-ground-true.outputs.value }}
+      - name: clean up
+        run: |
+          rm -rf codegen
+      # vww
+      - name: Generate code for vww
+        run: |
+          python examples/vww.py
+          unzip tests/examples/assets/vww/codegen.zip -d tests/examples/assets/vww/
+      - id: diff-with-ground-true
+        run: |
+          diff -r codegen/ tests/examples/assets/vww/codegen/
+      - uses: nick-fields/assert-action@v1
+        with:
+          expected: ''
+          actual: ${{ steps.diff-with-ground-true.outputs.value }}
+      - name: clean up
+        run: |
+          rm -rf codegen
