@@ -23,5 +23,5 @@ jobs:
           diff -r codegen/ tests/examples/assets/detection_fpn/codegen/
       - uses: nick-fields/assert-action@v1
         with:
-          expected: ''
+          expected: 'test'
           actual: ${{ steps.diff-with-ground-true.outputs.value }}
