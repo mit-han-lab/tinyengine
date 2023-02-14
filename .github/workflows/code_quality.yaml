@@ -7,7 +7,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [${{ matrix.target }}, vww]
+        target: [detection_fpn, vww]
     name: Detection FPN
     steps:
       - name: Check out repository code
