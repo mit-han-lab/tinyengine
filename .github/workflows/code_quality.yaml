@@ -10,11 +10,11 @@ jobs:
         uses: actions/checkout@v3
       - name: Generate code from the script
         run: |
-          python examples/detection_fpn.py
+          PYTHONPATH=${PYTHONPATH}:$(pwd) python examples/detection_fpn.py
+          unzip tests/examples/assets/detection_fpn/codegen.zip -d tests/examples/assets/detection_fpn/
       - id: diff-with-ground-true
         name: Compare with ground true
         run: |
-          unzip tests/examples/assets/detection_fpn/codegen.zip -d tests/examples/assets/detection_fpn/
           diff -r codegen/ tests/examples/assets/detection_fpn/codegen/
       - uses: nick-fields/assert-action@v1
         with:
