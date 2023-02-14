@@ -1,0 +1,22 @@
+name: Code Quality Test
+on: push
+
+jobs:
+  code-gen-test:
+    name: Detection FPN
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Generate code from the script
+        run: |
+          python examples/detection_fpn.py
+      - id: diff-with-ground-true
+        name: Compare with ground true
+        run: |
+          unzip tests/examples/assets/detection_fpn/codegen.zip -d tests/examples/assets/detection_fpn/
+          diff -r codegen/ tests/examples/assets/detection_fpn/codegen/
+      - uses: nick-fields/assert-action@v1
+        with:
+          expected: ''
+          actual: ${{ steps.diff-with-ground-true.outputs.value }}
