@@ -7,7 +7,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [detection_fpn, vww]
+        target: [detection_fpn, vww, vww_patchedbased.py]
     name: Detection FPN
     steps:
       - name: Check out repository code
