@@ -2,7 +2,7 @@ name: Integration tests
 on: push
 
 jobs:
-  Code generation tests:
+  Code-generation-tests:
     runs-on: xps-runner
     strategy:
       fail-fast: false
