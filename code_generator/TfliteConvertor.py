@@ -16,17 +16,18 @@
 # Target ISA:  ARMv7E-M
 # ----------------------------------------------------------------------
 
+import logging
 import math
 
 import numpy as np
 
+import code_generator.converters.tflite_parser as TF_Parser
+
 from .constant import SKIP_OPs
-from .operators import add, avgpool2d, conv2d, depthwiseConv2d, maxpool2d, se_element_mult, upsample
+from .operators import add, avgpool2d, conv2d, maxpool2d, se_element_mult, upsample
 from .tflite import Model
 from .tflite.BuiltinOperator import BuiltinOperator
 from .tflite.BuiltinOptions import BuiltinOptions
-from .tflite.Conv2DOptions import Conv2DOptions
-from .tflite.DepthwiseConv2DOptions import DepthwiseConv2DOptions
 from .tflite.Padding import Padding
 from .tflite.Pool2DOptions import Pool2DOptions
 from .tflite.TensorType import TensorType
@@ -311,129 +312,6 @@ class TfliteConvertor(object):
         )
         return math.floor(max_input_rescaled)
 
-    # converting tflite fuctions
-    def _convert_convolution(self, op):
-        # operator
-        op_code_str = self._getOpCodeStr(op)
-
-        # get input, weight, and output tensors
-        input_tensors = self._get_input_tensors(op)
-        input_tensor_count = len(input_tensors)
-        assert input_tensor_count >= 2, "input tensors length should be >= 2"
-
-        input_tensor = input_tensors[0]
-        weight_tensor = input_tensors[1]
-
-        output_tensors = self._get_output_tensors(op)
-        assert len(output_tensors) == 1, "output tensors length should be 1"
-        output_tensor = output_tensors[0]
-
-        # conv_2d options
-        if op_code_str == "CONV_2D":
-            assert op.BuiltinOptionsType() == BuiltinOptions.Conv2DOptions
-            op_options = op.BuiltinOptions()
-            conv_options = Conv2DOptions()
-            conv_options.Init(op_options.Bytes, op_options.Pos)
-        if op_code_str == "DEPTHWISE_CONV_2D":
-            assert op.BuiltinOptionsType() == BuiltinOptions.DepthwiseConv2DOptions
-            op_options = op.BuiltinOptions()
-            conv_options = DepthwiseConv2DOptions()
-            conv_options.Init(op_options.Bytes, op_options.Pos)
-
-        # conv parameters
-        stride_h = conv_options.StrideH()
-        stride_w = conv_options.StrideW()
-
-        # shapes
-        _, input_h, input_w, input_c = input_tensor.tensor.ShapeAsNumpy()
-        if op_code_str == "CONV_2D":
-            output_c, kernel_h, kernel_w, _ = weight_tensor.tensor.ShapeAsNumpy()
-        elif op_code_str == "DEPTHWISE_CONV_2D":
-            _, kernel_h, kernel_w, output_c = weight_tensor.tensor.ShapeAsNumpy()
-        _, output_h, output_w, output_c_dual = output_tensor.tensor.ShapeAsNumpy()
-        assert output_c_dual == output_c, "output channels not match"
-
-        # tensor types
-        input_type = self._getTensorTypeStr(input_tensor.tensor.Type())
-        output_type = self._getTensorTypeStr(output_tensor.tensor.Type())
-        weight_type = self._getTensorTypeStr(weight_tensor.tensor.Type())
-        assert input_type == output_type == weight_type, "tensor type not consistent"
-
-        # tensor value: weight, scalers
-        weight_value = self._get_np_from_wrapper(weight_tensor)
-        if input_tensor_count == 3:
-            bias_tensor = input_tensors[2]
-            # bias = self._get_np_from_wrapper(bias_tensor).astype('int') # forcely casting for testing latency
-            bias = self._get_np_from_wrapper(bias_tensor)
-        else:
-            bias = None
-
-        # quantized setting
-        input_zero_point = input_tensor.qnn_params["zero_point"]
-        output_zero_point = output_tensor.qnn_params["zero_point"]
-        input_scale = input_tensor.qnn_params["scale"]
-        weight_scale = weight_tensor.qnn_params["scale"]
-        output_scale = output_tensor.qnn_params["scale"]
-        effective_scale = np.double(input_scale) * np.double(weight_scale) / np.double(output_scale)
-
-        # quantized inference, used for requantize
-        multiplier, shift = self._getMultiplierShift(effective_scale)
-
-        # find previous layer and redirct the index and fuse pad into conv
-        if self.tmpPADIndice is not None:
-            if self.tmpPADIndice.output_idx == input_tensor.tensor_idx:
-                input_idx = self.tmpPADIndice.input_idx
-                input_h = input_h - math.floor(kernel_h / 2) * 2
-                input_w = input_w - math.floor(kernel_h / 2) * 2
-            else:
-                input_idx = input_tensor.tensor_idx
-        else:
-            input_idx = input_tensor.tensor_idx
-        # clean the buffer
-        self.tmpPADIndice = None
-
-        params = {
-            # operator
-            "op": op_code_str,
-            # conv
-            "kernel_h": kernel_h,
-            "kernel_w": kernel_w,
-            "padding": math.floor(kernel_h / 2),
-            "stride_h": stride_h,
-            "stride_w": stride_w,
-            # tensor
-            "input_idx": input_idx,
-            "output_idx": output_tensor.tensor_idx,
-            "input_dim": 3,
-            "output_dim": 3,
-            "input_h": input_h,
-            "input_w": input_w,
-            "input_c": input_c,
-            "output_h": output_h,
-            "output_w": output_w,
-            "output_c": output_c,
-            "dtypte": input_type,
-            # trainable parameters
-            "weight_value": weight_value,
-            "bias": bias,
-            "effective_scale": effective_scale,
-            "input_zero_point": input_zero_point,
-            "output_zero_point": output_zero_point,
-            "input_scale": input_scale,
-            "weight_scale": weight_scale,
-            "output_scale": output_scale,
-            # quantized infernece
-            "multiplier": multiplier,
-            "shift": shift,
-        }
-
-        if op_code_str == "CONV_2D":
-            op = conv2d.Conv2d(params)
-        elif op_code_str == "DEPTHWISE_CONV_2D":
-            op = depthwiseConv2d.DepthwiseConv2d(params)
-
-        return op
-
     def _convert_ADD(self, op):
         # operator
         op_code_str = self._getOpCodeStr(op)
@@ -451,9 +329,9 @@ class TfliteConvertor(object):
         output_tensor = output_tensors[0]
 
         # shapes
-        _, input_h, input_w, input_c = input_tensor.tensor.ShapeAsNumpy()
-        _, input2_h, input2_w, input2_c = input2_tensor.tensor.ShapeAsNumpy()
-        _, output_h, output_w, output_c = output_tensor.tensor.ShapeAsNumpy()
+        _, input_h, input_w, input_c = get_nhwc_from_shape(input_tensor.tensor.ShapeAsNumpy())
+        _, input2_h, input2_w, input2_c = get_nhwc_from_shape(input2_tensor.tensor.ShapeAsNumpy())
+        _, output_h, output_w, output_c = get_nhwc_from_shape(output_tensor.tensor.ShapeAsNumpy())
         assert input_h == input2_h == output_h, "tensor shpae not consistent"
         assert input_w == input2_w == output_w, "tensor shpae not consistent"
         assert input_c == input2_c == output_c, "tensor shpae not consistent"
@@ -464,24 +342,44 @@ class TfliteConvertor(object):
         output_type = self._getTensorTypeStr(output_tensor.tensor.Type())
         assert input_type == input_type2 == output_type, "tensor type not consistent"
 
-        # quantized setting
-        input_zero_point = input_tensor.qnn_params["zero_point"]
-        input2_zero_point = input2_tensor.qnn_params["zero_point"]
-        output_zero_point = output_tensor.qnn_params["zero_point"]
-        input_scale = input_tensor.qnn_params["scale"]
-        input2_scale = input2_tensor.qnn_params["scale"]
-        output_scale = output_tensor.qnn_params["scale"]
+        # initialize quantized parameters as None for floating-pointer ops
+        input_zero_point = None
+        input_scale = None
+        input2_zero_point = None
+        input2_scale = None
+        output_zero_point = None
+        output_scale = None
 
-        # get multipliers and shifts
-        (
-            left_shift,
-            input_multiplier,
-            input_shift,
-            input2_multiplier,
-            input2_shift,
-            output_multiplier,
-            output_shift,
-        ) = self._getADDMultiplierShift(input_scale, input2_scale, output_scale)
+        left_shift = None
+        input_multiplier = None
+        input_shift = None
+        input2_multiplier = None
+        input2_shift = None
+        output_multiplier = None
+        output_shift = None
+
+        # quantized setting
+        if input_type != "float32":
+            input_zero_point = input_tensor.qnn_params["zero_point"]
+            input_scale = input_tensor.qnn_params["scale"]
+        if input_type2 != "float32":
+            input2_zero_point = input2_tensor.qnn_params["zero_point"]
+            input2_scale = input2_tensor.qnn_params["scale"]
+        if output_type != "float32":
+            output_zero_point = output_tensor.qnn_params["zero_point"]
+            output_scale = output_tensor.qnn_params["scale"]
+
+        if "float32" not in [output_type, input_type, input_type2]:
+            # get multipliers and shifts
+            (
+                left_shift,
+                input_multiplier,
+                input_shift,
+                input2_multiplier,
+                input2_shift,
+                output_multiplier,
+                output_shift,
+            ) = self._getADDMultiplierShift(input_scale, input2_scale, output_scale)
 
         # assign params
         params = {
@@ -615,8 +513,6 @@ class TfliteConvertor(object):
 
         # get input, weight, and output tensors
         input_tensors = self._get_input_tensors(op)
-        input_tensor_count = len(input_tensors)
-        assert input_tensor_count == 1, "input tensors length should be 1"
 
         input_tensor = input_tensors[0]
 
@@ -830,13 +726,9 @@ class TfliteConvertor(object):
         output_tensor = output_tensors[0]
 
         # shapes
-        if input_tensor.tensor.ShapeAsNumpy().shape[0] == 2:
-            input_w, input_c = input_tensor.tensor.ShapeAsNumpy()
-            input_h = 1
-        elif input_tensor.tensor.ShapeAsNumpy().shape[0] == 4:
-            _, input_h, input_w, input_c = input_tensor.tensor.ShapeAsNumpy()
-        output_c, input_c_dual = weight_tensor.tensor.ShapeAsNumpy()
-        output_h, output_c_dual = output_tensor.tensor.ShapeAsNumpy()
+        _, input_h, input_w, input_c = get_nhwc_from_shape(input_tensor.tensor.ShapeAsNumpy())
+        _, _, output_c, input_c_dual = get_nhwc_from_shape(weight_tensor.tensor.ShapeAsNumpy())
+        _, _, output_h, output_c_dual = get_nhwc_from_shape(output_tensor.tensor.ShapeAsNumpy())
         assert input_c_dual == input_c, "channels not match"
         assert output_c_dual == output_c, "channels not match"
 
@@ -845,23 +737,36 @@ class TfliteConvertor(object):
         output_type = self._getTensorTypeStr(output_tensor.tensor.Type())
         assert input_type == output_type, "tensor type not consistent"
 
-        # quantized setting
-        input_zero_point = input_tensor.qnn_params["zero_point"]
-        output_zero_point = output_tensor.qnn_params["zero_point"]
-        input_scale = input_tensor.qnn_params["scale"]
-        weight_scale = weight_tensor.qnn_params["scale"]
-        bias_scale = bias_tensor.qnn_params["scale"]
-        output_scale = output_tensor.qnn_params["scale"]
-        # We support per channel in the CONV2D operator
-        if isinstance(bias_scale, float) and isinstance(weight_scale, float):
-            np_ones = np.ones(output_c)
-            bias_scale = np_ones * bias_scale
-            np_ones = np.ones(output_c)
-            output_scale = np_ones * output_scale
-        effective_scale = np.double(input_scale) * np.double(weight_scale) / np.double(output_scale)
+        # initialize quantized parameters as None for floating-pointer ops
+        input_zero_point = None
+        input_scale = None
+        weight_scale = None
+        bias_scale = None
+        output_zero_point = None
+        output_scale = None
+        multiplier = None
+        shift = None
+        effective_scale = None
 
-        # follows tensorflow lite micro
-        multiplier, shift = self._getMultiplierShift(effective_scale)
+        # quantized setting
+        if "float32" not in [input_type, output_type]:
+            input_zero_point = input_tensor.qnn_params["zero_point"]
+            output_zero_point = output_tensor.qnn_params["zero_point"]
+            input_scale = input_tensor.qnn_params["scale"]
+            weight_scale = weight_tensor.qnn_params["scale"]
+            bias_scale = bias_tensor.qnn_params["scale"]
+            output_scale = output_tensor.qnn_params["scale"]
+
+            # We support per channel in the CONV2D operator
+            if isinstance(bias_scale, float) and isinstance(weight_scale, float):
+                np_ones = np.ones(output_c)
+                bias_scale = np_ones * bias_scale
+                np_ones = np.ones(output_c)
+                output_scale = np_ones * output_scale
+            effective_scale = np.double(input_scale) * np.double(weight_scale) / np.double(output_scale)
+
+            # follows tensorflow lite micro
+            multiplier, shift = self._getMultiplierShift(effective_scale)
 
         params = {
             # operator
@@ -901,13 +806,15 @@ class TfliteConvertor(object):
     def _handleOperator(self, op):
         op_code_str = self._getOpCodeStr(op)
         if op_code_str == "CONV_2D":
-            self.layer.append(self._convert_convolution(op))
+            self.layer.append(TF_Parser.parse_conv2d(op, self.model, self.tmpPADIndice))
+            self.tmpPADIndice = None
         elif op_code_str == "ADD":
             self.layer.append(self._convert_ADD(op))
         elif op_code_str == "AVERAGE_POOL_2D":
             self.layer.append(self._convert_AVERAGE_POOL_2D(op))
         elif op_code_str == "DEPTHWISE_CONV_2D":
-            self.layer.append(self._convert_convolution(op))
+            self.layer.append(TF_Parser.parse_conv2d(op, self.model, self.tmpPADIndice))
+            self.tmpPADIndice = None
         elif op_code_str == "PAD":
             self._convert_PAD(op)
         elif op_code_str == "RESIZE_NEAREST_NEIGHBOR":
@@ -936,6 +843,9 @@ class TfliteConvertor(object):
             dtype = np.int8
         elif wrapper.tensor.Type() == TensorType.INT32:
             dtype = np.int32
+        elif wrapper.tensor.Type() == TensorType.FLOAT32:
+            dtype = np.float32
+            logging.warn("Support of floating-point tensors are experimental.")
         else:
             raise NotImplementedError("Current implementation only supports int8 and int32")
 
@@ -964,25 +874,25 @@ class TfliteConvertor(object):
 
             tflite_qparams = tensor.Quantization()
 
-            if tflite_qparams is None:
-                continue
-            assert tflite_qparams, "Quantization parameters not found in the model!"
-
-            scale = tflite_qparams.ScaleAsNumpy()
-            zero_point = tflite_qparams.ZeroPointAsNumpy()
             qparams_to_tensor_wrapper = None
-
-            if isinstance(zero_point, np.ndarray):
-                # Per-channel quantization
-                if scale.size != 1 and zero_point.size != 1:
-                    qparams_to_tensor_wrapper = {"scale": scale, "zero_point": zero_point}
-                # Per-tensor quantization
-                elif scale.size == 1 and zero_point.size == 1:
-                    qparams_to_tensor_wrapper = {"scale": float(scale[0]), "zero_point": int(zero_point[0])}
-                else:
-                    raise NotImplementedError
-            elif scale == zero_point == 0:
-                pass
+            if tflite_qparams:
+                scale = tflite_qparams.ScaleAsNumpy()
+                zero_point = tflite_qparams.ZeroPointAsNumpy()
+                if isinstance(zero_point, np.ndarray):
+                    # Per-channel quantization
+                    if scale.size != 1 and zero_point.size != 1:
+                        qparams_to_tensor_wrapper = {"scale": scale, "zero_point": zero_point}
+                    # Per-tensor quantization
+                    elif scale.size == 1 and zero_point.size == 1:
+                        qparams_to_tensor_wrapper = {"scale": float(scale[0]), "zero_point": int(zero_point[0])}
+                    else:
+                        raise NotImplementedError
+                elif scale == zero_point == 0:
+                    pass
+            else:
+                logging.warn(
+                    "Quantization parameters not found in the model! Floating-point opeartos are experimental."
+                )
 
             ret.append(TFLiteTensorWrpper(idx, tensor, buffer, qparams_to_tensor_wrapper))
         return ret
@@ -1079,3 +989,23 @@ def get_hwc_from_shape(shape):
     elif len(shape) == 1:
         c = shape[0]
     return h, w, c
+
+
+def get_nhwc_from_shape(shape):
+    n = 1
+    h = 1
+    w = 1
+    c = 1
+    if len(shape) == 4:
+        c = shape[3]
+        h = shape[2]
+        w = shape[1]
+    elif len(shape) == 3:
+        c = shape[2]
+        h = shape[1]
+    elif len(shape) == 2:
+        w = shape[1]
+        c = shape[0]
+    elif len(shape) == 1:
+        c = shape[0]
+    return n, h, w, c
