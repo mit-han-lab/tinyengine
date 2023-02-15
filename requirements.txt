@@ -1,6 +1,6 @@
-numpy
-matplotlib
-tqdm
 flatbuffers
+matplotlib
+numpy
 torch
 torchvision
+tqdm

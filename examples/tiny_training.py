@@ -42,7 +42,7 @@ def main():
     parser.add_argument(
         "-MV",
         "--memory_visualization",
-        default="codegen/allocation.png",
+        default="./lifecycle.png",
         type=str,
         help="path of the gernerated figure",
     )

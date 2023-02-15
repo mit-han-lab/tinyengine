@@ -1,0 +1,36 @@
+name: Integration tests
+on: push
+
+jobs:
+  Code-generation-tests:
+    runs-on: xps-runner
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [detection_fpn, vww, vww_patchedbased, tiny_training]
+    name: Code generation
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Python setup
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.8
+      - name: Install tinyengine
+        run: |
+          python setup.py install
+          git submodule update --init --recursive
+      - name: Generate code for detection
+        run: |
+          sh tests/examples/${{ matrix.target }}.sh
+          unzip tests/examples/assets/${{ matrix.target }}/codegen.zip -d tests/examples/assets/${{ matrix.target }}/
+      - id: diff-person-detection
+        run: |
+          diff -r codegen/ tests/examples/assets/${{ matrix.target }}/codegen/
+      - uses: nick-fields/assert-action@v1
+        with:
+          expected: ''
+          actual: ${{ steps.diff-person-detection.outputs.value }}
+      - name: clean up
+        run: |
+          rm -rf codegen
