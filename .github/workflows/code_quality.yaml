@@ -8,7 +8,7 @@ jobs:
       fail-fast: false
       matrix:
         target: [detection_fpn, vww, vww_patchedbased, tiny_training]
-    name: Code generation tests
+    name: Code generation
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
