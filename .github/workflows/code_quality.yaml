@@ -1,14 +1,14 @@
-name: Code Quality Test
+name: Integration tests
 on: push
 
 jobs:
-  code-gen-test:
+  Code generation tests:
     runs-on: xps-runner
     strategy:
       fail-fast: false
       matrix:
         target: [detection_fpn, vww, vww_patchedbased, tiny_training]
-    name: Code generation testing
+    name: Code generation tests
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
