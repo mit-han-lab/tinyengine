@@ -19,14 +19,12 @@
 import logging
 import math
 
-import numpy as np
-
 import code_generator.converters.tflite_parser as TF_Parser
+from code_generator.converters.tflite_parser.utils import get_input_tensors, get_output_tensors, getOpCodeStr
 
 from .constant import SKIP_OPs
 from .tflite import Model
 from .tflite.BuiltinOperator import BuiltinOperator
-from .tflite.TensorType import TensorType
 
 
 # Parse tflite model into TinyEngine IR format
@@ -117,9 +115,9 @@ class TfliteConvertor(object):
     #                                                |    Fuse Target    |
     def checkIfRequireSEelementmult(self, three_op_sequence):
         if (
-            self._getOpCodeStr(three_op_sequence[0]) == "ADD"
-            and self._getOpCodeStr(three_op_sequence[1]) == "MUL"
-            and self._getOpCodeStr(three_op_sequence[2]) == "MUL"
+            getOpCodeStr(three_op_sequence[0], self.model) == "ADD"
+            and getOpCodeStr(three_op_sequence[1], self.model) == "MUL"
+            and getOpCodeStr(three_op_sequence[2], self.model) == "MUL"
         ):
             return True
         return False
@@ -133,43 +131,6 @@ class TfliteConvertor(object):
                 if isinstance(field_value, int):
                     ret[field_value] = field_name
         return ret
-
-    def _getOpCodeStr(self, op):
-        op_code_list_idx = op.OpcodeIndex()
-        op_code_id = self.model.OperatorCodes(op_code_list_idx).DeprecatedBuiltinCode()
-        return self.builtin_op_code[op_code_id]
-
-    def _getTensorTypeStr(self, type):
-        if TensorType.INT8 == type:
-            return "int8"
-        if TensorType.UINT8 == type:
-            return "uint8"
-        if TensorType.FLOAT32 == type:
-            return "float32"
-
-    def _getMultiplierShift(self, effective_scale):
-        significand = np.zeros(len(effective_scale), dtype="int32")
-        shift = np.zeros(len(effective_scale), dtype="int32")
-
-        for i, s in enumerate(effective_scale):
-            if s == 0:
-                significand[i] = 0
-                shift[i] = 0
-            else:
-                sig, shi = math.frexp(s)
-                sig = int(round(sig * 2**31))
-
-                if sig == 2**31:
-                    sig /= 2
-                    shi += 1
-                if shi < -31:
-                    shi = 0
-                    sig = 0
-
-                significand[i] = sig
-                shift[i] = shi
-
-        return significand, shift
 
     def _preprocessSoftmaxScaling(self, beta, input_scale, input_integer_bits):
 
@@ -191,10 +152,10 @@ class TfliteConvertor(object):
 
     def _convert_PAD(self, op):
         # get input, weight, and output tensors
-        input_tensors = self._get_input_tensors(op)
+        input_tensors = get_input_tensors(op, self.model)
         input_tensor = input_tensors[0]
 
-        output_tensors = self._get_output_tensors(op)
+        output_tensors = get_output_tensors(op, self.model)
         assert len(output_tensors) == 1, "output tensors length should be 1"
         output_tensor = output_tensors[0]
 
@@ -203,10 +164,10 @@ class TfliteConvertor(object):
 
     def _convert_TRANSPOSE(self, op):
         # get input, weight, and output tensors
-        input_tensors = self._get_input_tensors(op)
+        input_tensors = get_input_tensors(op, self.model)
         input_tensor = input_tensors[0]
 
-        output_tensors = self._get_output_tensors(op)
+        output_tensors = get_output_tensors(op, self.model)
         assert len(output_tensors) == 1, "output tensors length should be 1"
         output_tensor = output_tensors[0]
 
@@ -248,33 +209,6 @@ class TfliteConvertor(object):
             pass
         else:
             raise NotImplementedError(f"Unsupported {op_code_str}")
-
-    def _get_np_from_wrapper(self, wrapper):
-        if wrapper.tensor.Type() == TensorType.INT8:
-            dtype = np.int8
-        elif wrapper.tensor.Type() == TensorType.INT32:
-            dtype = np.int32
-        elif wrapper.tensor.Type() == TensorType.FLOAT32:
-            dtype = np.float32
-            logging.warn("Support of floating-point tensors are experimental.")
-        else:
-            raise NotImplementedError("Current implementation only supports int8 and int32")
-
-        data = wrapper.buffer.DataAsNumpy()
-        shape = wrapper.tensor.ShapeAsNumpy() if wrapper.tensor.ShapeLength() != 0 else []
-
-        return np.frombuffer(data, dtype=dtype).reshape(shape)
-
-    def _get_tensor_type_str(self, tensor_type):
-        if tensor_type == TensorType.INT8:
-            return "int8"
-        raise NotImplementedError(f"Tensor type: {tensor_type} is not supported yet.")
-
-    def _get_input_tensors(self, op):
-        return self._get_wrapper_tensors(op.InputsAsNumpy())
-
-    def _get_output_tensors(self, op):
-        return self._get_wrapper_tensors(op.OutputsAsNumpy())
 
 
 class PAD_tensorIndice(object):
