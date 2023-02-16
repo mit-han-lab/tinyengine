@@ -63,3 +63,28 @@ def parse_mead1dto2d(op, model: Model.Model, MEAN2Dholder=None):
         return op
     else:
         raise NotImplementedError
+
+
+class MEAN2D(object):
+    def __init__(self):
+        self.reset_holder()
+
+    def add_first_1D_op(self, input_idx, output_idx, input_h, input_w, input_c):
+        self.first_1D_input_idx = input_idx
+        self.first_1D_output_idx = output_idx
+        self.input_h = input_h
+        self.input_w = input_w
+        self.input_c = input_c
+        self.has_first_1D = True
+
+    def add_second_1D_op(self, input_idx, output_idx, output_h, output_w, output_c):
+        self.second_1D_input_idx = input_idx
+        self.second_1D_output_idx = output_idx
+        self.output_h = output_h
+        self.output_w = output_w
+        self.output_c = output_c
+        self.has_second_1D = True
+
+    def reset_holder(self):
+        self.has_first_1D = False
+        self.has_second_1D = False

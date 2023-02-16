@@ -20,11 +20,11 @@ import logging
 import math
 
 import code_generator.converters.tflite_parser as TF_Parser
+from code_generator.converters.tflite_parser.mean1dto2d import MEAN2D
 from code_generator.converters.tflite_parser.utils import get_input_tensors, get_output_tensors, getOpCodeStr
 
 from .constant import SKIP_OPs
 from .tflite import Model
-from .tflite.BuiltinOperator import BuiltinOperator
 
 
 # Parse tflite model into TinyEngine IR format
@@ -34,11 +34,10 @@ class TfliteConvertor(object):
         self.filepath = filepath
         self.model = self.loadTFmodel(filepath)
         self.subgraph = self.model.Subgraphs(0)
-        self.builtin_op_code = self._build_str_map(BuiltinOperator())
         self.layer = []
         self.tmpPADIndice = None
         self.skip_transpose = None
-        self.average_1D_to_2D_holder = MEAN2D()
+        self.average_1D_to_2D_holder = MEAN2D()  # For merging 1D to 2D
 
     # public functions
     def loadTFmodel(self, filepath):
@@ -122,16 +121,7 @@ class TfliteConvertor(object):
             return True
         return False
 
-    # private functions
-    def _build_str_map(self, obj):
-        ret = {}
-        for field_name in dir(obj):
-            if not field_name.startswith("_"):
-                field_value = getattr(obj, field_name)
-                if isinstance(field_value, int):
-                    ret[field_value] = field_name
-        return ret
-
+    # private functionst
     def _preprocessSoftmaxScaling(self, beta, input_scale, input_integer_bits):
 
         input_beta_real_multiplier = min(beta * input_scale * (1 << (31 - input_integer_bits)), (1 << 31) - 1.0)
@@ -176,7 +166,7 @@ class TfliteConvertor(object):
 
     # handle one op and parse it into layers[] for supported operators
     def _handleOperator(self, op):
-        op_code_str = self._getOpCodeStr(op)
+        op_code_str = getOpCodeStr(op, self.model)
         if op_code_str == "CONV_2D":
             self.layer.append(TF_Parser.parse_conv2d(op, self.model, self.tmpPADIndice))
             self.tmpPADIndice = None
@@ -215,28 +205,3 @@ class PAD_tensorIndice(object):
     def __init__(self, input_idx, output_idx):
         self.input_idx = input_idx
         self.output_idx = output_idx
-
-
-class MEAN2D(object):
-    def __init__(self):
-        self.reset_holder()
-
-    def add_first_1D_op(self, input_idx, output_idx, input_h, input_w, input_c):
-        self.first_1D_input_idx = input_idx
-        self.first_1D_output_idx = output_idx
-        self.input_h = input_h
-        self.input_w = input_w
-        self.input_c = input_c
-        self.has_first_1D = True
-
-    def add_second_1D_op(self, input_idx, output_idx, output_h, output_w, output_c):
-        self.second_1D_input_idx = input_idx
-        self.second_1D_output_idx = output_idx
-        self.output_h = output_h
-        self.output_w = output_w
-        self.output_c = output_c
-        self.has_second_1D = True
-
-    def reset_holder(self):
-        self.has_first_1D = False
-        self.has_second_1D = False
