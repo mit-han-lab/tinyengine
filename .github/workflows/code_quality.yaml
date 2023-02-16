@@ -7,7 +7,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [detection_fpn, vww, vww_patchedbased, tiny_training]
+        target: [detection_fpn, vww, vww_patchedbased, tiny_training, mcunetv2_se_large]
     name: Code generation
     steps:
       - name: Check out repository code
