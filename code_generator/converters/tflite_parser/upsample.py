@@ -1,7 +1,7 @@
 from code_generator.operators import upsample
 from code_generator.tflite import Model
 
-from .utils import get_input_tensors, get_nhwc_from_shape, get_output_tensors
+from .utils import get_input_tensors, get_nchw_from_shape, get_output_tensors
 
 
 def parse_upsample(op, model: Model.Model):
@@ -21,8 +21,8 @@ def parse_upsample(op, model: Model.Model):
     output_tensor = output_tensors[0]
 
     # shapes
-    _, input_h, input_w, input_c = get_nhwc_from_shape(input_tensor.tensor.ShapeAsNumpy())
-    _, output_h, output_w, output_c = get_nhwc_from_shape(output_tensor.tensor.ShapeAsNumpy())
+    _, input_c, input_h, input_w = get_nchw_from_shape(input_tensor.tensor.ShapeAsNumpy())
+    _, output_c, output_h, output_w = get_nchw_from_shape(output_tensor.tensor.ShapeAsNumpy())
 
     params = {
         # operator
