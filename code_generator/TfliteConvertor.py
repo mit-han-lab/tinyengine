@@ -28,7 +28,6 @@ from .operators import avgpool2d, conv2d, maxpool2d, se_element_mult
 from .tflite import Model
 from .tflite.BuiltinOperator import BuiltinOperator
 from .tflite.BuiltinOptions import BuiltinOptions
-from .tflite.Padding import Padding
 from .tflite.Pool2DOptions import Pool2DOptions
 from .tflite.TensorType import TensorType
 
@@ -277,87 +276,6 @@ class TfliteConvertor(object):
             / (1 << input_left_shift)
         )
         return math.floor(max_input_rescaled)
-
-    def _convert_AVERAGE_POOL_2D(self, op):
-        # operator
-        op_code_str = self._getOpCodeStr(op)
-
-        # get input, weight, and output tensors
-        input_tensors = self._get_input_tensors(op)
-        input_tensor_count = len(input_tensors)
-        assert input_tensor_count == 1, "input tensors length should be 1"
-
-        input_tensor = input_tensors[0]
-
-        output_tensors = self._get_output_tensors(op)
-        assert len(output_tensors) == 1, "output tensors length should be 1"
-        output_tensor = output_tensors[0]
-
-        # shapes
-        _, input_h, input_w, input_c = input_tensor.tensor.ShapeAsNumpy()
-        _, output_h, output_w, output_c = output_tensor.tensor.ShapeAsNumpy()
-
-        # tensor types
-        input_type = self._getTensorTypeStr(input_tensor.tensor.Type())
-        output_type = self._getTensorTypeStr(output_tensor.tensor.Type())
-        assert input_type == output_type, "tensor type not consistent"
-
-        # pool parameters
-        assert op.BuiltinOptionsType() == BuiltinOptions.Pool2DOptions
-        op_options = op.BuiltinOptions()
-        pool2d_options = Pool2DOptions()
-        pool2d_options.Init(op_options.Bytes, op_options.Pos)
-        stride_h = pool2d_options.StrideH()
-        stride_w = pool2d_options.StrideW()
-        padding = pool2d_options.Padding()
-        filter_h = pool2d_options.FilterHeight()
-        filter_w = pool2d_options.FilterWidth()
-
-        # padding
-        if padding == Padding.VALID:
-            pad_h = 0
-            pad_w = 0
-        elif padding == Padding.SAME:
-            pass  # no support for now
-
-        # quantized setting
-        input_zero_point = input_tensor.qnn_params["zero_point"]
-        output_zero_point = output_tensor.qnn_params["zero_point"]
-        input_scale = input_tensor.qnn_params["scale"]
-        output_scale = output_tensor.qnn_params["scale"]
-
-        params = {
-            # operator
-            "op": op_code_str,
-            # pool parameters
-            "filter_h": filter_h,
-            "filter_w": filter_w,
-            "stride_h": stride_h,
-            "stride_w": stride_w,
-            "pad_h": pad_h,
-            "pad_w": pad_w,
-            # tensor
-            "input_idx": input_tensor.tensor_idx,
-            "output_idx": output_tensor.tensor_idx,
-            "input_h": input_h,
-            "input_w": input_w,
-            "input_c": input_c,
-            "input_dim": input_tensor.tensor.ShapeAsNumpy().size,
-            "output_dim": output_tensor.tensor.ShapeAsNumpy().size,
-            "output_h": output_h,
-            "output_w": output_w,
-            "output_c": output_c,
-            "dtypte": input_type,
-            # trainable parameters
-            "input_zero_point": input_zero_point,
-            "output_zero_point": output_zero_point,
-            "input_scale": input_scale,
-            "output_scale": output_scale,
-        }
-
-        op = avgpool2d.AvgPool2d(params)
-
-        return op
 
     def _convert_PAD(self, op):
         # get input, weight, and output tensors
@@ -618,7 +536,7 @@ class TfliteConvertor(object):
         elif op_code_str == "ADD":
             self.layer.append(TF_Parser.parse_add(op, self.model))
         elif op_code_str == "AVERAGE_POOL_2D":
-            self.layer.append(self._convert_AVERAGE_POOL_2D(op))
+            self.layer.append(TF_Parser.parse_avgpool(op, self.model))
         elif op_code_str == "DEPTHWISE_CONV_2D":
             self.layer.append(TF_Parser.parse_conv2d(op, self.model, self.tmpPADIndice))
             self.tmpPADIndice = None

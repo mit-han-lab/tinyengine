@@ -46,7 +46,6 @@ def parse_upsample(op, model: Model.Model):
         "output_zero_point": output_zero_point,
         "input_scale": input_scale,
         "output_scale": output_scale,
-        # quantized infernece
     }
     op = upsample.upSample(params)
 
