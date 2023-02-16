@@ -24,7 +24,6 @@ import numpy as np
 import code_generator.converters.tflite_parser as TF_Parser
 
 from .constant import SKIP_OPs
-from .operators import avgpool2d, se_element_mult
 from .tflite import Model
 from .tflite.BuiltinOperator import BuiltinOperator
 from .tflite.TensorType import TensorType
@@ -100,103 +99,18 @@ class TfliteConvertor(object):
                 three_op_sequence = [op, next_op, next_next_op]
 
                 if self.checkIfRequireSEelementmult(three_op_sequence):
-                    print("found SE block")
+                    logging.info("found SE block")
                     skip_next_ops = 2
-
-                    SEelementmult_op = self.construct_SEelementmult(three_op_sequence)
+                    #         -> MEAN -> MEAN -> PWCONV -> PWCONV -> | ADD -> MUL ->     |
+                    #  DWCONV                                        |            -> MUL |
+                    #                                                |   SEelementmult   |
+                    SEelementmult_op = TF_Parser.parse_SEelement(three_op_sequence, self.model, self.layer)
 
                     self.layer.append(SEelementmult_op)
                     continue
 
             # parse the op
             self._handleOperator(op)
-
-    #         -> MEAN -> MEAN -> PWCONV -> PWCONV -> | ADD -> MUL ->     |
-    #  DWCONV                                        |            -> MUL |
-    #                                                |   SEelementmult   |
-    def construct_SEelementmult(self, three_op_sequence):
-        add_op = three_op_sequence[0]
-        _ = three_op_sequence[1]  # mul1_op
-        mul2_op = three_op_sequence[2]
-
-        add_op_input_tensors = self._get_input_tensors(add_op)
-
-        assert len(add_op_input_tensors) == 2, "Unexpected number of tensors."
-        # Expect another tensor to be a scaler
-        if len(add_op_input_tensors[0].tensor.ShapeAsNumpy()) > len(add_op_input_tensors[1].tensor.ShapeAsNumpy()):
-            pwconv_output_tensor = add_op_input_tensors[0]
-        elif len(add_op_input_tensors[0].tensor.ShapeAsNumpy()) < len(add_op_input_tensors[1].tensor.ShapeAsNumpy()):
-            pwconv_output_tensor = add_op_input_tensors[1]
-        else:
-            raise NotImplementedError("unexpected tensor shapes for SE block")
-
-        assert (
-            self.layer[-1].params["output_idx"] == pwconv_output_tensor.tensor_idx
-        ), "Cannot link to the PWCONV ooutput tensor."
-
-        mul2_op_input_tensors = self._get_input_tensors(mul2_op)
-        dwcov_input_tensor = None
-        # Find out the tensor link to DWCONV
-        for each_layer in self.layer:
-            for tensor in mul2_op_input_tensors:
-                if str(each_layer.params["output_idx"]) == str(tensor.tensor_idx):
-                    dwcov_input_tensor = tensor
-
-            if dwcov_input_tensor:
-                break
-
-        assert dwcov_input_tensor, "Cannot link to the dw conv layer"
-
-        mul2_op_output_tensor = self._get_output_tensors(mul2_op)[0]
-
-        _, input_h, input_w, input_c = dwcov_input_tensor.tensor.ShapeAsNumpy()
-        _, input2_h, input2_w, input2_c = pwconv_output_tensor.tensor.ShapeAsNumpy()
-        _, output_h, output_w, output_c = mul2_op_output_tensor.tensor.ShapeAsNumpy()
-
-        input_zero_point = dwcov_input_tensor.qnn_params["zero_point"]
-        input2_zero_point = pwconv_output_tensor.qnn_params["zero_point"]
-        output_zero_point = mul2_op_output_tensor.qnn_params["zero_point"]
-
-        input_scale = dwcov_input_tensor.qnn_params["scale"]
-        input2_scale = pwconv_output_tensor.qnn_params["scale"]
-        output_scale = mul2_op_output_tensor.qnn_params["scale"]
-        effective_scale = np.double(input_scale) * np.double(input2_scale) / np.double(output_scale)
-        multiplier, shift = self._getLayerMultiplierShift(effective_scale)
-
-        params = {
-            # op related
-            "op": "SE_ELEMENT_MULT_2D",
-            "input_idx": dwcov_input_tensor.tensor_idx,
-            "input2_idx": pwconv_output_tensor.tensor_idx,
-            "output_idx": mul2_op_output_tensor.tensor_idx,
-            # tensor related
-            "input_dim": 3,
-            "input_h": input_h,
-            "input_w": input_w,
-            "input_c": input_c,
-            "input2_dim": 3,
-            "input2_h": input2_h,
-            "input2_w": input2_w,
-            "input2_c": input2_c,
-            "output_dim": 3,
-            "output_h": output_h,
-            "output_w": output_w,
-            "output_c": output_c,
-            "input_dtype": "int8",
-            "input2_dtype": "int8",
-            "output_dtype": "int8",
-            # quantization related
-            "input_zero_point": input_zero_point,
-            "input2_zero_point": input2_zero_point,
-            "output_zero_point": output_zero_point,
-            "output_multiplier": multiplier,
-            "output_effective_scale": effective_scale,
-            "output_shift": shift,
-        }
-
-        op = se_element_mult.SEelementmult(params)
-
-        return op
 
     #         -> MEAN -> MEAN -> PWCONV -> PWCONV -> | ADD -> MUL ->     |
     #  DWCONV                                        |            -> MUL |
@@ -298,71 +212,6 @@ class TfliteConvertor(object):
 
         # fuse pad into conv
         self.skip_transpose = PAD_tensorIndice(input_tensor.tensor_idx, output_tensor.tensor_idx)
-
-    def _convert_mean1D(self, op, MEAN2Dholder):
-        # Incase no params
-        input_type = None
-
-        # get input, weight, and output tensors
-        input_tensors = self._get_input_tensors(op)
-        input_tensor_count = len(input_tensors)
-        assert input_tensor_count == 1, "input tensors length should be 1"
-
-        input_tensor = input_tensors[0]
-
-        output_tensors = self._get_output_tensors(op)
-        assert len(output_tensors) == 1, "output tensors length should be 1"
-        output_tensor = output_tensors[0]
-
-        # shapes
-        input_shape = input_tensor.tensor.ShapeAsNumpy()
-        output_shape = output_tensor.tensor.ShapeAsNumpy()
-
-        input_h, input_w, input_c = get_hwc_from_chwshape(input_shape)
-        output_h, output_w, output_c = get_hwc_from_chwshape(output_shape)
-        input_type = self._getTensorTypeStr(input_tensor.tensor.Type())
-
-        if not MEAN2Dholder.has_first_1D:
-            MEAN2Dholder.add_first_1D_op(input_tensor.tensor_idx, output_tensor.tensor_idx, input_h, input_w, input_c)
-            return None
-        elif not MEAN2Dholder.has_second_1D:
-            MEAN2Dholder.add_second_1D_op(
-                input_tensor.tensor_idx, output_tensor.tensor_idx, output_h, output_w, output_c
-            )
-            filter_h = input_h - output_h + 1
-            filter_w = input_w - output_w + 1
-            params = {
-                # operator
-                "op": "AVERAGE_POOL_2D",
-                # pool parameters
-                "filter_h": filter_h,
-                "filter_w": filter_w,
-                "stride_h": 1,
-                "stride_w": 1,
-                "pad_h": 0,
-                "pad_w": 0,
-                # tensor
-                "input_idx": MEAN2Dholder.first_1D_input_idx,
-                "output_idx": MEAN2Dholder.second_1D_output_idx,
-                "input_h": MEAN2Dholder.input_h,
-                "input_w": MEAN2Dholder.input_w,
-                "input_c": MEAN2Dholder.input_c,
-                "input_dim": 3,
-                "output_dim": 3,
-                "output_h": MEAN2Dholder.output_h,
-                "output_w": MEAN2Dholder.output_w,
-                "output_c": MEAN2Dholder.output_c,
-                "dtypte": input_type,
-            }
-
-            op = avgpool2d.AvgPool2d(params)
-
-            # reset MEAN2Dholder
-            MEAN2Dholder.reset_holder()
-
-            return op
-        else:
-            raise NotImplementedError
 
     # handle one op and parse it into layers[] for supported operators
     def _handleOperator(self, op):

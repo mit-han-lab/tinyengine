@@ -91,6 +91,27 @@ def _get_wrapper_tensors(tensor_index_list, model: Model.Model):
     return ret
 
 
+def getLayerMultiplierShift(effective_scale):
+    if effective_scale == 0:
+        significand = 0
+        shift = 0
+    else:
+        sig, shi = math.frexp(effective_scale)
+        sig = int(round(sig * 2**31))
+
+        if sig == 2**31:
+            sig /= 2
+            shi += 1
+        if shi < -31:
+            shi = 0
+            sig = 0
+
+        significand = sig
+        shift = shi
+
+    return significand, shift
+
+
 def getMultiplierShift(effective_scale):
     significand = np.zeros(len(effective_scale), dtype="int32")
     shift = np.zeros(len(effective_scale), dtype="int32")
