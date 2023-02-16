@@ -384,7 +384,7 @@ class TfliteConvertor(object):
         elif op_code_str == "MAX_POOL_2D":
             self.layer.append(TF_Parser.parse_maxpool(op, self.model))
         elif op_code_str in "MEAN":
-            ret_op = self._convert_mean1D(op, self.average_1D_to_2D_holder)
+            ret_op = TF_Parser.parse_mead1dto2d(op, self.model, self.average_1D_to_2D_holder)
             if ret_op is not None:
                 # TODO: This only handle a specific graph: TRANSPOSE -> MEAN -> MEANS
                 if self.skip_transpose is not None:
