@@ -91,15 +91,6 @@ def _get_wrapper_tensors(tensor_index_list, model: Model.Model):
     return ret
 
 
-def getTensorTypeStr(type):
-    if TensorType.INT8 == type:
-        return "int8"
-    if TensorType.UINT8 == type:
-        return "uint8"
-    if TensorType.FLOAT32 == type:
-        return "float32"
-
-
 def getMultiplierShift(effective_scale):
     significand = np.zeros(len(effective_scale), dtype="int32")
     shift = np.zeros(len(effective_scale), dtype="int32")
@@ -123,3 +114,32 @@ def getMultiplierShift(effective_scale):
             shift[i] = shi
 
     return significand, shift
+
+
+def getTensorTypeStr(type):
+    if TensorType.INT8 == type:
+        return "int8"
+    if TensorType.UINT8 == type:
+        return "uint8"
+    if TensorType.FLOAT32 == type:
+        return "float32"
+
+
+def get_nhwc_from_shape(shape):
+    n = 1
+    h = 1
+    w = 1
+    c = 1
+    if len(shape) == 4:
+        c = shape[3]
+        h = shape[2]
+        w = shape[1]
+    elif len(shape) == 3:
+        c = shape[2]
+        h = shape[1]
+    elif len(shape) == 2:
+        w = shape[1]
+        c = shape[0]
+    elif len(shape) == 1:
+        c = shape[0]
+    return n, h, w, c

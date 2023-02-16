@@ -24,7 +24,7 @@ import numpy as np
 import code_generator.converters.tflite_parser as TF_Parser
 
 from .constant import SKIP_OPs
-from .operators import add, avgpool2d, conv2d, maxpool2d, se_element_mult, upsample
+from .operators import add, avgpool2d, conv2d, maxpool2d, se_element_mult
 from .tflite import Model
 from .tflite.BuiltinOperator import BuiltinOperator
 from .tflite.BuiltinOptions import BuiltinOptions
@@ -503,55 +503,6 @@ class TfliteConvertor(object):
 
         return op
 
-    def _convert_upsample(self, op):
-        # Incase no params
-        input_type = None
-        input_zero_point = None
-        output_zero_point = None
-        input_scale = None
-        output_scale = None
-
-        # get input, weight, and output tensors
-        input_tensors = self._get_input_tensors(op)
-
-        input_tensor = input_tensors[0]
-
-        output_tensors = self._get_output_tensors(op)
-        assert len(output_tensors) == 1, "output tensors length should be 1"
-        output_tensor = output_tensors[0]
-
-        # shapes
-        _, input_h, input_w, input_c = input_tensor.tensor.ShapeAsNumpy()
-        _, output_h, output_w, output_c = output_tensor.tensor.ShapeAsNumpy()
-
-        params = {
-            # operator
-            "op": "UPSAMPLE",
-            # upsample parameters
-            "factor": output_w / input_w,
-            # tensor
-            "input_idx": input_tensor.tensor_idx,
-            "output_idx": output_tensor.tensor_idx,
-            "input_h": input_h,
-            "input_w": input_w,
-            "input_c": input_c,
-            "input_dim": 3,
-            "output_dim": 3,
-            "output_h": output_h,
-            "output_w": output_w,
-            "output_c": output_c,
-            "dtype": input_type,
-            # trainable parameters
-            "input_zero_point": input_zero_point,
-            "output_zero_point": output_zero_point,
-            "input_scale": input_scale,
-            "output_scale": output_scale,
-            # quantized infernece
-        }
-        op = upsample.upSample(params)
-
-        return op
-
     def _convert_PAD(self, op):
         # get input, weight, and output tensors
         input_tensors = self._get_input_tensors(op)
@@ -818,7 +769,7 @@ class TfliteConvertor(object):
         elif op_code_str == "PAD":
             self._convert_PAD(op)
         elif op_code_str == "RESIZE_NEAREST_NEIGHBOR":
-            self.layer.append(self._convert_upsample(op))
+            self.layer.append(TF_Parser.parse_upsample(op, self.model))
         elif op_code_str == "MAX_POOL_2D":
             self.layer.append(self._convert_maxpool(op))
         elif op_code_str in "MEAN":
