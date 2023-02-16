@@ -132,11 +132,12 @@ def get_nhwc_from_shape(shape):
     c = 1
     if len(shape) == 4:
         c = shape[3]
-        h = shape[2]
-        w = shape[1]
+        w = shape[2]
+        h = shape[1]
     elif len(shape) == 3:
         c = shape[2]
-        h = shape[1]
+        w = shape[1]
+        h = shape[0]
     elif len(shape) == 2:
         c = shape[1]
         w = shape[0]
