@@ -22,8 +22,8 @@ def parse_fc(op, model: Model.Model):
     input_tensor = input_tensors[0]
     weight_tensor = input_tensors[1]
     bias_tensor = input_tensors[2]
-    weight = get_np_from_wrapper(weight_tensor, model)
-    bias = get_np_from_wrapper(bias_tensor, model)
+    weight = get_np_from_wrapper(weight_tensor)
+    bias = get_np_from_wrapper(bias_tensor)
 
     output_tensors = get_output_tensors(op, model)
     assert len(output_tensors) == 1, "output tensors length should be 1"
