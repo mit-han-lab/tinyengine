@@ -10,9 +10,6 @@ def parse_mead1dto2d(op, model: Model.Model, MEAN2Dholder=None):
 
     # get input, weight, and output tensors
     input_tensors = get_input_tensors(op, model)
-    input_tensor_count = len(input_tensors)
-    assert input_tensor_count == 1, "input tensors length should be 1"
-
     input_tensor = input_tensors[0]
 
     output_tensors = get_output_tensors(op, model)
