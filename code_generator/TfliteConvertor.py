@@ -109,6 +109,42 @@ class TfliteConvertor(object):
             # parse the op
             self._handleOperator(op)
 
+    # handle one op and parse it into layers[] for supported operators
+    def _handleOperator(self, op):
+        op_code_str = getOpCodeStr(op, self.model)
+        if op_code_str == "CONV_2D":
+            self.layer.append(TF_Parser.parse_conv2d(op, self.model, self.tmpPADIndice))
+            self.tmpPADIndice = None
+        elif op_code_str == "ADD":
+            self.layer.append(TF_Parser.parse_add(op, self.model))
+        elif op_code_str == "AVERAGE_POOL_2D":
+            self.layer.append(TF_Parser.parse_avgpool(op, self.model))
+        elif op_code_str == "DEPTHWISE_CONV_2D":
+            self.layer.append(TF_Parser.parse_conv2d(op, self.model, self.tmpPADIndice))
+            self.tmpPADIndice = None
+        elif op_code_str == "PAD":
+            self._convert_PAD(op)
+        elif op_code_str == "RESIZE_NEAREST_NEIGHBOR":
+            self.layer.append(TF_Parser.parse_upsample(op, self.model))
+        elif op_code_str == "MAX_POOL_2D":
+            self.layer.append(TF_Parser.parse_maxpool(op, self.model))
+        elif op_code_str in "MEAN":
+            ret_op = TF_Parser.parse_mead1dto2d(op, self.model, self.average_1D_to_2D_holder)
+            if ret_op is not None:
+                # TODO: This only handle a specific graph: TRANSPOSE -> MEAN -> MEANS
+                if self.skip_transpose is not None:
+                    ret_op.params["input_idx"] = self.skip_transpose.input_idx
+                    ret_op.input_tensors[0].graph_idx = self.skip_transpose.input_idx
+                self.layer.append(ret_op)
+        elif op_code_str == "TRANSPOSE":
+            self._convert_TRANSPOSE(op)
+        elif op_code_str in "FULLY_CONNECTED":
+            self.layer.append(TF_Parser.parse_fc(op, self.model))
+        elif op_code_str in SKIP_OPs:
+            pass
+        else:
+            raise NotImplementedError(f"Unsupported {op_code_str}")
+
     #         -> MEAN -> MEAN -> PWCONV -> PWCONV -> | ADD -> MUL ->     |
     #  DWCONV                                        |            -> MUL |
     #                                                |    Fuse Target    |
@@ -163,42 +199,6 @@ class TfliteConvertor(object):
 
         # fuse pad into conv
         self.skip_transpose = PAD_tensorIndice(input_tensor.tensor_idx, output_tensor.tensor_idx)
-
-    # handle one op and parse it into layers[] for supported operators
-    def _handleOperator(self, op):
-        op_code_str = getOpCodeStr(op, self.model)
-        if op_code_str == "CONV_2D":
-            self.layer.append(TF_Parser.parse_conv2d(op, self.model, self.tmpPADIndice))
-            self.tmpPADIndice = None
-        elif op_code_str == "ADD":
-            self.layer.append(TF_Parser.parse_add(op, self.model))
-        elif op_code_str == "AVERAGE_POOL_2D":
-            self.layer.append(TF_Parser.parse_avgpool(op, self.model))
-        elif op_code_str == "DEPTHWISE_CONV_2D":
-            self.layer.append(TF_Parser.parse_conv2d(op, self.model, self.tmpPADIndice))
-            self.tmpPADIndice = None
-        elif op_code_str == "PAD":
-            self._convert_PAD(op)
-        elif op_code_str == "RESIZE_NEAREST_NEIGHBOR":
-            self.layer.append(TF_Parser.parse_upsample(op, self.model))
-        elif op_code_str == "MAX_POOL_2D":
-            self.layer.append(TF_Parser.parse_maxpool(op, self.model))
-        elif op_code_str in "MEAN":
-            ret_op = TF_Parser.parse_mead1dto2d(op, self.model, self.average_1D_to_2D_holder)
-            if ret_op is not None:
-                # TODO: This only handle a specific graph: TRANSPOSE -> MEAN -> MEANS
-                if self.skip_transpose is not None:
-                    ret_op.params["input_idx"] = self.skip_transpose.input_idx
-                    ret_op.input_tensors[0].graph_idx = self.skip_transpose.input_idx
-                self.layer.append(ret_op)
-        elif op_code_str == "TRANSPOSE":
-            self._convert_TRANSPOSE(op)
-        elif op_code_str in "FULLY_CONNECTED":
-            self.layer.append(TF_Parser.parse_fc(op, self.model))
-        elif op_code_str in SKIP_OPs:
-            pass
-        else:
-            raise NotImplementedError(f"Unsupported {op_code_str}")
 
 
 class PAD_tensorIndice(object):
