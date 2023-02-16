@@ -17,7 +17,6 @@
 # ----------------------------------------------------------------------
 
 import logging
-import math
 
 import code_generator.converters.tflite_parser as TF_Parser
 from code_generator.converters.tflite_parser.mean1dto2d import MEAN2D
@@ -156,25 +155,6 @@ class TfliteConvertor(object):
         ):
             return True
         return False
-
-    # private functionst
-    def _preprocessSoftmaxScaling(self, beta, input_scale, input_integer_bits):
-
-        input_beta_real_multiplier = min(beta * input_scale * (1 << (31 - input_integer_bits)), (1 << 31) - 1.0)
-
-        multiplier, shift = self._getSigShift(input_beta_real_multiplier)
-
-        return multiplier, shift
-
-    # follow TFlite implementation
-    def _calculateInputRadius(self, input_integer_bits, input_left_shift, total_signed_bits=31):
-        max_input_rescaled = (
-            1.0
-            * ((1 << input_integer_bits) - 1)
-            * (1 << (total_signed_bits - input_integer_bits))
-            / (1 << input_left_shift)
-        )
-        return math.floor(max_input_rescaled)
 
     def _convert_PAD(self, op):
         # get input, weight, and output tensors
