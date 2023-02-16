@@ -125,7 +125,7 @@ def getTensorTypeStr(type):
         return "float32"
 
 
-def get_nchw_from_shape(shape):
+def get_nhwc_from_shape(shape):
     n = 1
     h = 1
     w = 1
@@ -138,8 +138,8 @@ def get_nchw_from_shape(shape):
         c = shape[2]
         h = shape[1]
     elif len(shape) == 2:
-        w = shape[1]
-        c = shape[0]
+        c = shape[1]
+        w = shape[0]
     elif len(shape) == 1:
         c = shape[0]
     return n, h, w, c
