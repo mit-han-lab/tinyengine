@@ -17,9 +17,11 @@
 # ----------------------------------------------------------------------
 
 import logging
+from typing import List
 
 import code_generator.converters.tflite_parser as TF_Parser
 from code_generator.converters.tflite_parser.mean1dto2d import MEAN2D
+from code_generator.converters.tflite_parser.reshape import tensor_mapping
 from code_generator.converters.tflite_parser.utils import get_input_tensors, get_output_tensors, getOpCodeStr
 
 from .constant import SKIP_OPs
@@ -37,6 +39,7 @@ class TfliteConvertor(object):
         self.tmpPADIndice = None
         self.skip_transpose = None
         self.average_1D_to_2D_holder = MEAN2D()  # For merging 1D to 2D
+        self.inplace_reshape_table: List[tensor_mapping] = []  # A list of tensor_mapping
 
     # public functions
     def loadTFmodel(self, filepath):
@@ -139,6 +142,8 @@ class TfliteConvertor(object):
             self._convert_TRANSPOSE(op)
         elif op_code_str in "FULLY_CONNECTED":
             self.layer.append(TF_Parser.parse_fc(op, self.model))
+        elif op_code_str in "RESHAPE":
+            self.inplace_reshape_table.append(TF_Parser.parse_reshape_fuse_tensor_tuple(op, self.model))
         elif op_code_str in SKIP_OPs:
             pass
         else:
