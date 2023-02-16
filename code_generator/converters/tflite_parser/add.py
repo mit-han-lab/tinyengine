@@ -5,7 +5,14 @@ import numpy as np
 from code_generator.operators import add
 from code_generator.tflite import Model
 
-from .utils import get_input_tensors, get_nhwc_from_shape, get_output_tensors, getOpCodeStr, getTensorTypeStr
+from .utils import (
+    get_input_tensors,
+    get_nhwc_from_shape,
+    get_np_from_wrapper,
+    get_output_tensors,
+    getOpCodeStr,
+    getTensorTypeStr,
+)
 
 
 def parse_add(op, model: Model.Model):
@@ -28,15 +35,33 @@ def parse_add(op, model: Model.Model):
     _, input_h, input_w, input_c = get_nhwc_from_shape(input_tensor.tensor.ShapeAsNumpy())
     _, input2_h, input2_w, input2_c = get_nhwc_from_shape(input2_tensor.tensor.ShapeAsNumpy())
     _, output_h, output_w, output_c = get_nhwc_from_shape(output_tensor.tensor.ShapeAsNumpy())
-    assert input_h == input2_h == output_h, "tensor shpae not consistent"
-    assert input_w == input2_w == output_w, "tensor shpae not consistent"
-    assert input_c == input2_c == output_c, "tensor shpae not consistent"
+
+    # Find out which tensor is the main input, we assume the 1st input is the main one
+    if input2_c == output_c and output_w == input2_w and output_h == input2_h:
+        temp = input_tensor
+        input2_tensor = input_tensor
+        input_tensor = temp
+        th, tw, tc = input_h, input_w, input_c
+        input_h, input_w, input_c = input2_h, input2_w, input2_c
+        input2_h, input2_w, input2_c = th, tw, tc
+
+    assert input_h == output_h, "tensor shape not consistent"
+    assert input_w == output_w, "tensor shape not consistent"
+    assert input_c == output_c, "tensor shape not consistent"
 
     # tensor types
     input_type = getTensorTypeStr(input_tensor.tensor.Type())
     input_type2 = getTensorTypeStr(input2_tensor.tensor.Type())
     output_type = getTensorTypeStr(output_tensor.tensor.Type())
     assert input_type == input_type2 == output_type, "tensor type not consistent"
+
+    # Check if the divisor is constant, e.g., a scale value or tensor
+    input2_idx = input2_tensor.tensor_idx
+    try:
+        input2 = get_np_from_wrapper(input2_tensor)
+        input2_idx = "constant"
+    except Exception:
+        input2 = None
 
     # initialize quantized parameters as None for floating-pointer ops
     input_zero_point = None
@@ -83,7 +108,8 @@ def parse_add(op, model: Model.Model):
         "op": op_code_str,
         # tensor
         "input_idx": input_tensor.tensor_idx,
-        "input2_idx": input2_tensor.tensor_idx,
+        "input2": input2,
+        "input2_idx": input2_idx,
         "output_idx": output_tensor.tensor_idx,
         "input_h": input_h,
         "input_w": input_w,

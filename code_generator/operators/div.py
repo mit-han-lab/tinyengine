@@ -14,6 +14,15 @@ default_params = {
     "output_idx": None,
     # tensor related
     "input_size": None,
+    "input_h": None,
+    "input_w": None,
+    "input_c": None,
+    "input2_h": None,
+    "input2_w": None,
+    "input2_c": None,
+    "output_h": None,
+    "output_w": None,
+    "output_c": None,
     "input2": None,
     "input_dtype": "int8",
     "input2_dtype": "int8",
@@ -41,7 +50,8 @@ class div(basicOperator):
         super().__init__()
         # handle input/output tensors in HWC format
         self._add_input(self.params["input_idx"], self.params["input_dtype"], self.params["input_size"], 1, 1)
-        self._add_input(self.params["input2_idx"], self.params["input2_dtype"], self.params["input_size"], 1, 1)
+        if "constant" not in self.params["input2_idx"]:
+            self._add_input(self.params["input2_idx"], self.params["input2_dtype"], self.params["input_size"], 1, 1)
         self._add_output(self.params["output_idx"], self.params["output_dtype"], self.params["input_size"], 1, 1)
 
         if None in default_params:

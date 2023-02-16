@@ -1,3 +1,4 @@
+import logging
 import warnings
 
 from ..constant import USE_BIT_MASK
@@ -16,6 +17,7 @@ default_params = {
     "input_h": None,
     "input_w": None,
     "input_c": None,
+    "input2": None,
     "input2_dim": None,
     "input2_h": None,
     "input2_w": None,
@@ -110,13 +112,16 @@ class Add(basicOperator):
                 + f"{self._getBufferstr(params['output2_buf_add'], params['output2_buf_add_offset'])});\n"
             )
         else:
-            string += (
-                f"add_fpreq({str(int(params['input_h']*params['input_w']*params['input_c']))}, "
-                + f"{self._getBufferstr(params['input_buf_add'], params['input_buf_add_offset'])},"
-                + f"{str(params['input_scale'])},{str(params['input_zero_point'])},"
-                + f"{self._getBufferstr(params['input2_buf_add'], params['input2_buf_add_offset'])},"
-                + f"{str(params['input2_scale'])},{str(params['input2_zero_point'])},"
-                + f"{str(params['output_scale'])},{str(params['output_zero_point'])},"
-                + f"{self._getBufferstr(params['output_buf_add'], params['output_buf_add_offset'])});\n"
-            )
+            if isinstance(params["input2_idx"], str) and "constant" in params["input2_idx"]:
+                logging.warn("Add operator with constant support is still no ready.")
+            else:
+                string += (
+                    f"add_fpreq({str(int(params['input_h']*params['input_w']*params['input_c']))}, "
+                    + f"{self._getBufferstr(params['input_buf_add'], params['input_buf_add_offset'])},"
+                    + f"{str(params['input_scale'])},{str(params['input_zero_point'])},"
+                    + f"{self._getBufferstr(params['input2_buf_add'], params['input2_buf_add_offset'])},"
+                    + f"{str(params['input2_scale'])},{str(params['input2_zero_point'])},"
+                    + f"{str(params['output_scale'])},{str(params['output_zero_point'])},"
+                    + f"{self._getBufferstr(params['output_buf_add'], params['output_buf_add_offset'])});\n"
+                )
         return string

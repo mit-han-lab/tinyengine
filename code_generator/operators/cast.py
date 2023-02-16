@@ -7,7 +7,7 @@ __all__ = ["cast"]
 
 default_params = {
     # op related
-    "op": "ONES_LIKE",
+    "op": "CAST",
     "input_idx": None,
     "output_idx": None,
     # tensor related
@@ -29,7 +29,8 @@ class cast(basicOperator):
         #     raise NotImplementedError
         # else:
         if (
-            "constant" not in params["input_idx"]
+            isinstance(params["input_idx"], str)
+            and "constant" not in params["input_idx"]
             and "weight" not in params["input_idx"]
             and "bias" not in params["input_idx"]
         ):

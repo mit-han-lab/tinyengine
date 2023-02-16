@@ -1,3 +1,4 @@
+import logging
 import warnings
 
 from .basic_utils import basicOperator, deep_copy_dicts, overwrite_dicts
@@ -8,6 +9,7 @@ default_params = {
     # op related
     "op": "SUB",
     "input_idx": None,
+    "input2": None,
     "input2_idx": None,
     "output_idx": None,
     # tensor related
@@ -42,6 +44,10 @@ class sub(basicOperator):
 
     def generate_inference_str(self):
         params = self.params
+
+        if isinstance(params["input2_idx"], str) and "constant" in params["input2_idx"]:
+            logging.warn("Please implement sub operator with a constant tensor.")
+
         if params["input_dtype"] == "float32":
             string = (
                 f"sub({self.params['input_size']},"

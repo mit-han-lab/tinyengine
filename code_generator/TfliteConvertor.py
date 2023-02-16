@@ -111,6 +111,9 @@ class TfliteConvertor(object):
             # parse the op
             self._handleOperator(op)
 
+        # Handle inplace_reshape_table here
+        logging.error("Please handle inplace_reshape_table here for fused tensors.")
+
     # handle one op and parse it into layers[] for supported operators
     def _handleOperator(self, op):
         op_code_str = getOpCodeStr(op, self.model)
@@ -140,11 +143,35 @@ class TfliteConvertor(object):
                 self.layer.append(ret_op)
         elif op_code_str == "TRANSPOSE":
             self._convert_TRANSPOSE(op)
-        elif op_code_str in "FULLY_CONNECTED":
+        elif op_code_str == "FULLY_CONNECTED":
             self.layer.append(TF_Parser.parse_fc(op, self.model))
-        elif op_code_str in "RESHAPE":
+        elif op_code_str == "RESHAPE":
             self.inplace_reshape_table.append(TF_Parser.parse_reshape_fuse_tensor_tuple(op, self.model))
-        elif op_code_str in SKIP_OPs:
+        elif op_code_str == "DIV":
+            self.layer.append(TF_Parser.parse_div(op, self.model))
+        elif op_code_str == "BATCH_MATMUL":
+            self.layer.append(TF_Parser.parse_batchmatmul(op, self.model))
+        elif op_code_str == "NOT_EQUAL":
+            self.layer.append(TF_Parser.parse_notequal(op, self.model))
+        elif op_code_str == "EQUAL":
+            self.layer.append(TF_Parser.parse_equal(op, self.model))
+        elif op_code_str == "CONCATENATION":
+            self.layer.append(TF_Parser.parse_notequal(op, self.model))
+        elif op_code_str == "CAST":
+            self.layer.append(TF_Parser.parse_cast(op, self.model))
+        elif op_code_str == "SUB":
+            self.layer.append(TF_Parser.parse_sub(op, self.model))
+        elif op_code_str == "MUL":
+            self.layer.append(TF_Parser.parse_mul(op, self.model))
+        elif op_code_str == "SOFTMAX":
+            self.layer.append(TF_Parser.parse_softmax(op, self.model))
+        elif op_code_str == "SQUARED_DIFFERENCE":
+            self.layer.append(TF_Parser.parse_squarddiff(op, self.model))
+        elif op_code_str == "RSQRT":
+            self.layer.append(TF_Parser.parse_rsqrt(op, self.model))
+        elif op_code_str == "SLICE":
+            self.layer.append(TF_Parser.parse_slice(op, self.model))
+        elif op_code_str == SKIP_OPs:
             pass
         else:
             raise NotImplementedError(f"Unsupported {op_code_str}")

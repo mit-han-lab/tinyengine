@@ -265,13 +265,15 @@ def isconstanttstr(str):
     return False
 
 
-def islabelstr(str):
-    if "label" in str:
-        return True
+def islabelstr(idx_name):
+    if isinstance(idx_name, str):
+        if "label" in idx_name:
+            return True
     return False
 
 
-def isParamstr(str):
-    if "scale" in str or "weight" in str or "bias" in str:
-        return True
+def isParamstr(idx_name):
+    if isinstance(idx_name, str):
+        if "scale" in idx_name or "weight" in idx_name or "bias" in idx_name:
+            return True
     return False
