@@ -171,7 +171,7 @@ class TfliteConvertor(object):
             self.layer.append(TF_Parser.parse_rsqrt(op, self.model))
         elif op_code_str == "SLICE":
             self.layer.append(TF_Parser.parse_slice(op, self.model))
-        elif op_code_str == SKIP_OPs:
+        elif op_code_str in SKIP_OPs:
             pass
         else:
             raise NotImplementedError(f"Unsupported {op_code_str}")
