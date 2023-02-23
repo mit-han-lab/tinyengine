@@ -103,11 +103,11 @@ bash import_arm_inference.sh
 
 - Open `TinyEngine_vww_tutorial/Src/main.cpp`.
   
-  - If using an Arducam, please set `UseCamera` to 1 (Line 32), as shown in the figure below:
+  - If using an Arducam, please set `UseCamera` macro to 1 (Line 32), as shown in the figure below:
 
   <img src="../../assets/figures/3_main_cpp_UseCamera.png" alt="3_main_cpp_UseCamera" width="80%"/>
 
-  - If not using an Arducam, please set `UseCamera` to 0 (Line 32) and set NoCamera_Person to 0 or 1 (Line 33), as shown in the figure below:
+  - If not using an Arducam, please set `UseCamera` macro to 0 (Line 32) and set `NoCamera_Person` macro to 0 or 1 (Line 33), as shown in the figure below:
   
   <img src="../../assets/figures/3_main_cpp_NoUseCamera.png" alt="3_main_cpp_NoUseCamera" width="80%"/>
 
