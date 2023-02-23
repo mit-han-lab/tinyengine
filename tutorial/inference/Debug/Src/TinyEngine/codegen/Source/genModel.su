@@ -2,3 +2,4 @@ genModel.c:21:14:getInput	0	static
 genModel.c:24:14:getOutput	0	static
 genModel.c:30:6:invoke	136	static
 genModel.c:27:6:end2endinference	0	static
+genModel.c:142:6:invoke_inf	136	static

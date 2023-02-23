@@ -36,20 +36,20 @@ This is the official demo tutorial for deploying a visual wake words (VWW) infer
 ## Equipments
 
 1. STM32F746G-DISCO discovery board
-1. Arducam Shield Mini 2MP Plus
-1. Male to female jumper wires (x8)
+2. Arducam Shield Mini 2MP Plus *(Optional)*
+3. Male to female jumper wires (x8) *(Optional)*
 
 ## Overview of Usage
 
 1. Download and install STM32CubeIDE version 1.5.0.
-1. Download and import this project into your STM32CubeIDE.
-1. Connect your Arducam to the board with jumper wires.
-1. Compile and flash program into your STM32F746G-DISCO discovery board.
-1. Done! In the demo, the LCD screen on your STM32F746G-DISCO discovery board should display person detection results (person/no person) and frames per second (FPS).
+2. Download and import this project into your STM32CubeIDE.
+3. Connect your Arducam to the board with jumper wires. *(Optional)*
+4. Compile and flash program into your STM32F746G-DISCO discovery board.
+5. Done! In the demo, the LCD screen on your STM32F746G-DISCO discovery board should display person detection results (person/no person) and frames per second (FPS).
 
 ## Detailed Instruction
 
-0. Prepare an STM32F746G-DISCO discovery board and an Arducam.
+0. Prepare an STM32F746G-DISCO discovery board (and an Arducam, if applicable).
 1. Download STM32CubeIDE, an C/C++ development platform with peripheral configuration, code generation, code compilation, and debug features for STM32 microcontrollers and microprocessors.
 
 - Please download STM32CubeIDE **version 1.5.0**. \[[Link](https://www.st.com/en/development-tools/stm32cubeide.html#get-software)\]
@@ -101,9 +101,15 @@ bash import_arm_inference.sh
 
 <img src="../../assets/figures/2_project_explorer.png" alt="2_project_explorer" width="30%"/>
 
-- Open `TinyEngine_vww_tutorial/Src/main.cpp`, as shown in the figure below:
+- Open `TinyEngine_vww_tutorial/Src/main.cpp`.
+  
+  - If using an Arducam, please set `UseCamera` macro to 1 (Line 32), as shown in the figure below:
 
-<img src="../../assets/figures/3_main_cpp.png" alt="3_main_cpp" width="80%"/>
+  <img src="../../assets/figures/3_main_cpp_UseCamera.png" alt="3_main_cpp_UseCamera" width="80%"/>
+
+  - If not using an Arducam, please set `UseCamera` macro to 0 (Line 32) and set `NoCamera_Person` macro to 0 or 1 (Line 33), as shown in the figure below:
+  
+  <img src="../../assets/figures/3_main_cpp_NoUseCamera.png" alt="3_main_cpp_NoUseCamera" width="80%"/>
 
 - Verify you have the correct compilation settings. (The default settings should be correct, but please follow the following steps to make sure that.):
 
@@ -133,7 +139,7 @@ bash import_arm_inference.sh
 
 4. Setup your STM32F746G-DISCO discovery board to connect the Arducam to the board and also establish the USB connection with the board.
 
-- Connect your Arducam to the board with jumper wires according to the following PIN connection:
+- **(Optional)** Connect your Arducam to the board with jumper wires according to the following PIN connection:
 
   - SPI: MOSI->PB15(D11), MISO->PB14(D12), SCK->PI_1(D13), CS(NSS)->PI_0(D5), VCC-> 3.3V, GND->GND
   - I2C: SCL->PB8(D15). SDA->PB9(D14)
@@ -166,8 +172,17 @@ bash import_arm_inference.sh
 
 6. If you successfully run the demo, the LCD screen on your STM32F746G-DISCO discovery board should display person detection results (person/no person) and frames per second (FPS), as shown in the example figure below:
 
-   <img src="../../assets/figures/15_demo_person.png" alt="15_demo_person" width="40%"/>
-    <img src="../../assets/figures/16_demo_no_person.png" alt="16_demo_no_person" width="40%"/>
+  - **With Arducam:**
+
+   <img src="../../assets/figures/15_demo_person.png" alt="15_demo_person" width="40%"/> <img src="../../assets/figures/16_demo_no_person.png" alt="16_demo_no_person" width="40%"/>
+
+   ```
+                    (Person)                                       (No Person)
+   ```
+
+  - **Without Arducam:**
+
+   <img src="../../assets/figures/17_demo_person_noArducam.png" alt="17_demo_person_noArducam" width="40%"/> <img src="../../assets/figures/18_demo_no_person_noArducam.png" alt="18_demo_no_person_noArducam" width="40%"/>
 
    ```
                     (Person)                                       (No Person)
