@@ -15,7 +15,7 @@ def parse_notequal(op, model: Model.Model):
     input_type = getTensorTypeStr(input_tensors[0].tensor.Type())
     input2_type = getTensorTypeStr(input_tensors[1].tensor.Type())
     output_type = getTensorTypeStr(output_tensor.tensor.Type())
-    assert input_type == output_type == input2_type, "tensor type not consistent"
+    assert input_type == input2_type, "tensor type not consistent"
 
     # shapes
     _, input_h, input_w, input_c = get_nhwc_from_shape(input_tensors[0].tensor.ShapeAsNumpy())

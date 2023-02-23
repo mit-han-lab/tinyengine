@@ -144,6 +144,11 @@ def getTensorTypeStr(type):
         return "uint8"
     if TensorType.FLOAT32 == type:
         return "float32"
+    if TensorType.INT32 == type:
+        return "int32"
+    if TensorType.BOOL == type:
+        return "bool"
+    raise NotImplementedError
 
 
 def get_hwc_from_chwshape(shape):
