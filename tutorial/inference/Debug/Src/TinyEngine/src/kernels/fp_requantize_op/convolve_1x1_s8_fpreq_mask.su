@@ -1,0 +1,2 @@
+convolve_1x1_s8_fpreq_mask.c:28:19:convolve_1x1_s8_fpreq_bitmask	112	static,ignoring_inline_asm
+convolve_1x1_s8_fpreq_mask.c:151:19:convolve_1x1_s8_fpreq_mask	112	static,ignoring_inline_asm

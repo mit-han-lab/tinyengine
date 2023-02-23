@@ -1,0 +1,4 @@
+yoloOutput.c:28:5:postprocess_single	144	static
+yoloOutput.c:71:6:data_requantize	4	static
+yoloOutput.c:80:5:nms_impl	40	static
+yoloOutput.c:139:11:postprocessing	216	static

@@ -28,7 +28,9 @@ extern "C" {
 #include "genNN.h"
 #include "tinyengine_function.h"
 }
-//#define TESTTENSOR
+// #define TESTTENSOR
+#define UseCamera 1  // 1 for using Arducam; 0 for not using Arducam.
+#define NoCamera_Person 0  // 1 for person; 0 for non-person. (Only applicable when UseCamera == 0) 
 
 #include "stm32746g_discovery.h"
 
@@ -95,14 +97,15 @@ int main(void) {
   }
 #endif
 
+#if UseCamera
   int camErr = initCamera();
 
   uint32_t start, end;
   StartCapture();
   signed char *input = getInput();
-
   RGBbuf = (uint16_t *)&input[80 * 80 * 4];
   int t_mode = 0;
+
   while (1) {
     start = HAL_GetTick();
     ReadCapture();
@@ -136,6 +139,50 @@ int main(void) {
   	displaystring(showbuf, 273, 10);
   	detectResponse(person, end - start, t_mode, 0, 0);
   }
+
+#else
+  uint32_t start, end;
+  signed char *input = getInput();
+  for (int i = 0; i < RES_W * RES_W * 3; i++) {
+#if NoCamera_Person
+    input[i] = person[i];  // Image of person
+#else
+    input[i] = no_person[i];  // Image of non-person
+#endif
+  }
+  RGBbuf = (uint16_t *)&input[80 * 80 * 4];
+  int t_mode = 0;
+
+  start = HAL_GetTick();
+
+  for (int i = 0; i < RES_W; i++) {
+    for (int j = 0; j < RES_W; j++) {
+      uint8_t red = (int32_t)input[(80 * i + j) * 3] + 128;
+      uint8_t green = (int32_t)input[(80 * i + j) * 3 + 1] + 128;
+      uint8_t blue = (int32_t)input[(80 * i + j) * 3 + 2] + 128;
+
+      uint16_t b = (blue >> 3) & 0x1f;
+      uint16_t g = ((green >> 2) & 0x3f) << 5;
+      uint16_t r = ((red >> 3) & 0x1f) << 11;
+
+      RGBbuf[j + RES_W * i] = (uint16_t)(r | g | b);
+    }
+  }
+  loadRGB565LCD(10, 10, RES_W, RES_W, RGBbuf, 3);
+
+	invoke_new_weights_givenimg(out_int);
+	int person = 0;
+	if (out_int[0] > out_int[1]) {
+	  person = 0;
+	}
+	else {
+	  person = 1;
+	}
+	end = HAL_GetTick();
+	sprintf(showbuf, " Inference ");
+	displaystring(showbuf, 273, 10);
+	detectResponse(person, end - start, t_mode, 0, 0);
+#endif
 }
 
 void SystemClock_Config(void) {
