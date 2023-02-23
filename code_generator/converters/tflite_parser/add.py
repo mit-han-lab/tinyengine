@@ -37,7 +37,7 @@ def parse_add(op, model: Model.Model):
     _, output_h, output_w, output_c = get_nhwc_from_shape(output_tensor.tensor.ShapeAsNumpy())
 
     # Find out which tensor is the main input, we assume the 1st input is the main one
-    if input_c != output_c or output_w != input_w or output_h != input2_h:
+    if input_c != output_c or output_w != input_w or output_h != input_h:
         temp = input_tensor
         input2_tensor = input_tensor
         input_tensor = temp
