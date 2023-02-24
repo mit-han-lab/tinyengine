@@ -585,12 +585,13 @@ signed char* getOutput() {
                     )
                 else:
                     self._parseBias(self.parse_count, layer_info["bias"].flatten())
-                self._parseEffectivescales(self.parse_count, layer_info["effective_scale"].flatten())
-                self._parseRequantize(
-                    self.parse_count,
-                    layer_info["shift"].flatten(),
-                    layer_info["multiplier"].flatten(),
-                )
+                if layer_info["input_dtype"] == "int8":
+                    self._parseEffectivescales(self.parse_count, layer_info["effective_scale"].flatten())
+                    self._parseRequantize(
+                        self.parse_count,
+                        layer_info["shift"].flatten(),
+                        layer_info["multiplier"].flatten(),
+                    )
 
                 layer_info["parsed_trainable"] = self.parse_count
                 self.parse_count += 1

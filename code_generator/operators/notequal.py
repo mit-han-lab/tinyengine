@@ -63,7 +63,7 @@ class notequal(basicOperator):
         params = self.params
         string = ""
 
-        if params["input_dtype"] == "float32":
+        if params["input_dtype"] in ["float32", "int32", "bool"]:
             logging.warn("NOT_EQUAL still needs implementation.")
         else:
             raise NotImplementedError

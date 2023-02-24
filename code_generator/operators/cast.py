@@ -28,12 +28,8 @@ class cast(basicOperator):
         # handle input/output tensors in HWC format
         #     raise NotImplementedError
         # else:
-        if (
-            isinstance(params["input_idx"], str)
-            and "constant" not in params["input_idx"]
-            and "weight" not in params["input_idx"]
-            and "bias" not in params["input_idx"]
-        ):
+        input_idx_str = str(params["input_idx"])
+        if "constant" not in input_idx_str and "weight" not in input_idx_str and "bias" not in input_idx_str:
             self._add_input(
                 self.params["input_idx"],
                 self.params["input_dtype"],
@@ -62,6 +58,9 @@ class cast(basicOperator):
         elif params["input_dtype"] == "int32" or params["input_dtype"] == "int8":
             input_type_str = "int8_t"
             input_ptr = "int8ptr"
+        elif params["input_dtype"] == "bool":
+            input_type_str = "int8_t"
+            input_ptr = "int8ptr"
         else:
             raise NotImplementedError
         if params["output_dtype"] == "float32":
@@ -73,7 +72,7 @@ class cast(basicOperator):
         else:
             raise NotImplementedError
         # generate string
-        if "constant" in params["input_idx"] and "data" in params["input_meta"]:
+        if "constant" in str(params["input_idx"]) and "data" in params["input_meta"]:
             array_name = params["input_idx"].replace("@", "").replace("-", "")
             array = "{"
             array_len = 0
@@ -91,7 +90,7 @@ class cast(basicOperator):
                 + f"{self._getBufferstr(params['output_buf_add'], params['output_buf_add_offset'])};\n"
                 + f"for(int i = 0; i < {array_len}; i++) {output_ptr}[i] = ({output_type_str}){array_name}[i];\n"
             )
-        elif "weight" in params["input_idx"]:
+        elif "weight" in str(params["input_idx"]):
             string = (
                 f"{output_ptr} = ({output_type_str}*)"
                 + f"{self._getBufferstr(params['output_buf_add'], params['output_buf_add_offset'])};\n"

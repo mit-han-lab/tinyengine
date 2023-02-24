@@ -183,6 +183,14 @@ sprintf(buf, \""""
 
 
 class tensor:
+    size: int
+    dtype: str
+    buffer_placement: int
+    buffer_name: str
+    buffer_address: int
+    allocator_idx: str
+    graph_idx: str
+
     byte_size = {
         "bool": 1,
         "int8": 1,

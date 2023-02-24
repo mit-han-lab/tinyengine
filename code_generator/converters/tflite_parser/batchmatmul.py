@@ -47,9 +47,9 @@ def parse_batchmatmul(op, model: Model.Model):
         "input2_row": input2_row,
         "output_col": output_col,
         "output_row": output_row,
-        "input_dtype": "fp32",
-        "input2_dtype": "fp32",
-        "output_dtype": "fp32",
+        "input_dtype": input_type,
+        "input2_dtype": input2_type,
+        "output_dtype": output_type,
     }
     op = batchmatmul.batchmatmul(params)
 
