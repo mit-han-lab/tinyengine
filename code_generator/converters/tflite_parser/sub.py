@@ -40,7 +40,7 @@ def parse_sub(op, model: Model.Model):
     input2_idx = input2_tensor.tensor_idx
     try:
         input2 = get_np_from_wrapper(input2_tensor)
-        input2_idx = "constant"
+        input2_idx = "constant" + str(input2_idx)
     except Exception:
         input2 = None
 
@@ -63,6 +63,7 @@ def parse_sub(op, model: Model.Model):
         "output_w": output_w,
         "output_c": output_c,
         "input_size": input_h * input_w * input_c,
+        "input2_size": input2_h * input2_w * input2_c,
         "input_dtype": input_type,
         "output_dtype": output_type,
         "input_meta": None,

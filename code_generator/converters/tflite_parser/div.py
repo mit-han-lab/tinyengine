@@ -46,7 +46,7 @@ def parse_div(op, model: Model.Model):
     input2_idx = input2_tensor.tensor_idx
     try:
         input2 = get_np_from_wrapper(input2_tensor)
-        input2_idx = "constant"
+        input2_idx = "constant" + str(input2_idx)
     except Exception:
         input2 = None
 

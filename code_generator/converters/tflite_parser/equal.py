@@ -26,7 +26,7 @@ def parse_equal(op, model: Model.Model):
     input2_idx = input_tensors[1].tensor_idx
     try:
         input2 = get_np_from_wrapper(input_tensors[1])
-        input2_idx = "constant"
+        input2_idx = "constant" + str(input2_idx)
     except Exception:
         input2 = None
 

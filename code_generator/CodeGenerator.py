@@ -18,7 +18,10 @@
 
 import os
 
+import numpy as np
+
 from .constant import FUSE_SGD_UPDATE_STR, FUSHION_CONFIG
+from .operators.basic_utils import tensor
 from .OpGenerator import OpGenerator
 
 Codegen_root = "./codegen/"
@@ -34,8 +37,6 @@ class CodeGenerator:
     """Provide utilities to generate C code for a given model and memory schdeule."""
 
     parse_count = 0
-    header_handle = None
-    source_handle = None
 
     def __init__(
         self,
@@ -771,6 +772,34 @@ signed char* getOutput() {
 
                     layer_info["parsed_trainable"] = self.parse_count
                     self.parse_count += 1
+            else:
+                # Parse constants of inputs
+                for t in op.input_tensors:
+                    if t.constant():
+                        if t.data is None:
+                            raise ValueError("constant tensor data not found")
+                        self._parseConstant(tensor)
+
+    def _parseConstant(self, t: tensor):
+        def type_to_c_type(type: str) -> str:
+            if type == "int8":
+                return "unsigned char"
+            elif type == "float32":
+                return "float"
+            elif type == "int32":
+                return "int32_t"
+            elif type == "bool":
+                return "char"  # Using bytes to store boolean
+            raise NotImplementedError
+
+        fp = self.header_handle
+        # 8bit implementation
+        string = f"const {type_to_c_type(t.dtype)}" + "[" + str(np.prod(t.size)) + "] = {"
+        flat_data = t.data.flatten()
+        for d in flat_data:
+            string += f"{d}, "
+        string += "};\n"
+        fp.write(string)
 
     def _parseCWHWeight(self, Lindex, weight, height, width, channel):
         fp = self.header_handle

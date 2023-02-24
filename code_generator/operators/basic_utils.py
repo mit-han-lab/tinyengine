@@ -18,6 +18,7 @@
 
 import math
 from copy import deepcopy
+from typing import List
 
 import numpy as np
 
@@ -43,6 +44,9 @@ class basicOperator:
     3. Be easy to add support of different precision levels
     4. Generate the corresponding kernel code (optional)
     """
+
+    input_tensors: List
+    output_tensors: List
 
     def __init__(self) -> None:
         self.input_tensors = []
@@ -190,6 +194,8 @@ class tensor:
     buffer_address: int
     allocator_idx: str
     graph_idx: str
+    is_constant: bool
+    data: np.ndarray = None
 
     byte_size = {
         "bool": 1,
@@ -218,6 +224,17 @@ class tensor:
         self.buffer_address = None
         self.allocator_idx = None
         self.graph_idx = str(graph_idx)
+        # TODO: This constant logic is only temporary solution, need to refactor this part
+        if "weight" in str(graph_idx) or "constant" in str(graph_idx):
+            self.is_constant = True
+        else:
+            self.is_constant = False
+
+    def set_data(self, data: np.ndarray):
+        self.data = data
+
+    def constant(self):
+        return self.is_constant
 
     def input_c(self):
         return self.size[0]

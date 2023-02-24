@@ -14,6 +14,7 @@ default_params = {
     "output_idx": None,
     # tensor related
     "input_size": None,
+    "input2_size": None,
     "input_dtype": "float32",
     "input2_dtype": "float32",
     "output_dtype": "float32",
@@ -36,7 +37,9 @@ class sub(basicOperator):
         super().__init__()
         # handle input/output tensors in HWC format
         self._add_input(self.params["input_idx"], self.params["input_dtype"], self.params["input_size"], 1, 1)
-        self._add_input(self.params["input2_idx"], self.params["input2_dtype"], self.params["input_size"], 1, 1)
+        self._add_input(self.params["input2_idx"], self.params["input2_dtype"], self.params["input2_size"], 1, 1)
+        if self.input_tensors[1].constant():
+            self.input_tensors[1].set_data(self.params["input2"])
         self._add_output(self.params["output_idx"], self.params["output_dtype"], self.params["input_size"], 1, 1)
 
         if None in default_params:
