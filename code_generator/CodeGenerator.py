@@ -777,7 +777,7 @@ signed char* getOutput() {
                 for t in op.input_tensors:
                     if t.constant():
                         if t.data is None:
-                            raise ValueError("constant tensor data not found")
+                            raise ValueError(f"constant tensor data not found for op:{layer_info['op']}")
                         self._parseConstant(tensor)
 
     def _parseConstant(self, t: tensor):
