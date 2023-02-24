@@ -1,5 +1,3 @@
-import warnings
-
 from ..constant import USE_BIT_MASK, USE_TTE_INT8
 from .basic_utils import basicOperator, deep_copy_dicts, isweightstr, overwrite_dicts
 
@@ -81,9 +79,6 @@ class Conv2d(basicOperator):
             self.params["output_w"],
             self.params["output_h"],
         )
-
-        if None in default_params:
-            warnings.warn(f"parameters are not all set for op {self.params['op']}")
 
     def _op_hparam_info(self) -> str:
         return (
@@ -167,8 +162,8 @@ class Conv2d(basicOperator):
             kernel_w = f"{str(params['kernel_w'])}"
 
             string += (
-                f"conv_fp({input}, {input_h}, {input_w}, {input_c}, {stride}, {kernel_h}, {kernel_w}, "
-                + f"{weight_string}, {output}, {output_h}, {output_w}, {output_c},(float*)sbuf);\n"
+                f"conv_fp({input},{input_h},{input_w},{input_c},{stride},{kernel_h},{kernel_w},"
+                + f"{weight_string},{output},{output_h},{output_w},{output_c},(float*)sbuf);\n"
             )
         elif params["input_dtype"] == params["output_dtype"] == "int8" and tflite_op and (not USE_TTE_INT8):
             raise NotImplementedError

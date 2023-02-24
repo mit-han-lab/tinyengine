@@ -16,9 +16,6 @@
 # Target ISA:  ARMv7E-M
 # ----------------------------------------------------------------------
 
-import logging
-import warnings
-
 from .basic_utils import basicOperator, deep_copy_dicts, overwrite_dicts
 
 __all__ = ["softmax"]
@@ -38,8 +35,8 @@ default_params = {
     "output_h": None,
     "output_w": None,
     "output_c": None,
-    "input_dtype": "int8",
-    "output_dtype": "int8",
+    "input_dtype": None,
+    "output_dtype": None,
     # quantization related
     "input_zero_point": None,
     "output_zero_point": None,
@@ -68,14 +65,17 @@ class softmax(basicOperator):
             self.params["output_w"],
             self.params["output_c"],
         )
-
-        if None in default_params:
-            warnings.warn(f"parameters are not all set for op {self.params['op']}")
+        assert self.input_tensors[0].num_elements() == self.output_tensors[0].num_elements()
 
     def generate_inference_str(self):
-        # params = self.params
+        params = self.params
         string = ""
+        input = f"{self._getBufferstrCast(params['input_buf_add'], params['input_buf_add_offset'])}"
+        output = f"{self._getBufferstrCast(params['output_buf_add'], params['output_buf_add_offset'])}"
 
-        logging.warn("Add operator with constant support is still no ready.")
+        if params["input_dtype"] == "float32":
+            string += f"softmax_fp({self.input_tensors[0].num_elements()},{input},{output});\n"
+        else:
+            raise NotImplementedError
 
         return string

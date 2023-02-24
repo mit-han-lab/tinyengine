@@ -1,6 +1,3 @@
-import logging
-import warnings
-
 from .basic_utils import basicOperator, deep_copy_dicts, overwrite_dicts
 
 __all__ = ["batchmatmul"]
@@ -56,15 +53,24 @@ class batchmatmul(basicOperator):
             self.params["output_col"],
         )
 
-        if None in default_params:
-            warnings.warn(f"parameters are not all set for op {self.params['op']}")
-
     def generate_inference_str(self):
         params = self.params
         string = ""
+        input = f"{self._getBufferstrCast(params['input_buf_add'], params['input_buf_add_offset'])}"
+        input_col = self.params["input_col"]
+        input_row = self.params["input_row"]
+        input2 = f"{self._getBufferstrCast(params['input_buf_add'], params['input_buf_add_offset'])}"
+        input2_col = self.params["input2_col"]
+        input2_row = self.params["input2_row"]
+        output = f"{self._getBufferstrCast(params['output_buf_add'], params['output_buf_add_offset'])}"
+        output_col = self.params["output_col"]
+        output_row = self.params["output_row"]
 
         if params["input_dtype"] == "float32":
-            logging.warn("BATCHMAMUL still needs implementation.")
+            string += (
+                f"batchmatmul_fp({params['batch_size']},{input},{input_col},{input_row},"
+                + f"{input2},{input2_col},{input2_row},{output},{output_col},{output_row});\n"
+            )
         else:
             raise NotImplementedError
 

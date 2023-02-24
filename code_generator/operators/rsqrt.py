@@ -1,6 +1,3 @@
-import logging
-import warnings
-
 from .basic_utils import basicOperator, deep_copy_dicts, overwrite_dicts
 
 __all__ = ["rsqrt"]
@@ -40,13 +37,15 @@ class rsqrt(basicOperator):
             1,
         )
 
-        if None in default_params:
-            warnings.warn(f"parameters are not all set for op {self.params['op']}")
-
     def generate_inference_str(self):
-        # params = self.params
+        params = self.params
         string = ""
+        input = f"{self._getBufferstrCast(params['input_buf_add'], params['input_buf_add_offset'])}"
+        output = f"{self._getBufferstrCast(params['output_buf_add'], params['output_buf_add_offset'])}"
 
-        logging.warn("RSQRT operator support is still no ready.")
+        if params["input_dtype"] == "float32":
+            string += f"rsqrt_fp({self.input_tensors[0].num_elements()},{input},{output});\n"
+        else:
+            raise NotImplementedError
 
         return string

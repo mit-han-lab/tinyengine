@@ -1,6 +1,3 @@
-import logging
-import warnings
-
 from .basic_utils import basicOperator, deep_copy_dicts, overwrite_dicts
 
 __all__ = ["sub"]
@@ -43,15 +40,30 @@ class sub(basicOperator):
             self.input_tensors[1].set_data(self.params["input2"], self.params["input2_idx"])
         self._add_output(self.params["output_idx"], self.params["output_dtype"], self.params["input_size"], 1, 1)
 
-        if None in default_params:
-            warnings.warn(f"parameters are not all set for op {self.params['op']}")
-
     def generate_inference_str(self):
         params = self.params
-
+        string = ""
         if isinstance(params["input2_idx"], str) and "constant" in params["input2_idx"]:
-            logging.warn("Please implement sub operator with a constant tensor.")
-
+            t = self.input_tensors[1]
+            assert t.data is not None
+            # elementwise add
+            if t.num_elements() == self.input_tensors[0].num_elements():
+                string += (
+                    f"sub_fp({str(int(params['input_size']))},"
+                    + f"{self._getBufferstr(params['input_buf_add'], params['input_buf_add_offset'])},"
+                    + f"{t.graph_idx},"
+                    + f"{self._getBufferstr(params['output_buf_add'], params['output_buf_add_offset'])});\n"
+                )
+            # scaler or vector based
+            elif t.num_elements() == 1:
+                string += (
+                    f"sub_scaler_fp({str(int(params['input_size']))},"
+                    + f"{self._getBufferstr(params['input_buf_add'], params['input_buf_add_offset'])},"
+                    + f"{t.graph_idx},"
+                    + f"{self._getBufferstr(params['output_buf_add'], params['output_buf_add_offset'])});\n"
+                )
+            else:
+                raise NotImplementedError("sub with scaler/vector constant support is still no ready.")
         if params["input_dtype"] == "float32":
             string = (
                 f"sub({self.params['input_size']},"

@@ -1,6 +1,3 @@
-import logging
-import warnings
-
 from ..constant import USE_BIT_MASK
 from .basic_utils import basicOperator, deep_copy_dicts, overwrite_dicts
 
@@ -87,9 +84,6 @@ class Add(basicOperator):
             self.params["output_h"],
         )
 
-        if None in default_params:
-            warnings.warn(f"parameters are not all set for op {self.params['op']}")
-
     def get_macs(self) -> int:
         p = self.params
         return p["output_h"] * p["output_w"] * p["output_c"]
@@ -128,7 +122,7 @@ class Add(basicOperator):
                     )
                 # scaler or vector based
                 else:
-                    logging.warn("Add operator with constant support is still no ready.")
+                    raise NotImplementedError("add with scaler/vector constant support is still no ready.")
             else:
                 if params["input_dtype"] == "int8":
                     string += (
