@@ -168,7 +168,7 @@ class Conv2d(basicOperator):
 
             string += (
                 f"conv_fp({input}, {input_h}, {input_w}, {input_c}, {stride}, {kernel_h}, {kernel_w}, "
-                + f"{weight_string}, {output}, {output_h}, {output_w}, {output_c},(float*)sbuf);"
+                + f"{weight_string}, {output}, {output_h}, {output_w}, {output_c},(float*)sbuf);\n"
             )
         elif params["input_dtype"] == params["output_dtype"] == "int8" and tflite_op and (not USE_TTE_INT8):
             raise NotImplementedError

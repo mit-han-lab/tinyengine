@@ -777,7 +777,7 @@ signed char* getOutput() {
                 for t in op.input_tensors:
                     if t.constant():
                         # for TTE compatible
-                        if "constant" in layer_info and layer_info["constant"] is None:
+                        if "constant" in layer_info and layer_info["constant"] is not None:
                             continue
                         if t.data is None:
                             raise ValueError(f"constant tensor data not found for op:{layer_info['op']}")
