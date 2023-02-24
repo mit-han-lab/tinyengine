@@ -46,9 +46,7 @@ class mul(basicOperator):
         if not (isParamstr(self.params["input2_idx"]) or islabelstr(self.params["input2_idx"])):
             self._add_input(self.params["input2_idx"], self.params["input2_dtype"], self.params["input2_size"], 1, 1)
             # TODO: Refactor this
-            if (
-                self.input_tensors[1].constant() and self.params["constant"] is not None
-            ):  # the last condition is for TTE
+            if self.input_tensors[1].constant() and self.params["constant"] is None:  # the last condition is for TTE
                 self.input_tensors[1].set_data(self.params["input2"])
         self._add_output(self.params["output_idx"], self.params["output_dtype"], self.params["output_size"], 1, 1)
 
