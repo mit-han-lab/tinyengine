@@ -52,6 +52,9 @@ class div(basicOperator):
         self._add_input(self.params["input_idx"], self.params["input_dtype"], self.params["input_size"], 1, 1)
         if "constant" not in self.params["input2_idx"]:
             self._add_input(self.params["input2_idx"], self.params["input2_dtype"], self.params["input_size"], 1, 1)
+            # TODO: Refactor this
+            if self.input_tensors[1].constant():
+                self.input_tensors[1].set_data(self.params["input2"], self.params["input2_idx"])
         self._add_output(self.params["output_idx"], self.params["output_dtype"], self.params["input_size"], 1, 1)
 
         if None in default_params:

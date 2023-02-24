@@ -50,7 +50,7 @@ class notequal(basicOperator):
         )
         # TODO: Refactor this
         if self.input_tensors[1].constant():
-            self.input_tensors[1].set_data(self.params["input2"])
+            self.input_tensors[1].set_data(self.params["input2"], self.params["input2_idx"])
         self._add_output(
             self.params["output_idx"],
             self.params["output_dtype"],

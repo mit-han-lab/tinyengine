@@ -230,8 +230,9 @@ class tensor:
         else:
             self.is_constant = False
 
-    def set_data(self, data: np.ndarray):
+    def set_data(self, data: np.ndarray, name):
         self.data = data
+        self.buffer_name = name
 
     def constant(self):
         return self.is_constant
@@ -250,6 +251,9 @@ class tensor:
 
     def set_input_h(self, h):
         self.size = (self.size[0], self.size[1], h)
+
+    def num_elements(self):
+        return np.prod(self.size)
 
     def len(self):
         byte_cnt = math.ceil(np.prod(self.size) * self.byte_size[self.dtype])

@@ -149,73 +149,29 @@ class Conv2d(basicOperator):
         params = self.params
         # floating point implmenetation
         if params["input_dtype"] == params["output_dtype"] == "float32":
-            string += f"conv_params.stride_height = {params['stride_h']};\n"
-            string += f"conv_params.stride_width = {params['stride_w']};\n"
-            string += f"conv_params.dilation_width_factor = {params['dilation_w']};\n"
-            string += f"conv_params.dilation_height_factor = {params['dilation_h']};\n"
-            string += f"conv_params.input_offset = {params['input_zero_point']};\n"
-            string += f"conv_params.output_offset = {params['output_zero_point']};\n"
-            string += f"conv_params.padding_values.width = {params['padding_w']};\n"
-            string += f"conv_params.padding_values.height = {params['padding_h']};\n"
-            string += "conv_params.quantized_activation_min = -128;\n"
-            string += "conv_params.quantized_activation_max = 127;\n"
-            string += f"conv_params.float_activation_min = {params['float_min']};\n"
-            string += f"conv_params.float_activation_max = {params['float_max']};\n"
-
             if isinstance(params["weight_name"], str) and isweightstr(params["weight_name"]):
                 weight_string = params["weight_name"]
             else:
                 weight_string = f"weight_fp{params['parsed_trainable']}"
+            assert params["stride_h"] == params["stride_w"]
+            stride = params["stride_h"]
+            input = f"{self._getBufferstrCast(params['input_buf_add'], params['input_buf_add_offset'])}"
+            output = f"{self._getBufferstrCast(params['output_buf_add'], params['output_buf_add_offset'])}"
+            output_h = f"{str(params['output_h'])}"
+            output_w = f"{str(params['output_w'])}"
+            output_c = f"{str(params['output_c'])}"
+            input_h = f"{str(params['input_h'])}"
+            input_w = f"{str(params['input_w'])}"
+            input_c = f"{str(params['input_c'])}"
+            kernel_h = f"{str(params['kernel_h'])}"
+            kernel_w = f"{str(params['kernel_w'])}"
 
             string += (
-                "TFLite_Conv_fp(conv_params,"
-                + f"{self._getBufferstrCast(params['input_buf_add'], params['input_buf_add_offset'])},"
-                + f"{params['input_h']},{params['input_w']},{params['input_c']},"
-                + f"{weight_string},{params['kernel_h']},{params['kernel_w']},{params['input_c']},NULL,"
-                + f"{self._getBufferstrCast(params['output_buf_add'], params['output_buf_add_offset'])},"
-                + f"{str(params['output_h'])},{str(params['output_w'])},{str(params['output_c'])},(float*)sbuf,1);\n"
+                f"conv_fp({input}, {input_h}, {input_w}, {input_c}, {stride}, {kernel_h}, {kernel_w}, "
+                + f"{weight_string}, {output}, {output_h}, {output_w}, {output_c},(float*)sbuf);"
             )
         elif params["input_dtype"] == params["output_dtype"] == "int8" and tflite_op and (not USE_TTE_INT8):
-            string += f"conv_params.stride_height = {params['stride_h']};\n"
-            string += f"conv_params.stride_width = {params['stride_w']};\n"
-            string += "conv_params.dilation_width_factor = 1;\n"
-            string += "conv_params.dilation_height_factor = 1;\n"
-            string += f"conv_params.input_offset = {params['input_zero_point']};\n"
-            string += f"conv_params.output_offset = {params['output_zero_point']};\n"
-            string += f"conv_params.padding_values.width = {params['padding_w']};\n"
-            string += f"conv_params.padding_values.height = {params['padding_h']};\n"
-            string += "conv_params.quantized_activation_min = -128;\n"
-            string += "conv_params.quantized_activation_max = 127;\n"
-            string += f"conv_params.float_activation_min = {params['float_min']};\n"
-            string += f"conv_params.float_activation_max = {params['float_max']};\n"
-
-            parsed_idx = str(params["parsed_trainable"])
-
-            function_name = "TFLite_Conv_int8_PerChannel"
-            if params["first_k_channel"] is not None:  # partial channels in SRAM,
-                function_name += "_partialCH"
-                weight_string = (
-                    f"(const q7_t*)weight{parsed_idx},(const q7_t*)weight{parsed_idx}Flash,{params['first_k_channel']}"
-                )
-            else:
-                weight_string = f"(const q7_t*) weight{parsed_idx}"
-
-            if dummy_address:
-                input_address_string = "&buffer0[0]"
-                output_address_string = "&buffer0[0]"
-            else:
-                input_address_string = f"{self._getBufferstr(params['input_buf_add'], params['input_buf_add_offset'])}"
-                output_address_string = (
-                    f"{self._getBufferstr(params['output_buf_add'], params['output_buf_add_offset'])}"
-                )
-
-            string += (
-                f"{function_name}(conv_params,multiplier{parsed_idx},shift{parsed_idx},"
-                + f"{params['input_h']},{params['input_w']},{params['input_c']},{input_address_string},"
-                + f"{weight_string},{params['kernel_h']},{params['kernel_w']},{params['input_c']},bias{parsed_idx},"
-                + f"{str(params['output_h'])},{str(params['output_w'])},{str(params['output_c'])},"
-                + f"{output_address_string},1);\n"
-            )
+            raise NotImplementedError
         else:
             kernel_h = params["kernel_h"]
             # function name

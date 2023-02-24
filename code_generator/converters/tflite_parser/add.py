@@ -59,7 +59,7 @@ def parse_add(op, model: Model.Model):
     input2_idx = input2_tensor.tensor_idx
     try:
         input2 = get_np_from_wrapper(input2_tensor)
-        input2_idx = "constant" + input2_idx
+        input2_idx = "constant" + str(input2_idx)
     except Exception:
         input2 = None
 
@@ -123,7 +123,9 @@ def parse_add(op, model: Model.Model):
         "output_h": output_h,
         "output_w": output_w,
         "output_c": output_c,
-        "dtypte": input_type,
+        "input_dtype": input_type,
+        "input2_dtype": input_type2,
+        "output_dtype": output_type,
         # trainable parameters
         "input_zero_point": input_zero_point,
         "input2_zero_point": input2_zero_point,
