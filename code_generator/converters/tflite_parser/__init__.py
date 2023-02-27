@@ -7,7 +7,7 @@ from .div import parse_div
 from .equal import parse_equal
 from .fc import parse_fc
 from .maxpool import parse_maxpool
-from .mean1dto2d import parse_mead1dto2d
+from .mean1dto2d import parse_mean1dto2d
 from .mul import parse_mul
 from .notequal import parse_notequal
 from .reshape import parse_reshape_fuse_tensor_tuple

@@ -4,7 +4,7 @@ from code_generator.tflite import Model
 from .utils import get_hwc_from_chwshape, get_input_tensors, get_output_tensors, getTensorTypeStr
 
 
-def parse_mead1dto2d(op, model: Model.Model, MEAN2Dholder=None):
+def parse_mean1dto2d(op, model: Model.Model, MEAN2Dholder=None):
     # Incase no params
     input_type = None
 
