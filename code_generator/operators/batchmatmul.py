@@ -56,20 +56,27 @@ class batchmatmul(basicOperator):
     def generate_inference_str(self):
         params = self.params
         string = ""
-        input = f"{self._getBufferstrCast(params['input_buf_add'], params['input_buf_add_offset'])}"
+        input = self._getBufferstrCast(params["input_buf_add"], params["input_buf_add_offset"], params["input_dtype"])
+        input = f"{input}"
         input_col = self.params["input_col"]
         input_row = self.params["input_row"]
-        input2 = f"{self._getBufferstrCast(params['input_buf_add'], params['input_buf_add_offset'])}"
+        input2 = self._getBufferstrCast(
+            params["input2_buf_add"], params["input2_buf_add_offset"], dtype=params["input2_dtype"]
+        )
+        input2 = f"{input2}"
         input2_col = self.params["input2_col"]
         input2_row = self.params["input2_row"]
-        output = f"{self._getBufferstrCast(params['output_buf_add'], params['output_buf_add_offset'])}"
+        output = self._getBufferstrCast(
+            params["output_buf_add"], params["output_buf_add_offset"], dtype=params["output_dtype"]
+        )
+        output = f"{output}"
         output_col = self.params["output_col"]
         output_row = self.params["output_row"]
 
         if params["input_dtype"] == "float32":
             string += (
-                f"batchmatmul_fp({params['batch_size']},{input},{input_col},{input_row},"
-                + f"{input2},{input2_col},{input2_row},{output},{output_col},{output_row});\n"
+                f"batchmatmul_fp({params['batch_size']},{input2},{input2_col},{input2_row},"
+                f"{input},{input_col},{input_row},{output},{output_col},{output_row});\n"
             )
         else:
             raise NotImplementedError

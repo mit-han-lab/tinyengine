@@ -38,6 +38,9 @@ class equal(basicOperator):
             self.params["input_w"],
             self.params["input_c"],
         )
+        # TODO: Refactor this
+        if self.input_tensors[0].constant():
+            self.input_tensors[0].set_data(self.params["input"], self.params["input_idx"])
         self._add_input(
             self.params["input2_idx"],
             self.params["input2_dtype"],
@@ -45,6 +48,9 @@ class equal(basicOperator):
             self.params["input2_w"],
             self.params["input2_c"],
         )
+        # TODO: Refactor this
+        if self.input_tensors[1].constant():
+            self.input_tensors[1].set_data(self.params["input2"], self.params["input2_idx"])
         self._add_output(
             self.params["output_idx"],
             self.params["output_dtype"],
@@ -56,18 +62,30 @@ class equal(basicOperator):
     def generate_inference_str(self):
         params = self.params
         string = ""
-        input = f"{self._getBufferstrCast(params['input_buf_add'], params['input_buf_add_offset'])}"
+        if self.input_tensors[0].constant():
+            input = f"{self.input_tensors[0].graph_idx}"
+        else:
+            input = self._getBufferstrCast(
+                params["input_buf_add"], params["input_buf_add_offset"], params["input_dtype"]
+            )
+            input = f"{input}"
         input_h = f"{str(params['input_h'])}"
         input_w = f"{str(params['input_w'])}"
         input_c = f"{str(params['input_c'])}"
         if self.input_tensors[1].constant():
             input2 = f"{self.input_tensors[1].graph_idx}"
         else:
-            input2 = f"{self._getBufferstrCast(params['input2_buf_add'], params['input2_buf_add_offset'])}"
+            input2 = self._getBufferstrCast(
+                params["input2_buf_add"], params["input2_buf_add_offset"], dtype=params["input2_dtype"]
+            )
+            input2 = f"{input2}"
         input2_h = f"{str(params['input2_h'])}"
         input2_w = f"{str(params['input2_w'])}"
         input2_c = f"{str(params['input2_c'])}"
-        output = f"{self._getBufferstrCast(params['output_buf_add'], params['output_buf_add_offset'])}"
+        output = self._getBufferstrCast(
+            params["output_buf_add"], params["output_buf_add_offset"], dtype=params["output_dtype"]
+        )
+        output = f"{output}"
         output_h = f"{str(params['output_h'])}"
         output_w = f"{str(params['output_w'])}"
         output_c = f"{str(params['output_c'])}"

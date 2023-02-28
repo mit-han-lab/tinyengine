@@ -1,4 +1,4 @@
-from code_generator.operators import concat
+from code_generator.operators import transpose
 from code_generator.tflite import Model
 
 from .utils import (
@@ -11,7 +11,7 @@ from .utils import (
 )
 
 
-def parse_concat(op, model: Model.Model):
+def parse_transpose(op, model: Model.Model):
     # operator
     op_code_str = getOpCodeStr(op, model)
 
@@ -29,14 +29,11 @@ def parse_concat(op, model: Model.Model):
 
     # shapes
     _, input_h, input_w, input_c = get_nhwc_from_shape(input_tensor.tensor.ShapeAsNumpy())
-    _, input2_h, input2_w, input2_c = get_nhwc_from_shape(input2_tensor.tensor.ShapeAsNumpy())
     _, output_h, output_w, output_c = get_nhwc_from_shape(output_tensor.tensor.ShapeAsNumpy())
 
     # tensor types
     input_type = getTensorTypeStr(input_tensor.tensor.Type())
-    input_type2 = getTensorTypeStr(input2_tensor.tensor.Type())
     output_type = getTensorTypeStr(output_tensor.tensor.Type())
-    assert input_type == input_type2 == output_type, "tensor type not consistent"
 
     # Check if any constant
     input2_idx = input2_tensor.tensor_idx
@@ -47,40 +44,30 @@ def parse_concat(op, model: Model.Model):
         input2 = None
 
     input_idx = input_tensor.tensor_idx
-    try:
-        input = get_np_from_wrapper(input_tensor)
-        input_idx = "constant" + str(input_idx)
-    except Exception:
-        input = None
+    assert input2[0] == 0 and len(input2) == 4
 
     # assign params
     params = {
         # operator
         "op": op_code_str,
         # tensor
-        "input": input,
         "input_idx": input_idx,
         "input_size": input_h * input_w * input_c,
         "input2_idx": input2_idx,
-        "input2": input2,
+        "permute": input2,
         "output_idx": output_tensor.tensor_idx,
         "input_h": input_h,
         "input_w": input_w,
         "input_c": input_c,
-        "input2_h": input2_h,
-        "input2_w": input2_w,
-        "input2_c": input2_c,
         "input_dim": 3,
-        "input2_dim": 3,
         "output_dim": 3,
         "output_h": output_h,
         "output_w": output_w,
         "output_c": output_c,
         "dtypte": input_type,
         "input_dtype": input_type,
-        "input2_dtype": input_type2,
         "output_dtype": output_type,
     }
-    op = concat.concat(params)
+    op = transpose.transpose(params)
 
     return op

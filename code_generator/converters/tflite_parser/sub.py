@@ -36,7 +36,7 @@ def parse_sub(op, model: Model.Model):
     output_type = getTensorTypeStr(output_tensor.tensor.Type())
     assert input_type == output_type, "tensor type is not consistent"
 
-    # Check if the divisor is constant, e.g., a scale value or tensor
+    # Check if any is constant, e.g., a scale value or tensor
     input2_idx = input2_tensor.tensor_idx
     try:
         input2 = get_np_from_wrapper(input2_tensor)

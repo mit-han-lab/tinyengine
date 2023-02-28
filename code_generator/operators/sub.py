@@ -64,6 +64,7 @@ class sub(basicOperator):
                 )
             else:
                 raise NotImplementedError("sub with scaler/vector constant support is still no ready.")
+            return string
         if params["input_dtype"] == "float32":
             string = (
                 f"sub({self.params['input_size']},"

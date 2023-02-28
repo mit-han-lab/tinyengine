@@ -35,7 +35,9 @@ def getOpCodeStr(op, model: Model.Model):
 
 
 def get_np_from_wrapper(wrapper):
-    if wrapper.tensor.Type() == TensorType.INT8:
+    if wrapper.tensor.Type() == TensorType.BOOL:
+        dtype = np.bool8
+    elif wrapper.tensor.Type() == TensorType.INT8:
         dtype = np.int8
     elif wrapper.tensor.Type() == TensorType.INT32:
         dtype = np.int32
@@ -43,7 +45,7 @@ def get_np_from_wrapper(wrapper):
         dtype = np.float32
         logging.warn("Support of floating-point tensors are experimental.")
     else:
-        raise NotImplementedError("Current implementation only supports int8 and int32")
+        raise NotImplementedError("Current implementation only supports fp32, int8, int32, bool")
 
     data = wrapper.buffer.DataAsNumpy()
     shape = wrapper.tensor.ShapeAsNumpy() if wrapper.tensor.ShapeLength() != 0 else []

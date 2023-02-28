@@ -37,7 +37,7 @@ regular_opconverter = {
     "BATCH_MATMUL": TF_Parser.parse_batchmatmul,
     "NOT_EQUAL": TF_Parser.parse_notequal,
     "EQUAL": TF_Parser.parse_equal,
-    "CONCATENATION": TF_Parser.parse_notequal,
+    "CONCATENATION": TF_Parser.parse_concat,
     "CAST": TF_Parser.parse_cast,
     "SUB": TF_Parser.parse_sub,
     "MUL": TF_Parser.parse_mul,
@@ -45,6 +45,8 @@ regular_opconverter = {
     "SQUARED_DIFFERENCE": TF_Parser.parse_squarddiff,
     "RSQRT": TF_Parser.parse_rsqrt,
     "SLICE": TF_Parser.parse_slice,
+    "MEAN": TF_Parser.parse_mean1d,
+    "TRANSPOSE": TF_Parser.parse_transpose,
 }
 
 
@@ -127,11 +129,28 @@ class TfliteConvertor(object):
 
                     self.layer.append(SEelementmult_op)
                     continue
+            if i + 2 < operators_len - 2:
+                next_op = self.subgraph.Operators(i + 1)
+                next_next_op = self.subgraph.Operators(i + 2)
+                three_op_sequence = [op, next_op, next_next_op]
+
+                if self.checkIfMergeTransposeTwoMean1d(three_op_sequence):
+                    logging.info("found target to merge transpose and two mean1d")
+                    self._convert_TRANSPOSE(op)
+                    skip_next_ops = 2
+                    ret_op = TF_Parser.parse_mean1dto2d(next_op, self.model, self.average_1D_to_2D_holder)
+                    ret_op = TF_Parser.parse_mean1dto2d(next_next_op, self.model, self.average_1D_to_2D_holder)
+                    if ret_op is not None:
+                        if self.skip_transpose is not None:
+                            ret_op.params["input_idx"] = self.skip_transpose.input_idx
+                            ret_op.input_tensors[0].graph_idx = self.skip_transpose.input_idx
+                        self.layer.append(ret_op)
+                    continue
             if i + 1 < operators_len - 1:
                 next_op = self.subgraph.Operators(i + 1)
                 two_op_sequence = [op, next_op]
 
-                if self.checIfMergeTwoMean1d(two_op_sequence):
+                if self.checkIfMergeTwoMean1d(two_op_sequence):
                     logging.info("found target to merge two mean1d")
                     skip_next_ops = 1
                     ret_op = TF_Parser.parse_mean1dto2d(op, self.model, self.average_1D_to_2D_holder)
@@ -141,7 +160,6 @@ class TfliteConvertor(object):
                             ret_op.params["input_idx"] = self.skip_transpose.input_idx
                             ret_op.input_tensors[0].graph_idx = self.skip_transpose.input_idx
                         self.layer.append(ret_op)
-
                     continue
 
             # parse the op
@@ -161,12 +179,8 @@ class TfliteConvertor(object):
             self.tmpPADIndice = None
         elif op_code_str == "PAD":
             self._convert_PAD(op)
-        elif op_code_str in "MEAN":
-            pass
-        elif op_code_str == "TRANSPOSE":
-            self._convert_TRANSPOSE(op)
-        elif op_code_str == "FULLY_CONNECTED":
-            self.layer.append(TF_Parser.parse_fc(op, self.model))
+        # elif op_code_str == "TRANSPOSE":
+        # self._convert_TRANSPOSE(op)
         elif op_code_str == "RESHAPE":
             self.inplace_reshape_table.append(TF_Parser.parse_reshape_fuse_tensor_tuple(op, self.model))
         elif op_code_str in regular_opconverter:
@@ -191,10 +205,22 @@ class TfliteConvertor(object):
     #  | TRANSPOSE -> MEAN -> MEAN ->             |
     #  |                           -> AVG_POOL_2D |
     #  |                Fuse Target               |
-    def checIfMergeTwoMean1d(self, two_op_sequence):
+    def checkIfMergeTwoMean1d(self, two_op_sequence):
         if (
             getOpCodeStr(two_op_sequence[0], self.model) == "MEAN"
             and getOpCodeStr(two_op_sequence[1], self.model) == "MEAN"
+        ):
+            return True
+        return False
+
+    #  | MEAN -> MEAN ->              |
+    #  |               -> AVG_POOL_2D |
+    #  |       Fuse Target            |
+    def checkIfMergeTransposeTwoMean1d(self, three_op_sequence):
+        if (
+            getOpCodeStr(three_op_sequence[1], self.model) == "TRANSPOSE"
+            and getOpCodeStr(three_op_sequence[1], self.model) == "MEAN"
+            and getOpCodeStr(three_op_sequence[2], self.model) == "MEAN"
         ):
             return True
         return False

@@ -2,11 +2,13 @@ from .add import parse_add
 from .avgpool import parse_avgpool
 from .batchmatmul import parse_batchmatmul
 from .cast import parse_cast
+from .concat import parse_concat
 from .conv2d import parse_conv2d
 from .div import parse_div
 from .equal import parse_equal
 from .fc import parse_fc
 from .maxpool import parse_maxpool
+from .mean1d import parse_mean1d
 from .mean1dto2d import parse_mean1dto2d
 from .mul import parse_mul
 from .notequal import parse_notequal
@@ -17,4 +19,5 @@ from .slice import parse_slice
 from .softmax import parse_softmax
 from .squarddiff import parse_squarddiff
 from .sub import parse_sub
+from .transpose import parse_transpose
 from .upsample import parse_upsample

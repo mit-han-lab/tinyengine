@@ -22,13 +22,19 @@ def parse_equal(op, model: Model.Model):
     _, input2_h, input2_w, input2_c = get_nhwc_from_shape(input_tensors[1].tensor.ShapeAsNumpy())
     _, output_h, output_w, output_c = get_nhwc_from_shape(output_tensor.tensor.ShapeAsNumpy())
 
-    # Check if the divisor is constant, e.g., a scale value or tensor
+    # Check any constant, e.g., a scale value or tensor
     input2_idx = input_tensors[1].tensor_idx
     try:
         input2 = get_np_from_wrapper(input_tensors[1])
         input2_idx = "constant" + str(input2_idx)
     except Exception:
         input2 = None
+    input_idx = input_tensors[0].tensor_idx
+    try:
+        input = get_np_from_wrapper(input_tensors[0])
+        input_idx = "constant" + str(input_idx)
+    except Exception:
+        input = None
 
     params = {
         # op related
@@ -37,6 +43,7 @@ def parse_equal(op, model: Model.Model):
         "input2_idx": input2_idx,
         "output_idx": output_tensors[0].tensor_idx,
         # tensor related
+        "input": input,
         "input_h": input_h,
         "input_w": input_w,
         "input_c": input_c,

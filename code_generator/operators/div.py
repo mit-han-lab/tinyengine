@@ -65,6 +65,7 @@ class div(basicOperator):
         string = ""
 
         if params["input_dtype"] == "float32":
+            function_name = "div_fp"
             if self.params["scale_from_add"] is not None:
                 scale_divisor = f"{self.params['scale_from_add']}"
                 string += (
@@ -80,6 +81,8 @@ class div(basicOperator):
                 if iterable(self.params["input2"]):
                     for v in self.params["input2"]:
                         string += f"{str(v)},"
+                    if len(self.params["input2"]) == 1:
+                        function_name = "div_fp_scaler"
                 else:
                     string += f"{str(self.params['input2'])},"
                 string += "};\n"
@@ -89,7 +92,7 @@ class div(basicOperator):
                 input2_str = f"{self._getBufferstrCast(params['input2_buf_add'], params['input2_buf_add_offset'])}"
 
             string += (
-                f"div_fp({self.params['input_size']},"
+                f"{function_name}({self.params['input_size']},"
                 + f"{self._getBufferstrCast(params['input_buf_add'], params['input_buf_add_offset'])},"
                 + f"{input2_str},"
                 + f"{self._getBufferstrCast(params['output_buf_add'], params['output_buf_add_offset'])});\n"
