@@ -5,12 +5,9 @@
 #include "genModel.h"
 #include "genNN.h"
 #include "tinyengine_function.h"
-// #include "tinyengine_function_fp.h"
 
 /* Variables used by all ops */
 ADD_params add_params;
-// Conv_Params conv_params;
-// Depthwise_Params dpconv_params;
 int i;
 int8_t *int8ptr, *int8ptr2;
 int32_t* int32ptr;

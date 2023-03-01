@@ -30,91 +30,76 @@ tinyengine_status convolve_1x1_s8_ch48_fpreq(const q7_t *input, const uint16_t i
                                              const int32_t out_activation_min, const int32_t out_activation_max,
                                              q7_t *output, const uint16_t output_x, const uint16_t output_y,
                                              const uint16_t output_ch, q15_t *runtime_buf) {
-    // int32_t i_element;
-    // (void) input_x;
-    // (void) input_y;
+    int32_t i_element;
+    (void)input_x;
+    (void)input_y;
 
-    // /* Partial(two columns) im2col buffer */
-    // q15_t *two_column_buffer = runtime_buf;
-    // q7_t *out = output;
-    // const int32_t num_elements = output_x * output_y;
-    // const int channel_div4 = (input_ch >> 2);
+    /* Partial(two columns) im2col buffer */
+    q15_t *two_column_buffer = runtime_buf;
+    q7_t *out = output;
+    const int32_t num_elements = output_x * output_y;
+    const int channel_div4 = (input_ch >> 2);
 
-    // const int16_t inoff16 = input_offset;
-    // q31_t offset_q15x2 = __PKHBT(inoff16, inoff16, 16);
+    for (i_element = 0; i_element < num_elements / 2; i_element++) {
+        /* Fill buffer for partial im2col - two columns at a time */
+        const q7_t *src = &input[i_element * input_ch * 2];
+        q15_t *dst = two_column_buffer;
 
-    // for (i_element = 0; i_element < num_elements / 2; i_element++) {
-    // 	/* Fill buffer for partial im2col - two columns at a time */
-    // 	q7_t *src = &input[i_element * input_ch * 2];
-    // 	q15_t *dst = two_column_buffer;
+        int cnt = channel_div4;  // two columns
+        while (cnt > 0) {
+            *dst++ = *src++ + input_offset;
+            *dst++ = *src++ + input_offset;
+            *dst++ = *src++ + input_offset;
+            *dst++ = *src++ + input_offset;
+            *dst++ = *src++ + input_offset;
+            *dst++ = *src++ + input_offset;
+            *dst++ = *src++ + input_offset;
+            cnt--;
+        }
 
-    // 	//use variables
-    // 	q31_t in_q7x4;
-    // 	q31_t in_q15x2_1;
-    // 	q31_t in_q15x2_2;
-    // 	q31_t out_q15x2_1;
-    // 	q31_t out_q15x2_2;
+        out = mat_mult_kernel_s8_s16_reordered_fpreq(kernel, two_column_buffer, output_ch, scales, (q7_t)out_offset,
+                                                     out_activation_min, out_activation_max,
+                                                     input_ch * DIM_KER_Y * DIM_KER_X, bias, out);
+    }
 
-    // 	int cnt = channel_div4;	//two columns
-    // 	while (cnt > 0) {
-    // 		q7_q15_offset_reordered_ele(src, dst)
-    // 		q7_q15_offset_reordered_ele(src, dst)
-    // 		cnt--;
-    // 	}
+    /* check if there is an odd column left-over for computation */
+    if (num_elements & 0x1) {
+        int32_t i_ch_out;
+        const q7_t *ker_a = kernel;
+        const q7_t *src = &input[(num_elements - 1) * input_ch];
+        q15_t *dst = two_column_buffer;
 
-    // 	out = mat_mult_kernel_s8_s16_reordered_ch48_fpreq(kernel,
-    // 			two_column_buffer, output_ch, scales, (q7_t) out_offset,
-    // 			out_activation_min, out_activation_max,
-    // 			input_ch * DIM_KER_Y * DIM_KER_X, bias, out);
-    // }
+        int cnt = channel_div4;  // two * numof2col columns
+        while (cnt > 0) {
+            *dst++ = *src++ + input_offset;
+            *dst++ = *src++ + input_offset;
+            *dst++ = *src++ + input_offset;
+            *dst++ = *src++ + input_offset;
+            cnt--;
+        }
 
-    // /* check if there is an odd column left-over for computation */
-    // if (num_elements & 0x1) {
-    // 	int32_t i_ch_out;
-    // 	const q7_t *ker_a = kernel;
-    // 	q7_t *src = &input[(num_elements - 1) * input_ch];
-    // 	q15_t *dst = two_column_buffer;
+        for (i_ch_out = 0; i_ch_out < output_ch; i_ch_out++) {
+            q31_t sum = bias[i_ch_out];
 
-    // 	//use variables
-    // 	q31_t in_q7x4;
-    // 	q31_t in_q15x2_1;
-    // 	q31_t in_q15x2_2;
-    // 	q31_t out_q15x2_1;
-    // 	q31_t out_q15x2_2;
+            /* Point to the beginning of the im2col buffer where the input is available as a rearranged column */
+            const q15_t *ip_as_col = runtime_buf;
+            uint16_t col_count = (input_ch * DIM_KER_X * DIM_KER_Y) >> 2;
 
-    // 	int cnt = channel_div4;	//two * numof2col columns
-    // 	while (cnt > 0) {
-    // 		q7_q15_offset_reordered_ele(src, dst)
-    // 		cnt--;
-    // 	}
+            while (col_count) {
+                sum += ip_as_col[0] * ker_a[0];
+                sum += ip_as_col[1] * ker_a[1];
+                sum += ip_as_col[2] * ker_a[2];
+                sum += ip_as_col[3] * ker_a[3];
+                col_count--;
+            }
 
-    // 	for (i_ch_out = 0; i_ch_out < output_ch; i_ch_out++) {
-    // 		q31_t sum = bias[i_ch_out];
-
-    // 		/* Point to the beginning of the im2col buffer where the input is available as a rearranged column */
-    // 		const q15_t *ip_as_col = runtime_buf;
-    // 		uint16_t col_count = (input_ch * DIM_KER_X * DIM_KER_Y) >> 2;
-
-    // 		while (col_count) {
-    // 			q31_t ker_a1, ker_a2;
-    // 			q31_t in_b1, in_b2;
-    // 			ker_a = read_and_pad_reordered(ker_a, &ker_a1, &ker_a2);
-
-    // 			in_b1 = arm_nn_read_q15x2_ia(&ip_as_col);
-    // 			sum = __SMLAD(ker_a1, in_b1, sum);
-    // 			in_b2 = arm_nn_read_q15x2_ia(&ip_as_col);
-    // 			sum = __SMLAD(ker_a2, in_b2, sum);
-
-    // 			col_count--;
-    // 		}
-
-    // 		sum = (float) sum * scales[i_ch_out];
-    // 		sum += out_offset;
-    // 		sum = MAX(sum, out_activation_min);
-    // 		sum = MIN(sum, out_activation_max);
-    // 		*out++ = (q7_t) sum;
-    // 	}
-    // }
+            sum = (float)sum * scales[i_ch_out];
+            sum += out_offset;
+            sum = TN_MAX(sum, out_activation_min);
+            sum = TN_MIN(sum, out_activation_max);
+            *out++ = (q7_t)sum;
+        }
+    }
 
     /* Return to application */
     return STATE_SUCCESS;
