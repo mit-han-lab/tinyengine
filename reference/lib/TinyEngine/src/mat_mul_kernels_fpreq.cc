@@ -1864,8 +1864,8 @@ q7_t *mat_mult_kernel3_input3_s8_s16_fpreq(const q7_t *input_a, const q15_t *inp
         reference_mac_2x2(input_a, input1_a, ip_b0, ip_b1, ch_0_out_0, ch_0_out_1, ch_1_out_0, ch_1_out_1, 16);
         reference_mac_2x2(input_a, input1_a, ip_b0, ip_b1, ch_0_out_0, ch_0_out_1, ch_1_out_0, ch_1_out_1, 17);
         reference_mac_2x2(input_a, input1_a, ip_b0, ip_b1, ch_0_out_0, ch_0_out_1, ch_1_out_0, ch_1_out_1, 18);
-        reference_mac_2x2(input_a, input1_a, ip_b0, ip_b1, ch_0_out_0, ch_0_out_1, ch_1_out_0, ch_1_out_1, 19)
-            reference_mac_2x2(input_a, input1_a, ip_b0, ip_b1, ch_0_out_0, ch_0_out_1, ch_1_out_0, ch_1_out_1, 20);
+        reference_mac_2x2(input_a, input1_a, ip_b0, ip_b1, ch_0_out_0, ch_0_out_1, ch_1_out_0, ch_1_out_1, 19);
+        reference_mac_2x2(input_a, input1_a, ip_b0, ip_b1, ch_0_out_0, ch_0_out_1, ch_1_out_0, ch_1_out_1, 20);
         reference_mac_2x2(input_a, input1_a, ip_b0, ip_b1, ch_0_out_0, ch_0_out_1, ch_1_out_0, ch_1_out_1, 21);
         reference_mac_2x2(input_a, input1_a, ip_b0, ip_b1, ch_0_out_0, ch_0_out_1, ch_1_out_0, ch_1_out_1, 22);
         reference_mac_2x2(input_a, input1_a, ip_b0, ip_b1, ch_0_out_0, ch_0_out_1, ch_1_out_0, ch_1_out_1, 23);
