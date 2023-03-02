@@ -2,9 +2,10 @@
 #include <float.h>
 // #include "arm_nnfunctions.h"
 
+#include <tinyengine_function.h>
+
 #include "genModel.h"
 #include "genNN.h"
-#include "tinyengine_function.h"
 
 /* Variables used by all ops */
 ADD_params add_params;

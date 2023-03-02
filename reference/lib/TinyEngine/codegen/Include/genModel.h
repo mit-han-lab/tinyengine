@@ -1,4 +1,3 @@
-
 #define NNoutput &buffer0[160];
 
 /* sram:93992, flash:469432 */
