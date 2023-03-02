@@ -1845,194 +1845,152 @@ q7_t *mat_mult_kernel3_input3_s8_s16_fpreq(const q7_t *input_a, const q15_t *inp
         q31_t ch_1_out_0 = *bias;
         q31_t ch_1_out_1 = *bias++;
 
-        reference_mac_2x2(input_a, input1_a, ip_b0, ip_b1, ch_0_out_0, ch_0_out_1, ch_1_out_0, ch_1_out_1, 0)
-            reference_mac_2x2(input_a, input1_a, ip_b0, ip_b1, ch_0_out_0, ch_0_out_1, ch_1_out_0, ch_1_out_1, 1)
-                reference_mac_2x2(input_a, input1_a, ip_b0, ip_b1, ch_0_out_0, ch_0_out_1, ch_1_out_0, ch_1_out_1,
-                                  2) reference_mac_2x2(input_a, input1_a, ip_b0, ip_b1, ch_0_out_0, ch_0_out_1,
-                                                       ch_1_out_0, ch_1_out_1,
-                                                       3) reference_mac_2x2(input_a, input1_a, ip_b0, ip_b1, ch_0_out_0,
-                                                                            ch_0_out_1, ch_1_out_0, ch_1_out_1, 4)
-                    reference_mac_2x2(input_a, input1_a, ip_b0, ip_b1, ch_0_out_0, ch_0_out_1, ch_1_out_0, ch_1_out_1,
-                                      5) reference_mac_2x2(input_a, input1_a, ip_b0, ip_b1, ch_0_out_0, ch_0_out_1,
-                                                           ch_1_out_0, ch_1_out_1, 6)
-                        reference_mac_2x2(input_a, input1_a, ip_b0, ip_b1, ch_0_out_0, ch_0_out_1, ch_1_out_0,
-                                          ch_1_out_1, 7) reference_mac_2x2(input_a, input1_a, ip_b0, ip_b1, ch_0_out_0,
-                                                                           ch_0_out_1, ch_1_out_0, ch_1_out_1, 8)
-                            reference_mac_2x2(
-                                input_a, input1_a, ip_b0, ip_b1, ch_0_out_0, ch_0_out_1, ch_1_out_0, ch_1_out_1,
-                                9) reference_mac_2x2(input_a, input1_a, ip_b0, ip_b1, ch_0_out_0, ch_0_out_1,
-                                                     ch_1_out_0, ch_1_out_1,
-                                                     10) reference_mac_2x2(input_a, input1_a, ip_b0, ip_b1, ch_0_out_0,
-                                                                           ch_0_out_1, ch_1_out_0, ch_1_out_1, 11)
-                                reference_mac_2x2(input_a, input1_a, ip_b0,
-                                                  ip_b1, ch_0_out_0, ch_0_out_1, ch_1_out_0, ch_1_out_1, 12)
-                                    reference_mac_2x2(input_a, input1_a, ip_b0,
-                                                      ip_b1, ch_0_out_0, ch_0_out_1, ch_1_out_0, ch_1_out_1, 13)
-                                        reference_mac_2x2(input_a, input1_a, ip_b0,
-                                                          ip_b1, ch_0_out_0, ch_0_out_1, ch_1_out_0, ch_1_out_1, 14)
-                                            reference_mac_2x2(input_a, input1_a, ip_b0,
-                                                              ip_b1, ch_0_out_0, ch_0_out_1, ch_1_out_0, ch_1_out_1, 15)
-                                                reference_mac_2x2(input_a, input1_a, ip_b0,
-                                                                  ip_b1, ch_0_out_0, ch_0_out_1, ch_1_out_0, ch_1_out_1,
-                                                                  16)
-                                                    reference_mac_2x2(
-                                                        input_a, input1_a, ip_b0,
-                                                        ip_b1, ch_0_out_0, ch_0_out_1, ch_1_out_0, ch_1_out_1, 17)
-                                                        reference_mac_2x2(
-                                                            input_a, input1_a, ip_b0,
-                                                            ip_b1, ch_0_out_0, ch_0_out_1, ch_1_out_0, ch_1_out_1, 18)
-                                                            reference_mac_2x2(
-                                                                input_a, input1_a, ip_b0,
-                                                                ip_b1, ch_0_out_0, ch_0_out_1, ch_1_out_0, ch_1_out_1,
-                                                                19) reference_mac_2x2(input_a, input1_a, ip_b0,
-                                                                                      ip_b1, ch_0_out_0, ch_0_out_1,
-                                                                                      ch_1_out_0, ch_1_out_1, 20)
-                                                                reference_mac_2x2(
-                                                                    input_a, input1_a, ip_b0,
-                                                                    ip_b1, ch_0_out_0, ch_0_out_1, ch_1_out_0,
-                                                                    ch_1_out_1,
-                                                                    21) reference_mac_2x2(input_a, input1_a, ip_b0,
-                                                                                          ip_b1, ch_0_out_0, ch_0_out_1,
-                                                                                          ch_1_out_0,
-                                                                                          ch_1_out_1,
-                                                                                          22)
-                                                                    reference_mac_2x2(
-                                                                        input_a, input1_a, ip_b0,
-                                                                        ip_b1, ch_0_out_0, ch_0_out_1, ch_1_out_0,
-                                                                        ch_1_out_1,
-                                                                        23) reference_mac_2x2(input_a, input1_a, ip_b0,
-                                                                                              ip_b1, ch_0_out_0,
-                                                                                              ch_0_out_1, ch_1_out_0,
-                                                                                              ch_1_out_1, 24)
-                                                                        reference_mac_2x2(input_a, input1_a, ip_b0,
-                                                                                          ip_b1, ch_0_out_0, ch_0_out_1,
-                                                                                          ch_1_out_0, ch_1_out_1, 25)
-                                                                            reference_mac_2x2(input_a, input1_a, ip_b0,
-                                                                                              ip_b1, ch_0_out_0,
-                                                                                              ch_0_out_1, ch_1_out_0,
-                                                                                              ch_1_out_1, 26)
-                                                                                reference_mac_2x2(
-                                                                                    input_a, input1_a, ip_b0, ip_b1,
-                                                                                    ch_0_out_0, ch_0_out_1, ch_1_out_0,
-                                                                                    ch_1_out_1, 27)
+        reference_mac_2x2(input_a, input1_a, ip_b0, ip_b1, ch_0_out_0, ch_0_out_1, ch_1_out_0, ch_1_out_1, 0);
+        reference_mac_2x2(input_a, input1_a, ip_b0, ip_b1, ch_0_out_0, ch_0_out_1, ch_1_out_0, ch_1_out_1, 1);
+        reference_mac_2x2(input_a, input1_a, ip_b0, ip_b1, ch_0_out_0, ch_0_out_1, ch_1_out_0, ch_1_out_1, 2);
+        reference_mac_2x2(input_a, input1_a, ip_b0, ip_b1, ch_0_out_0, ch_0_out_1, ch_1_out_0, ch_1_out_1, 3);
+        reference_mac_2x2(input_a, input1_a, ip_b0, ip_b1, ch_0_out_0, ch_0_out_1, ch_1_out_0, ch_1_out_1, 4);
+        reference_mac_2x2(input_a, input1_a, ip_b0, ip_b1, ch_0_out_0, ch_0_out_1, ch_1_out_0, ch_1_out_1, 5);
+        reference_mac_2x2(input_a, input1_a, ip_b0, ip_b1, ch_0_out_0, ch_0_out_1, ch_1_out_0, ch_1_out_1, 6);
+        reference_mac_2x2(input_a, input1_a, ip_b0, ip_b1, ch_0_out_0, ch_0_out_1, ch_1_out_0, ch_1_out_1, 7);
+        reference_mac_2x2(input_a, input1_a, ip_b0, ip_b1, ch_0_out_0, ch_0_out_1, ch_1_out_0, ch_1_out_1, 8);
+        reference_mac_2x2(input_a, input1_a, ip_b0, ip_b1, ch_0_out_0, ch_0_out_1, ch_1_out_0, ch_1_out_1, 9);
+        reference_mac_2x2(input_a, input1_a, ip_b0, ip_b1, ch_0_out_0, ch_0_out_1, ch_1_out_0, ch_1_out_1, 10);
+        reference_mac_2x2(input_a, input1_a, ip_b0, ip_b1, ch_0_out_0, ch_0_out_1, ch_1_out_0, ch_1_out_1, 11);
+        reference_mac_2x2(input_a, input1_a, ip_b0, ip_b1, ch_0_out_0, ch_0_out_1, ch_1_out_0, ch_1_out_1, 12);
+        reference_mac_2x2(input_a, input1_a, ip_b0, ip_b1, ch_0_out_0, ch_0_out_1, ch_1_out_0, ch_1_out_1, 13);
+        reference_mac_2x2(input_a, input1_a, ip_b0, ip_b1, ch_0_out_0, ch_0_out_1, ch_1_out_0, ch_1_out_1, 14);
+        reference_mac_2x2(input_a, input1_a, ip_b0, ip_b1, ch_0_out_0, ch_0_out_1, ch_1_out_0, ch_1_out_1, 15);
+        reference_mac_2x2(input_a, input1_a, ip_b0, ip_b1, ch_0_out_0, ch_0_out_1, ch_1_out_0, ch_1_out_1, 16);
+        reference_mac_2x2(input_a, input1_a, ip_b0, ip_b1, ch_0_out_0, ch_0_out_1, ch_1_out_0, ch_1_out_1, 17);
+        reference_mac_2x2(input_a, input1_a, ip_b0, ip_b1, ch_0_out_0, ch_0_out_1, ch_1_out_0, ch_1_out_1, 18);
+        reference_mac_2x2(input_a, input1_a, ip_b0, ip_b1, ch_0_out_0, ch_0_out_1, ch_1_out_0, ch_1_out_1, 19)
+            reference_mac_2x2(input_a, input1_a, ip_b0, ip_b1, ch_0_out_0, ch_0_out_1, ch_1_out_0, ch_1_out_1, 20);
+        reference_mac_2x2(input_a, input1_a, ip_b0, ip_b1, ch_0_out_0, ch_0_out_1, ch_1_out_0, ch_1_out_1, 21);
+        reference_mac_2x2(input_a, input1_a, ip_b0, ip_b1, ch_0_out_0, ch_0_out_1, ch_1_out_0, ch_1_out_1, 22);
+        reference_mac_2x2(input_a, input1_a, ip_b0, ip_b1, ch_0_out_0, ch_0_out_1, ch_1_out_0, ch_1_out_1, 23);
+        reference_mac_2x2(input_a, input1_a, ip_b0, ip_b1, ch_0_out_0, ch_0_out_1, ch_1_out_0, ch_1_out_1, 24);
+        reference_mac_2x2(input_a, input1_a, ip_b0, ip_b1, ch_0_out_0, ch_0_out_1, ch_1_out_0, ch_1_out_1, 25);
+        reference_mac_2x2(input_a, input1_a, ip_b0, ip_b1, ch_0_out_0, ch_0_out_1, ch_1_out_0, ch_1_out_1, 26);
+        reference_mac_2x2(input_a, input1_a, ip_b0, ip_b1, ch_0_out_0, ch_0_out_1, ch_1_out_0, ch_1_out_1, 27);
 
-            // ARM specific
-            // //------------------4
-            // q31_t a01, a02, a11, a12;
-            // q31_t b0 = arm_nn_read_q15x2_ia(&ip_b0);
-            // q31_t b1 = arm_nn_read_q15x2_ia(&ip_b1);
+        // ARM specific
+        // //------------------4
+        // q31_t a01, a02, a11, a12;
+        // q31_t b0 = arm_nn_read_q15x2_ia(&ip_b0);
+        // q31_t b1 = arm_nn_read_q15x2_ia(&ip_b1);
 
-            // ch_0_out_0 = __SMLAD(ksrc_31[0], b0, ch_0_out_0);
-            // ch_0_out_1 = __SMLAD(ksrc_31[0], b1, ch_0_out_1);
-            // ch_1_out_0 = __SMLAD(ksrc2_31[0], b0, ch_1_out_0);
-            // ch_1_out_1 = __SMLAD(ksrc2_31[0], b1, ch_1_out_1);
+        // ch_0_out_0 = __SMLAD(ksrc_31[0], b0, ch_0_out_0);
+        // ch_0_out_1 = __SMLAD(ksrc_31[0], b1, ch_0_out_1);
+        // ch_1_out_0 = __SMLAD(ksrc2_31[0], b0, ch_1_out_0);
+        // ch_1_out_1 = __SMLAD(ksrc2_31[0], b1, ch_1_out_1);
 
-            // b0 = arm_nn_read_q15x2_ia(&ip_b0);
-            // b1 = arm_nn_read_q15x2_ia(&ip_b1);
+        // b0 = arm_nn_read_q15x2_ia(&ip_b0);
+        // b1 = arm_nn_read_q15x2_ia(&ip_b1);
 
-            // ch_0_out_0 = __SMLAD(ksrc_31[1], b0, ch_0_out_0);
-            // ch_0_out_1 = __SMLAD(ksrc_31[1], b1, ch_0_out_1);
-            // ch_1_out_0 = __SMLAD(ksrc2_31[1], b0, ch_1_out_0);
-            // ch_1_out_1 = __SMLAD(ksrc2_31[1], b1, ch_1_out_1);
+        // ch_0_out_0 = __SMLAD(ksrc_31[1], b0, ch_0_out_0);
+        // ch_0_out_1 = __SMLAD(ksrc_31[1], b1, ch_0_out_1);
+        // ch_1_out_0 = __SMLAD(ksrc2_31[1], b0, ch_1_out_0);
+        // ch_1_out_1 = __SMLAD(ksrc2_31[1], b1, ch_1_out_1);
 
-            // //------------------8
-            // b0 = arm_nn_read_q15x2_ia(&ip_b0);
-            // b1 = arm_nn_read_q15x2_ia(&ip_b1);
+        // //------------------8
+        // b0 = arm_nn_read_q15x2_ia(&ip_b0);
+        // b1 = arm_nn_read_q15x2_ia(&ip_b1);
 
-            // ch_0_out_0 = __SMLAD(ksrc_31[2], b0, ch_0_out_0);
-            // ch_0_out_1 = __SMLAD(ksrc_31[2], b1, ch_0_out_1);
-            // ch_1_out_0 = __SMLAD(ksrc2_31[2], b0, ch_1_out_0);
-            // ch_1_out_1 = __SMLAD(ksrc2_31[2], b1, ch_1_out_1);
+        // ch_0_out_0 = __SMLAD(ksrc_31[2], b0, ch_0_out_0);
+        // ch_0_out_1 = __SMLAD(ksrc_31[2], b1, ch_0_out_1);
+        // ch_1_out_0 = __SMLAD(ksrc2_31[2], b0, ch_1_out_0);
+        // ch_1_out_1 = __SMLAD(ksrc2_31[2], b1, ch_1_out_1);
 
-            // b0 = arm_nn_read_q15x2_ia(&ip_b0);
-            // b1 = arm_nn_read_q15x2_ia(&ip_b1);
+        // b0 = arm_nn_read_q15x2_ia(&ip_b0);
+        // b1 = arm_nn_read_q15x2_ia(&ip_b1);
 
-            // ch_0_out_0 = __SMLAD(ksrc_31[3], b0, ch_0_out_0);
-            // ch_0_out_1 = __SMLAD(ksrc_31[3], b1, ch_0_out_1);
-            // ch_1_out_0 = __SMLAD(ksrc2_31[3], b0, ch_1_out_0);
-            // ch_1_out_1 = __SMLAD(ksrc2_31[3], b1, ch_1_out_1);
+        // ch_0_out_0 = __SMLAD(ksrc_31[3], b0, ch_0_out_0);
+        // ch_0_out_1 = __SMLAD(ksrc_31[3], b1, ch_0_out_1);
+        // ch_1_out_0 = __SMLAD(ksrc2_31[3], b0, ch_1_out_0);
+        // ch_1_out_1 = __SMLAD(ksrc2_31[3], b1, ch_1_out_1);
 
-            // //------------------12
-            // b0 = arm_nn_read_q15x2_ia(&ip_b0);
-            // b1 = arm_nn_read_q15x2_ia(&ip_b1);
+        // //------------------12
+        // b0 = arm_nn_read_q15x2_ia(&ip_b0);
+        // b1 = arm_nn_read_q15x2_ia(&ip_b1);
 
-            // ch_0_out_0 = __SMLAD(ksrc_31[4], b0, ch_0_out_0);
-            // ch_0_out_1 = __SMLAD(ksrc_31[4], b1, ch_0_out_1);
-            // ch_1_out_0 = __SMLAD(ksrc2_31[4], b0, ch_1_out_0);
-            // ch_1_out_1 = __SMLAD(ksrc2_31[4], b1, ch_1_out_1);
+        // ch_0_out_0 = __SMLAD(ksrc_31[4], b0, ch_0_out_0);
+        // ch_0_out_1 = __SMLAD(ksrc_31[4], b1, ch_0_out_1);
+        // ch_1_out_0 = __SMLAD(ksrc2_31[4], b0, ch_1_out_0);
+        // ch_1_out_1 = __SMLAD(ksrc2_31[4], b1, ch_1_out_1);
 
-            // b0 = arm_nn_read_q15x2_ia(&ip_b0);
-            // b1 = arm_nn_read_q15x2_ia(&ip_b1);
+        // b0 = arm_nn_read_q15x2_ia(&ip_b0);
+        // b1 = arm_nn_read_q15x2_ia(&ip_b1);
 
-            // ch_0_out_0 = __SMLAD(ksrc_31[5], b0, ch_0_out_0);
-            // ch_0_out_1 = __SMLAD(ksrc_31[5], b1, ch_0_out_1);
-            // ch_1_out_0 = __SMLAD(ksrc2_31[5], b0, ch_1_out_0);
-            // ch_1_out_1 = __SMLAD(ksrc2_31[5], b1, ch_1_out_1);
+        // ch_0_out_0 = __SMLAD(ksrc_31[5], b0, ch_0_out_0);
+        // ch_0_out_1 = __SMLAD(ksrc_31[5], b1, ch_0_out_1);
+        // ch_1_out_0 = __SMLAD(ksrc2_31[5], b0, ch_1_out_0);
+        // ch_1_out_1 = __SMLAD(ksrc2_31[5], b1, ch_1_out_1);
 
-            // //------------------16
-            // b0 = arm_nn_read_q15x2_ia(&ip_b0);
-            // b1 = arm_nn_read_q15x2_ia(&ip_b1);
-            // ch_0_out_0 = __SMLAD(ksrc_31[6], b0, ch_0_out_0);
-            // ch_0_out_1 = __SMLAD(ksrc_31[6], b1, ch_0_out_1);
-            // ch_1_out_0 = __SMLAD(ksrc2_31[6], b0, ch_1_out_0);
-            // ch_1_out_1 = __SMLAD(ksrc2_31[6], b1, ch_1_out_1);
+        // //------------------16
+        // b0 = arm_nn_read_q15x2_ia(&ip_b0);
+        // b1 = arm_nn_read_q15x2_ia(&ip_b1);
+        // ch_0_out_0 = __SMLAD(ksrc_31[6], b0, ch_0_out_0);
+        // ch_0_out_1 = __SMLAD(ksrc_31[6], b1, ch_0_out_1);
+        // ch_1_out_0 = __SMLAD(ksrc2_31[6], b0, ch_1_out_0);
+        // ch_1_out_1 = __SMLAD(ksrc2_31[6], b1, ch_1_out_1);
 
-            // b0 = arm_nn_read_q15x2_ia(&ip_b0);
-            // b1 = arm_nn_read_q15x2_ia(&ip_b1);
+        // b0 = arm_nn_read_q15x2_ia(&ip_b0);
+        // b1 = arm_nn_read_q15x2_ia(&ip_b1);
 
-            // ch_0_out_0 = __SMLAD(ksrc_31[7], b0, ch_0_out_0);
-            // ch_0_out_1 = __SMLAD(ksrc_31[7], b1, ch_0_out_1);
-            // ch_1_out_0 = __SMLAD(ksrc2_31[7], b0, ch_1_out_0);
-            // ch_1_out_1 = __SMLAD(ksrc2_31[7], b1, ch_1_out_1);
+        // ch_0_out_0 = __SMLAD(ksrc_31[7], b0, ch_0_out_0);
+        // ch_0_out_1 = __SMLAD(ksrc_31[7], b1, ch_0_out_1);
+        // ch_1_out_0 = __SMLAD(ksrc2_31[7], b0, ch_1_out_0);
+        // ch_1_out_1 = __SMLAD(ksrc2_31[7], b1, ch_1_out_1);
 
-            // //------------------20
-            // b0 = arm_nn_read_q15x2_ia(&ip_b0);
-            // b1 = arm_nn_read_q15x2_ia(&ip_b1);
-            // ch_0_out_0 = __SMLAD(ksrc_31[8], b0, ch_0_out_0);
-            // ch_0_out_1 = __SMLAD(ksrc_31[8], b1, ch_0_out_1);
-            // ch_1_out_0 = __SMLAD(ksrc2_31[8], b0, ch_1_out_0);
-            // ch_1_out_1 = __SMLAD(ksrc2_31[8], b1, ch_1_out_1);
+        // //------------------20
+        // b0 = arm_nn_read_q15x2_ia(&ip_b0);
+        // b1 = arm_nn_read_q15x2_ia(&ip_b1);
+        // ch_0_out_0 = __SMLAD(ksrc_31[8], b0, ch_0_out_0);
+        // ch_0_out_1 = __SMLAD(ksrc_31[8], b1, ch_0_out_1);
+        // ch_1_out_0 = __SMLAD(ksrc2_31[8], b0, ch_1_out_0);
+        // ch_1_out_1 = __SMLAD(ksrc2_31[8], b1, ch_1_out_1);
 
-            // b0 = arm_nn_read_q15x2_ia(&ip_b0);
-            // b1 = arm_nn_read_q15x2_ia(&ip_b1);
+        // b0 = arm_nn_read_q15x2_ia(&ip_b0);
+        // b1 = arm_nn_read_q15x2_ia(&ip_b1);
 
-            // ch_0_out_0 = __SMLAD(ksrc_31[9], b0, ch_0_out_0);
-            // ch_0_out_1 = __SMLAD(ksrc_31[9], b1, ch_0_out_1);
-            // ch_1_out_0 = __SMLAD(ksrc2_31[9], b0, ch_1_out_0);
-            // ch_1_out_1 = __SMLAD(ksrc2_31[9], b1, ch_1_out_1);
+        // ch_0_out_0 = __SMLAD(ksrc_31[9], b0, ch_0_out_0);
+        // ch_0_out_1 = __SMLAD(ksrc_31[9], b1, ch_0_out_1);
+        // ch_1_out_0 = __SMLAD(ksrc2_31[9], b0, ch_1_out_0);
+        // ch_1_out_1 = __SMLAD(ksrc2_31[9], b1, ch_1_out_1);
 
-            // //------------------24
-            // b0 = arm_nn_read_q15x2_ia(&ip_b0);
-            // b1 = arm_nn_read_q15x2_ia(&ip_b1);
-            // ch_0_out_0 = __SMLAD(ksrc_31[10], b0, ch_0_out_0);
-            // ch_0_out_1 = __SMLAD(ksrc_31[10], b1, ch_0_out_1);
-            // ch_1_out_0 = __SMLAD(ksrc2_31[10], b0, ch_1_out_0);
-            // ch_1_out_1 = __SMLAD(ksrc2_31[10], b1, ch_1_out_1);
+        // //------------------24
+        // b0 = arm_nn_read_q15x2_ia(&ip_b0);
+        // b1 = arm_nn_read_q15x2_ia(&ip_b1);
+        // ch_0_out_0 = __SMLAD(ksrc_31[10], b0, ch_0_out_0);
+        // ch_0_out_1 = __SMLAD(ksrc_31[10], b1, ch_0_out_1);
+        // ch_1_out_0 = __SMLAD(ksrc2_31[10], b0, ch_1_out_0);
+        // ch_1_out_1 = __SMLAD(ksrc2_31[10], b1, ch_1_out_1);
 
-            // b0 = arm_nn_read_q15x2_ia(&ip_b0);
-            // b1 = arm_nn_read_q15x2_ia(&ip_b1);
+        // b0 = arm_nn_read_q15x2_ia(&ip_b0);
+        // b1 = arm_nn_read_q15x2_ia(&ip_b1);
 
-            // ch_0_out_0 = __SMLAD(ksrc_31[11], b0, ch_0_out_0);
-            // ch_0_out_1 = __SMLAD(ksrc_31[11], b1, ch_0_out_1);
-            // ch_1_out_0 = __SMLAD(ksrc2_31[11], b0, ch_1_out_0);
-            // ch_1_out_1 = __SMLAD(ksrc2_31[11], b1, ch_1_out_1);
+        // ch_0_out_0 = __SMLAD(ksrc_31[11], b0, ch_0_out_0);
+        // ch_0_out_1 = __SMLAD(ksrc_31[11], b1, ch_0_out_1);
+        // ch_1_out_0 = __SMLAD(ksrc2_31[11], b0, ch_1_out_0);
+        // ch_1_out_1 = __SMLAD(ksrc2_31[11], b1, ch_1_out_1);
 
-            // //------------------25,26,27
-            // b0 = arm_nn_read_q15x2_ia(&ip_b0);
-            // b1 = arm_nn_read_q15x2_ia(&ip_b1);
-            // ch_0_out_0 = __SMLAD(ksrc_31[12], b0, ch_0_out_0);
-            // ch_0_out_1 = __SMLAD(ksrc_31[12], b1, ch_0_out_1);
-            // ch_1_out_0 = __SMLAD(ksrc2_31[12], b0, ch_1_out_0);
-            // ch_1_out_1 = __SMLAD(ksrc2_31[12], b1, ch_1_out_1);
-            // q15_t
-            // q15_t _b1 = *ip_b1++;
+        // //------------------25,26,27
+        // b0 = arm_nn_read_q15x2_ia(&ip_b0);
+        // b1 = arm_nn_read_q15x2_ia(&ip_b1);
+        // ch_0_out_0 = __SMLAD(ksrc_31[12], b0, ch_0_out_0);
+        // ch_0_out_1 = __SMLAD(ksrc_31[12], b1, ch_0_out_1);
+        // ch_1_out_0 = __SMLAD(ksrc2_31[12], b0, ch_1_out_0);
+        // ch_1_out_1 = __SMLAD(ksrc2_31[12], b1, ch_1_out_1);
+        // q15_t
+        // q15_t _b1 = *ip_b1++;
 
-            // ch_0_out_0 += ksrc[26] * _b0;
-            // ch_0_out_1 += ksrc[26] * _b1;
-            // ch_1_out_0 += ksrc2[26] * _b0;
-            // ch_1_out_1 += ksrc2[26] * _b1;
+        // ch_0_out_0 += ksrc[26] * _b0;
+        // ch_0_out_1 += ksrc[26] * _b1;
+        // ch_1_out_0 += ksrc2[26] * _b0;
+        // ch_1_out_1 += ksrc2[26] * _b1;
 
-            ch_0_out_0 = (q31_t)((float)ch_0_out_0 * scale_0);
+        ch_0_out_0 = (q31_t)((float)ch_0_out_0 * scale_0);
         ch_0_out_0 += out_offset;
         ch_0_out_0 = TN_MAX(ch_0_out_0, activation_min);
         ch_0_out_0 = TN_MIN(ch_0_out_0, activation_max);

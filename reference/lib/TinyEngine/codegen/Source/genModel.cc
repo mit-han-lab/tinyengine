@@ -4,6 +4,7 @@
 
 #include <tinyengine_function.h>
 
+#include "genInclude.h"
 #include "genModel.h"
 #include "genNN.h"
 

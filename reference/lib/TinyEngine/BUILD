@@ -26,3 +26,24 @@ cc_library(
     copts = ["-Ilib/TinyEngine/include", "-Ilib/TinyEngine/codegen/Include"],
     visibility = ["//application:__pkg__"],
 )
+
+cc_library(
+    name = "reference",
+    srcs = ["src/reference.cc"],
+    hdrs = ["include/tinyengine_function.h",
+            "include/reference.h",
+            "include/fp_requantize_op.h",
+            "codegen/Include/genInclude.h",],
+    copts = ["-Ilib/TinyEngine/include"],
+)
+
+cc_test(
+    name = "tinyengine_kernel_test",
+    srcs = ["test/src/convolve_1x1_s8_ch8_fpreq_test.cc"],
+#     hdrs = ["include/tinyengine_function.h",
+#             "include/reference.h",
+#             "include/fp_requantize_op.h",
+#             "codegen/Include/genInclude.h",],
+    copts = ["-Ilib/TinyEngine/include"],
+    deps = ["@com_google_googletest//:gtest_main", ":reference", ":tinyengine"],
+)

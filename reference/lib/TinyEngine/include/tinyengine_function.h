@@ -177,4 +177,3 @@ tinyengine_status element_mult_nx1(const q7_t *input, const uint16_t input_h, co
                                    const float output_scale, q7_t *output);
 
 #include "fp_requantize_op.h"
-#include "genInclude.h"
