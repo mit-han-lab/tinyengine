@@ -51,6 +51,8 @@ tinyengine_status convolve_1x1_s8_ch48_fpreq(const q7_t *input, const uint16_t i
             *dst++ = *src++ + input_offset;
             *dst++ = *src++ + input_offset;
             *dst++ = *src++ + input_offset;
+
+            *dst++ = *src++ + input_offset;
             *dst++ = *src++ + input_offset;
             *dst++ = *src++ + input_offset;
             *dst++ = *src++ + input_offset;

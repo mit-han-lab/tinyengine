@@ -817,6 +817,10 @@ q7_t *mat_mult_kernel_s8_s16_reordered_fpreq(const q7_t *input_a, const q15_t *i
             ch_1_out_1 += ip_b1[2] * ip_a1[2];
             ch_1_out_1 += ip_b1[3] * ip_a1[3];
 
+            ip_b0 += 4;
+            ip_b1 += 4;
+            ip_a0 += 4;
+            ip_a1 += 4;
             col_count--;
         } /* while over col_count */
 

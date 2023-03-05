@@ -14,7 +14,7 @@ q7_t kernel::get_pixel(int h, int w, int c, int input_h, int input_w, int input_
 void kernel::randomize_q7_vector(q7_t *vector, int length) {
     for (int i = 0; i < length; i++) {
         // vector[i] = (rand() % 8) - 4;
-        vector[i] = (rand() % 4) - 2;
+        vector[i] = (rand() % 2) - 1;
         // vector[i] = 1;
     }
 }
