@@ -850,28 +850,29 @@ q7_t *mat_mult_kernel_s8_s16_reordered_fpreq(const q7_t *input_a, const q15_t *i
         row_count--;
     }
 
-    if (output_ch & 1) {
+    if (output_ch % 2 == 1) {
         /* setup pointers for B */
         const q15_t *ip_b0 = input_b;
         const q15_t *ip_b1 = ip_b0 + num_col_a;
 
         /* Init accumulator with bias for channel N + 1 */
         q31_t ch_0_out_0 = *bias;
-        q31_t ch_0_out_1 = ch_0_out_0;
+        q31_t ch_0_out_1 = *bias;
 
         int32_t col_count = num_col_a / 4;
         while (col_count) {
-            ch_0_out_0 = ip_b0[0] * ip_a0[0];
-            ch_0_out_0 += ip_b0[1] * ip_a0[1];
-            ch_0_out_0 += ip_b0[2] * ip_a0[2];
-            ch_0_out_0 += ip_b0[3] * ip_a0[3];
+            ch_0_out_0 += *ip_b0++ * ip_a0[0];
+            ch_0_out_0 += *ip_b0++ * ip_a0[1];
+            ch_0_out_0 += *ip_b0++ * ip_a0[2];
+            ch_0_out_0 += *ip_b0++ * ip_a0[3];
 
-            ch_0_out_1 = ip_b1[0] * ip_a0[0];
-            ch_0_out_1 += ip_b1[1] * ip_a0[1];
-            ch_0_out_1 += ip_b1[2] * ip_a0[2];
-            ch_0_out_1 += ip_b1[3] * ip_a0[3];
+            ch_0_out_1 += *ip_b1++ * ip_a0[0];
+            ch_0_out_1 += *ip_b1++ * ip_a0[1];
+            ch_0_out_1 += *ip_b1++ * ip_a0[2];
+            ch_0_out_1 += *ip_b1++ * ip_a0[3];
 
             col_count--;
+            ip_a0 += 4;
         } /* while over col_count */
 
         ch_0_out_0 = (q31_t)((float)ch_0_out_0 * *scales);

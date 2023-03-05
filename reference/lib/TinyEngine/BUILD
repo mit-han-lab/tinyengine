@@ -39,7 +39,7 @@ cc_library(
 
 cc_test(
     name = "tinyengine_kernel_test",
-    srcs = ["test/src/convolve_1x1_s8_ch8_fpreq_test.cc"],
+    srcs = ["test/src/convolve_1x1_s8_fpreq_test.cc"],
 #     hdrs = ["include/tinyengine_function.h",
 #             "include/reference.h",
 #             "include/fp_requantize_op.h",

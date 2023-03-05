@@ -17,7 +17,7 @@ class kernel {
    public:
     void randomize_q7_vector(q7_t *vector, int length);
     void randomize_fp_vector(float *vector, int length, float scale);
-    void randomize_int_vector(int32_t *vector, int length);
+    void randomize_int_vector(int32_t *vector, int length, int max);
     void naive_conv2d_q7_fpreq(const q7_t *input, const uint16_t input_x, const uint16_t input_y,
                                const uint16_t input_ch, const q7_t *kernel, const uint16_t kernel_y,
                                const uint16_t kernel_x, const uint16_t stride, const int32_t *bias, const float *scales,

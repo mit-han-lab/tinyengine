@@ -63,7 +63,7 @@ tinyengine_status convolve_1x1_s8_ch24_fpreq(const q7_t *input, const uint16_t i
 
     /* check if there is an odd column left-over for computation */
     if (num_elements & 0x1) {
-        int32_t i_ch_out;
+        int32_t ch_out;
         const q7_t *ker_a = kernel;
         const q7_t *src = &input[(num_elements - 1) * input_ch];
         q15_t *dst = two_column_buffer;
@@ -77,22 +77,22 @@ tinyengine_status convolve_1x1_s8_ch24_fpreq(const q7_t *input, const uint16_t i
             cnt--;
         }
 
-        for (i_ch_out = 0; i_ch_out < output_ch; i_ch_out++) {
-            q31_t sum = bias[i_ch_out];
+        for (ch_out = 0; ch_out < output_ch; ch_out++) {
+            q31_t sum = bias[ch_out];
 
             /* Point to the beginning of the im2col buffer where the input is available as a rearranged column */
             const q15_t *ip_as_col = runtime_buf;
             uint16_t col_count = (input_ch * DIM_KER_X * DIM_KER_Y) >> 2;
 
             while (col_count) {
-                sum += ip_as_col[0] * ker_a[0];
-                sum += ip_as_col[1] * ker_a[1];
-                sum += ip_as_col[2] * ker_a[2];
-                sum += ip_as_col[3] * ker_a[3];
+                sum += *ip_as_col++ * *ker_a++;
+                sum += *ip_as_col++ * *ker_a++;
+                sum += *ip_as_col++ * *ker_a++;
+                sum += *ip_as_col++ * *ker_a++;
                 col_count--;
             }
 
-            sum = (float)sum * scales[i_ch_out];
+            sum = (float)sum * scales[ch_out];
             sum += out_offset;
             sum = TN_MAX(sum, out_activation_min);
             sum = TN_MIN(sum, out_activation_max);
