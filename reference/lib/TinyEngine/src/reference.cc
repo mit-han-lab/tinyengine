@@ -21,9 +21,9 @@ void kernel::randomize_q7_vector(q7_t *vector, int length) {
 
 void kernel::randomize_fp_vector(float *vector, int length, float scale) {
     for (int i = 0; i < length; i++) {
-        // vector[i] = (float)(rand()) / (float)(RAND_MAX);
-        // vector[i] *= scale;
-        vector[i] = 1.0f;
+        vector[i] = (float)(rand()) / (float)(RAND_MAX);
+        vector[i] *= scale;
+        // vector[i] = 1.0f;
     }
 }
 

@@ -39,11 +39,11 @@ cc_library(
 
 cc_test(
     name = "tinyengine_kernel_test",
-    srcs = ["test/src/convolve_1x1_s8_fpreq_test.cc"],
-#     hdrs = ["include/tinyengine_function.h",
-#             "include/reference.h",
-#             "include/fp_requantize_op.h",
-#             "codegen/Include/genInclude.h",],
+    srcs = ["test/src/convolve_1x1_s8_fpreq_test.cc",
+    "test/src/convolve_1x1_s8_ch8_fpreq_test.cc",
+    "test/src/convolve_1x1_s8_ch16_fpreq_test.cc",
+    "test/src/convolve_1x1_s8_ch24_fpreq_test.cc",
+    "test/src/convolve_1x1_s8_ch48_fpreq_test.cc"],
     copts = ["-Ilib/TinyEngine/include"],
     deps = ["@com_google_googletest//:gtest_main", ":reference", ":tinyengine"],
 )
