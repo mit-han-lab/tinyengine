@@ -485,6 +485,8 @@ void invoke_1patch(uint16_t pad_t, uint16_t pad_b, uint16_t pad_l ,uint16_t pad_
 
         # activation buffers
         string = "\n/* sram:" + str(schedule.peakmem) + ", flash:" + str(schedule.flash) + " */\n"
+        fp.write(string)
+        string = "#define PEAK_MEM " + str(schedule.peakmem) + "\n" + "#define MODEL_SIZE " + str(schedule.flash) + "\n"
         fp.write(string + "\n")
 
         string = "static signed char buffer[" + str(schedule.peakmem) + "];\n"
