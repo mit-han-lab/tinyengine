@@ -145,12 +145,13 @@ q7_t *mat_mult_kernel3_input3_s8_s16_fpreq(const q7_t *input_a, const q15_t *inp
                                            const float *scales, const int32_t out_offset, const int16_t activation_min,
                                            const int16_t activation_max, const uint16_t num_col_a,
                                            const int32_t *const output_bias, q7_t *out_0, q15_t *kbuf) {
+    (void)kbuf;
     /* set up the second output pointers */
     q7_t *out_1 = out_0 + output_ch;
     const int32_t *bias = output_bias;
 
     uint16_t row_count = output_ch / 2;
-    const q15_t *ksrc = &kbuf[0];
+
     /* this loop over rows in A */
     while (row_count) {
         /* setup pointers for B */
@@ -161,7 +162,6 @@ q7_t *mat_mult_kernel3_input3_s8_s16_fpreq(const q7_t *input_a, const q15_t *inp
 
         /* align the second pointer for A */
         const q7_t *input1_a = input_a + num_col_a;
-        // const q15_t *ksrc2 = ksrc + 27;
 
         /* Init accumulator with bias for channel N and N + 1 */
         q31_t ch_0_out_0 = *bias;
@@ -222,7 +222,6 @@ q7_t *mat_mult_kernel3_input3_s8_s16_fpreq(const q7_t *input_a, const q15_t *inp
         *out_1++ = (q7_t)ch_1_out_1;
 
         /* skip row */
-        ksrc += 54;
         input_a += 54;
         row_count--;
     }

@@ -3,8 +3,10 @@
 
 #include <iostream>
 
+extern "C" {
 #include "genNN.h"
 #include "tinyengine_function.h"
+}
 
 float interval_to_ms(struct timeval *start, struct timeval *end) {
     float us_seconds = (end->tv_sec - start->tv_sec) * 1000000 + (end->tv_usec - start->tv_usec);

@@ -54,6 +54,7 @@ class depthwiseInplace:
         elif self.dataflow == "CWH":
             retString += self._genInplaceKernelCWH()
 
+        retString += "    return STATE_SUCCESS;"
         retString += self._genEndStr()
         if self.dataflow == "CHW":
             retString += "\n" + self._genKernel()
@@ -179,7 +180,6 @@ class depthwiseInplace:
             + """
  * Author: wmchen@mit.edu
  * -------------------------------------------------------------------- */
-#include "arm_nnsupportfunctions.h" //TODO: remove this in the future for self-contained
 #include "tinyengine_function.h"\n"""
         )
 

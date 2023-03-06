@@ -3,7 +3,9 @@
 #include <tuple>
 
 #include "reference.h"
+extern "C" {
 #include "tinyengine_function.h"
+}
 
 using namespace reference;
 
