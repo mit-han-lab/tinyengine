@@ -43,7 +43,8 @@ cc_test(
     "test/src/convolve_1x1_s8_ch8_fpreq_test.cc",
     "test/src/convolve_1x1_s8_ch16_fpreq_test.cc",
     "test/src/convolve_1x1_s8_ch24_fpreq_test.cc",
-    "test/src/convolve_1x1_s8_ch48_fpreq_test.cc"],
+    "test/src/convolve_1x1_s8_ch48_fpreq_test.cc",
+    "test/src/convolve_s8_kernel3_inputch3_stride2_pad1_fpreq_test.cc"],
     copts = ["-Ilib/TinyEngine/include"],
     deps = ["@com_google_googletest//:gtest_main", ":reference", ":tinyengine"],
 )

@@ -1,6 +1,7 @@
 #include "reference.h"
 
 #include <math.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 namespace reference {
@@ -14,8 +15,8 @@ q7_t kernel::get_pixel(int h, int w, int c, int input_h, int input_w, int input_
 void kernel::randomize_q7_vector(q7_t *vector, int length) {
     for (int i = 0; i < length; i++) {
         // vector[i] = (rand() % 8) - 4;
-        vector[i] = (rand() % 2) - 1;
-        // vector[i] = 1;
+        // vector[i] = (rand() % 2) - 1;
+        vector[i] = 1;
     }
 }
 
@@ -23,14 +24,14 @@ void kernel::randomize_fp_vector(float *vector, int length, float scale) {
     for (int i = 0; i < length; i++) {
         vector[i] = (float)(rand()) / (float)(RAND_MAX);
         vector[i] *= scale;
-        // vector[i] = 1.0f;
+        vector[i] = 1.0f;
     }
 }
 
 void kernel::randomize_int_vector(int *vector, int length, int max) {
     for (int i = 0; i < length; i++) {
-        // float random_fp = (float)(rand()) / (float)(RAND_MAX);
-        // vector[i] = (int)(random_fp * (float)max);
+        float random_fp = (float)(rand()) / (float)(RAND_MAX);
+        vector[i] = (int)(random_fp * (float)max);
         vector[i] = 0;
     }
 }
@@ -57,7 +58,6 @@ void kernel::naive_conv2d_q7_fpreq(const q7_t *input, const uint16_t input_x, co
                                                          i_ch, input_y, input_x, input_ch, input);
                             q15_t offset_pixel = (q15_t)pixel + input_offset;
                             // assume weights are in the OHWI format
-                            // int weight_idx = ((k_h * kernel_x + k_w) * input_ch + i_ch) * output_ch + o;
                             int weight_idx = ((o * kernel_y + k_h) * kernel_x + k_w) * input_ch + i_ch;
                             q7_t kernel_v = kernel[weight_idx];
                             acc += offset_pixel * kernel_v;
