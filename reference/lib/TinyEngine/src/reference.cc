@@ -5,13 +5,6 @@
 #include <stdlib.h>
 
 namespace reference {
-q7_t kernel::get_pixel(int h, int w, int c, int input_h, int input_w, int input_c, const q7_t *input) {
-    if (h < 0 || h >= input_h) return 0;
-    if (w < 0 || w >= input_w) return 0;
-
-    return input[(h * input_w + w) * input_c + c];
-}
-
 void kernel::randomize_q7_vector(q7_t *vector, int length) {
     for (int i = 0; i < length; i++) {
         vector[i] = (rand() % 2) - 1;
@@ -30,6 +23,13 @@ void kernel::randomize_int_vector(int *vector, int length, int max) {
         float random_fp = (float)(rand()) / (float)(RAND_MAX);
         vector[i] = (int)(random_fp * (float)max);
     }
+}
+
+q7_t kernel::get_pixel(int h, int w, int c, int input_h, int input_w, int input_c, const q7_t *input) {
+    if (h < 0 || h >= input_h) return 0;
+    if (w < 0 || w >= input_w) return 0;
+
+    return input[(h * input_w + w) * input_c + c];
 }
 
 void kernel::naive_conv2d_q7_fpreq(const q7_t *input, const uint16_t input_x, const uint16_t input_y,

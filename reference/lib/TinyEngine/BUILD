@@ -23,7 +23,7 @@ cc_library(
             "include/yoloOutput.h",
             "codegen/Include/genModel.h",
             "codegen/Include/genInclude.h",],
-    copts = ["-Ilib/TinyEngine/include", "-Ilib/TinyEngine/codegen/Include"],
+    copts = ["-Ilib/TinyEngine/include", "-Ilib/TinyEngine/codegen/Include", "-O3"],
     visibility = ["//application:__pkg__"],
 )
 
@@ -40,11 +40,11 @@ cc_library(
 cc_test(
     name = "tinyengine_kernel_test",
     srcs = ["test/src/convolve_1x1_s8_fpreq_test.cc",
-    "test/src/convolve_1x1_s8_ch8_fpreq_test.cc",
-    "test/src/convolve_1x1_s8_ch16_fpreq_test.cc",
-    "test/src/convolve_1x1_s8_ch24_fpreq_test.cc",
-    "test/src/convolve_1x1_s8_ch48_fpreq_test.cc",
-    "test/src/convolve_s8_kernel3_inputch3_stride2_pad1_fpreq_test.cc"],
+            "test/src/convolve_1x1_s8_ch8_fpreq_test.cc",
+            "test/src/convolve_1x1_s8_ch16_fpreq_test.cc",
+            "test/src/convolve_1x1_s8_ch24_fpreq_test.cc",
+            "test/src/convolve_1x1_s8_ch48_fpreq_test.cc",
+            "test/src/convolve_s8_kernel3_inputch3_stride2_pad1_fpreq_test.cc"],
     copts = ["-Ilib/TinyEngine/include"],
     deps = ["@com_google_googletest//:gtest_main", ":reference", ":tinyengine"],
 )
