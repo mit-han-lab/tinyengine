@@ -14,9 +14,7 @@ q7_t kernel::get_pixel(int h, int w, int c, int input_h, int input_w, int input_
 
 void kernel::randomize_q7_vector(q7_t *vector, int length) {
     for (int i = 0; i < length; i++) {
-        // vector[i] = (rand() % 8) - 4;
-        // vector[i] = (rand() % 2) - 1;
-        vector[i] = 1;
+        vector[i] = (rand() % 2) - 1;
     }
 }
 
@@ -24,7 +22,6 @@ void kernel::randomize_fp_vector(float *vector, int length, float scale) {
     for (int i = 0; i < length; i++) {
         vector[i] = (float)(rand()) / (float)(RAND_MAX);
         vector[i] *= scale;
-        vector[i] = 1.0f;
     }
 }
 
@@ -32,7 +29,6 @@ void kernel::randomize_int_vector(int *vector, int length, int max) {
     for (int i = 0; i < length; i++) {
         float random_fp = (float)(rand()) / (float)(RAND_MAX);
         vector[i] = (int)(random_fp * (float)max);
-        vector[i] = 0;
     }
 }
 
