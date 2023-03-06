@@ -16,6 +16,7 @@
 # Target ISA:  ARMv7E-M
 # ----------------------------------------------------------------------
 
+
 class depthwiseInplace:
     def __init__(
         self,
@@ -562,14 +563,14 @@ class depthwiseInplace:
             /* requantize */
             sum0 = (float) sum0 * *scales;
             sum0 += output_offset;
-            sum0 = MAX(sum0, activation_min);
-            sum0 = MIN(sum0, activation_max);
+            sum0 = TN_MAX(sum0, activation_min);
+            sum0 = TN_MIN(sum0, activation_max);
             output[(i * output_x + j * 2) * channel_offset] = sum0;
 
             sum1 = (float) sum1 * *scales;
             sum1 += output_offset;
-            sum1 = MAX(sum1, activation_min);
-            sum1 = MIN(sum1, activation_max);
+            sum1 = TN_MAX(sum1, activation_min);
+            sum1 = TN_MIN(sum1, activation_max);
             output[(i * output_x + (j * 2 + 1)) * channel_offset] = sum1;
 
             cols_8b_iterptr += STRIDE * 2;
@@ -580,14 +581,14 @@ class depthwiseInplace:
             /* requantize */
             sum0 = arm_nn_requantize(sum0 + biasR[0], *multiplier, *shift);
             sum0 += output_offset;
-            sum0 = MAX(sum0, activation_min);
-            sum0 = MIN(sum0, activation_max);
+            sum0 = TN_MAX(sum0, activation_min);
+            sum0 = TN_MIN(sum0, activation_max);
             output[(i * output_x + j * 2) * channel_offset] = sum0;
 
             sum1 = arm_nn_requantize(sum1 + biasR[0], *multiplier, *shift);
             sum1 += output_offset;
-            sum1 = MAX(sum1, activation_min);
-            sum1 = MIN(sum1, activation_max);
+            sum1 = TN_MAX(sum1, activation_min);
+            sum1 = TN_MIN(sum1, activation_max);
             output[(i * output_x + (j * 2 + 1)) * channel_offset] = sum1;
 
             cols_8b_iterptr += STRIDE * 2;
@@ -605,8 +606,8 @@ class depthwiseInplace:
             retString += """
             sum = (float) sum * *scales;
             sum += output_offset;
-            sum = MAX(sum, activation_min);
-            sum = MIN(sum, activation_max);
+            sum = TN_MAX(sum, activation_min);
+            sum = TN_MIN(sum, activation_max);
             output[(i * output_x + output_x - 1) * channel_offset] = sum;
 
             cols_8b_iterptr += STRIDE;
@@ -616,8 +617,8 @@ class depthwiseInplace:
             retString += """
             sum = arm_nn_requantize(sum + biasR[0], *multiplier, *shift);
             sum += output_offset;
-            sum = MAX(sum, activation_min);
-            sum = MIN(sum, activation_max);
+            sum = TN_MAX(sum, activation_min);
+            sum = TN_MIN(sum, activation_max);
             output[(i * output_x + output_x - 1) * channel_offset] = sum;
 
             cols_8b_iterptr += STRIDE;
@@ -661,14 +662,14 @@ class depthwiseInplace:
             /* requantize */
             sum0 = (float) sum0 * *scales;
             sum0 += output_offset;
-            sum0 = MAX(sum0, activation_min);
-            sum0 = MIN(sum0, activation_max);
+            sum0 = TN_MAX(sum0, activation_min);
+            sum0 = TN_MIN(sum0, activation_max);
             output[(i * output_x + j * 2) * channel_offset] = sum0;
 
             sum1 = (float) sum1 * *scales;
             sum1 += output_offset;
-            sum1 = MAX(sum1, activation_min);
-            sum1 = MIN(sum1, activation_max);
+            sum1 = TN_MAX(sum1, activation_min);
+            sum1 = TN_MIN(sum1, activation_max);
             output[(i * output_x + (j * 2 + 1)) * channel_offset] = sum1;
 
             cols_8b_iterptr += STRIDE * 2;
@@ -679,14 +680,14 @@ class depthwiseInplace:
             /* requantize */
             sum0 = arm_nn_requantize(sum0 + biasR[0], *multiplier, *shift);
             sum0 += output_offset;
-            sum0 = MAX(sum0, activation_min);
-            sum0 = MIN(sum0, activation_max);
+            sum0 = TN_MAX(sum0, activation_min);
+            sum0 = TN_MIN(sum0, activation_max);
             output[(i * output_x + j * 2) * channel_offset] = sum0;
 
             sum1 = arm_nn_requantize(sum1 + biasR[0], *multiplier, *shift);
             sum1 += output_offset;
-            sum1 = MAX(sum1, activation_min);
-            sum1 = MIN(sum1, activation_max);
+            sum1 = TN_MAX(sum1, activation_min);
+            sum1 = TN_MIN(sum1, activation_max);
             output[(i * output_x + (j * 2 + 1)) * channel_offset] = sum1;
 
             cols_8b_iterptr += STRIDE * 2;
@@ -704,8 +705,8 @@ class depthwiseInplace:
             retString += """
             sum = (float) sum * *scales;
             sum += output_offset;
-            sum = MAX(sum, activation_min);
-            sum = MIN(sum, activation_max);
+            sum = TN_MAX(sum, activation_min);
+            sum = TN_MIN(sum, activation_max);
             output[(i * output_x + output_x - 1) * channel_offset] = sum;
 
             cols_8b_iterptr += STRIDE;
@@ -715,8 +716,8 @@ class depthwiseInplace:
             retString += """
             sum = arm_nn_requantize(sum + biasR[0], *multiplier, *shift);
             sum += output_offset;
-            sum = MAX(sum, activation_min);
-            sum = MIN(sum, activation_max);
+            sum = TN_MAX(sum, activation_min);
+            sum = TN_MIN(sum, activation_max);
             output[(i * output_x + output_x - 1) * channel_offset] = sum;
 
             cols_8b_iterptr += STRIDE;
