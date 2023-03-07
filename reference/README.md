@@ -4,6 +4,7 @@ This demo is currently on the dev/platform-independent-vww branch. Please run th
 
 ```bash
 git clone --recursive https://github.com/mit-han-lab/tinyengine.git
+cd tinyengine
 git checkout dev/platform-independent-vww
 ```
 
