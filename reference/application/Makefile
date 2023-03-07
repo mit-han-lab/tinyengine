@@ -6,9 +6,9 @@ INCLUDE = ../lib/TinyEngine/include
 SOURCE = ../lib/TinyEngine/src
 CODEGEN_INCLUDE = ../lib/TinyEngine/codegen/Include
 CODEGEN_SOURCE = ../lib/TinyEngine/codegen/Source
-OPENCV_PATH = /usr/local/Cellar/opencv/4.7.0_1
-OPENCV_INCLUDE = $(OPENCV_PATH)/include/opencv4/ # Please set up your own path for OpenCV
-OPENCV_LIB = -L$(OPENCV_PATH)/lib # Please set up your own path for OpenCV
+OPENCV_PATH = /usr/local/Cellar/opencv/4.7.0_1  # Please set up your own path for OpenCV
+OPENCV_INCLUDE = $(OPENCV_PATH)/include/opencv4/
+OPENCV_LIB = -L$(OPENCV_PATH)/lib
 OPENCV_LINK = -lopencv_gapi -lopencv_stitching -lopencv_alphamat -lopencv_aruco -lopencv_barcode -lopencv_bgsegm -lopencv_bioinspired \
 			-lopencv_ccalib -lopencv_dnn_objdetect -lopencv_dnn_superres -lopencv_dpm -lopencv_face -lopencv_freetype -lopencv_fuzzy \
 			-lopencv_hfs -lopencv_img_hash -lopencv_intensity_transform -lopencv_line_descriptor -lopencv_mcc -lopencv_quality \

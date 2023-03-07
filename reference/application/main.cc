@@ -128,21 +128,30 @@ int main() {
         strcat(buf_model_size, " KB");
 
         int person = 0;
+        uint8_t ui_red, ui_green, ui_blue;
         if (out_int[0] > out_int[1]) {
             person = 0;
         } else {
             person = 1;
         }
         char buf_person[12];
-        if (person == 0)
+        if (person == 0) {
             strcpy(buf_person, "No Person!");
-        else
+            ui_red = 41;
+            ui_green = 98;
+            ui_blue = 25;
+        }
+        else{
             strcpy(buf_person, "Person!");
+            ui_red = 151;
+            ui_green = 41;
+            ui_blue = 52;
+        }
 
-        putText(myImage, buf_time, Point(1, 22), FONT_HERSHEY_DUPLEX, 0.7, CV_RGB(151, 41, 52), 2);
-        putText(myImage, buf_peak_mem, Point(1, 44), FONT_HERSHEY_DUPLEX, 0.7, CV_RGB(151, 41, 52), 2);
-        putText(myImage, buf_model_size, Point(1, 66), FONT_HERSHEY_DUPLEX, 0.7, CV_RGB(151, 41, 52), 2);
-        putText(myImage, buf_person, Point(1, 88), FONT_HERSHEY_DUPLEX, 0.7, CV_RGB(151, 41, 52), 2);
+        putText(myImage, buf_time, Point(1, 22), FONT_HERSHEY_DUPLEX, 0.7, CV_RGB(ui_red, ui_green, ui_blue), 2);
+        putText(myImage, buf_peak_mem, Point(1, 44), FONT_HERSHEY_DUPLEX, 0.7, CV_RGB(ui_red, ui_green, ui_blue), 2);
+        putText(myImage, buf_model_size, Point(1, 66), FONT_HERSHEY_DUPLEX, 0.7, CV_RGB(ui_red, ui_green, ui_blue), 2);
+        putText(myImage, buf_person, Point(1, 88), FONT_HERSHEY_DUPLEX, 0.7, CV_RGB(ui_red, ui_green, ui_blue), 2);
         imshow("[MIT Hanlab] Platform-independent TinyEngine VWW Demo", myImage);
 
         char c = (char)waitKey(25);
