@@ -33,7 +33,7 @@ tinyengine_status convolve_1x1_s8_fpreq(const q7_t *input, const uint16_t input_
     (void)input_x;
     (void)input_y;
 
-#ifdef UNROLL
+#ifdef UNROLL_TILING
     /* Partial(two columns) im2col buffer */
     q15_t *two_column_buffer = runtime_buf;
     q7_t *out = output;

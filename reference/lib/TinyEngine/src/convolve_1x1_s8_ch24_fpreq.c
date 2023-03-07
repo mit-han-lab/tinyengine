@@ -29,7 +29,7 @@ tinyengine_status convolve_1x1_s8_ch24_fpreq(const q7_t *input, const uint16_t i
                                              const int32_t out_activation_min, const int32_t out_activation_max,
                                              q7_t *output, const uint16_t output_x, const uint16_t output_y,
                                              const uint16_t output_ch, q15_t *runtime_buf) {
-#ifdef UNROLL
+#ifdef UNROLL_TILING
     int32_t i_element;
     (void)input_x;
     (void)input_y;
