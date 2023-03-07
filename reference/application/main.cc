@@ -137,15 +137,15 @@ int main() {
         char buf_person[12];
         if (person == 0) {
             strcpy(buf_person, "No Person!");
-            ui_red = 41;
-            ui_green = 98;
-            ui_blue = 25;
-        }
-        else{
-            strcpy(buf_person, "Person!");
             ui_red = 151;
             ui_green = 41;
             ui_blue = 52;
+        }
+        else{
+            strcpy(buf_person, "Person!");
+            ui_red = 41;
+            ui_green = 98;
+            ui_blue = 25;
         }
 
         putText(myImage, buf_time, Point(1, 22), FONT_HERSHEY_DUPLEX, 0.7, CV_RGB(ui_red, ui_green, ui_blue), 2);
