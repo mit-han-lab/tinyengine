@@ -15,7 +15,7 @@ git checkout dev/platform-independent-vww
   ```bash
   brew install opencv
   ```
-  - Update Line 9-10 in `reference/application/Makefile` according to the path of opencv on your machine.
+  - Update Line 9 in `reference/application/Makefile` according to the path of opencv on your machine. (use `brew info opencv` to get the installation path.)
 - On Windows: TBD
 
 ## Compile and run
