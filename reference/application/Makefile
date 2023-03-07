@@ -5,8 +5,8 @@ INCLUDE = ../lib/TinyEngine/include
 SOURCE = ../lib/TinyEngine/src
 CODEGEN_INCLUDE = ../lib/TinyEngine/codegen/Include
 CODEGEN_SOURCE = ../lib/TinyEngine/codegen/Source
-OPENCV_INCLUDE = /opt/homebrew/opt/opencv/include/opencv4  # Please set up your own path for OpenCV
-OPENCV_LIB = -L/opt/homebrew/opt/opencv/lib  # Please set up your own path for OpenCV
+OPENCV_INCLUDE = /usr/local/Cellar/opencv/4.7.0_1/include/opencv4/ # Please set up your own path for OpenCV
+OPENCV_LIB = -L/usr/local/Cellar/opencv/4.7.0_1/lib # Please set up your own path for OpenCV
 OPENCV_LINK = -lopencv_gapi -lopencv_stitching -lopencv_alphamat -lopencv_aruco -lopencv_barcode -lopencv_bgsegm -lopencv_bioinspired \
 			-lopencv_ccalib -lopencv_dnn_objdetect -lopencv_dnn_superres -lopencv_dpm -lopencv_face -lopencv_freetype -lopencv_fuzzy \
 			-lopencv_hfs -lopencv_img_hash -lopencv_intensity_transform -lopencv_line_descriptor -lopencv_mcc -lopencv_quality \
@@ -32,56 +32,56 @@ main: $(OBJECTS)
 main.o: main.cc
 	@$(CXX) $(CXXFLAGS) -Wall -Ofast -c main.cc -I$(INCLUDE) -I$(CODEGEN_INCLUDE) -I$(OPENCV_INCLUDE)
 
-add_fpreq.o: $(SOURCE)/add_fpreq.cc
-	@$(CXX) $(CXXFLAGS) $(CFLAGS) -c $(SOURCE)/add_fpreq.cc -I$(INCLUDE)
+add_fpreq.o: $(SOURCE)/add_fpreq.c
+	@$(CXX) $(CXXFLAGS) $(CFLAGS) -c $(SOURCE)/add_fpreq.c -I$(INCLUDE)
 
-convolve_1x1_s8_fpreq.o: $(SOURCE)/convolve_1x1_s8_fpreq.cc
-	@$(CXX) $(CXXFLAGS) $(CFLAGS) -c $(SOURCE)/convolve_1x1_s8_fpreq.cc -I$(INCLUDE)
+convolve_1x1_s8_fpreq.o: $(SOURCE)/convolve_1x1_s8_fpreq.c
+	@$(CXX) $(CXXFLAGS) $(CFLAGS) -c $(SOURCE)/convolve_1x1_s8_fpreq.c -I$(INCLUDE)
 
-convolve_1x1_s8_ch8_fpreq.o: $(SOURCE)/convolve_1x1_s8_ch8_fpreq.cc
-	@$(CXX) $(CXXFLAGS) $(CFLAGS) -c $(SOURCE)/convolve_1x1_s8_ch8_fpreq.cc -I$(INCLUDE)
+convolve_1x1_s8_ch8_fpreq.o: $(SOURCE)/convolve_1x1_s8_ch8_fpreq.c
+	@$(CXX) $(CXXFLAGS) $(CFLAGS) -c $(SOURCE)/convolve_1x1_s8_ch8_fpreq.c -I$(INCLUDE)
 
-convolve_1x1_s8_ch16_fpreq.o: $(SOURCE)/convolve_1x1_s8_ch16_fpreq.cc
-	@$(CXX) $(CXXFLAGS) $(CFLAGS) -c $(SOURCE)/convolve_1x1_s8_ch16_fpreq.cc -I$(INCLUDE)
+convolve_1x1_s8_ch16_fpreq.o: $(SOURCE)/convolve_1x1_s8_ch16_fpreq.c
+	@$(CXX) $(CXXFLAGS) $(CFLAGS) -c $(SOURCE)/convolve_1x1_s8_ch16_fpreq.c -I$(INCLUDE)
 
-convolve_1x1_s8_ch24_fpreq.o: $(SOURCE)/convolve_1x1_s8_ch24_fpreq.cc
-	@$(CXX) $(CXXFLAGS) $(CFLAGS) -c $(SOURCE)/convolve_1x1_s8_ch24_fpreq.cc -I$(INCLUDE)
+convolve_1x1_s8_ch24_fpreq.o: $(SOURCE)/convolve_1x1_s8_ch24_fpreq.c
+	@$(CXX) $(CXXFLAGS) $(CFLAGS) -c $(SOURCE)/convolve_1x1_s8_ch24_fpreq.c -I$(INCLUDE)
 
-convolve_1x1_s8_ch48_fpreq.o: $(SOURCE)/convolve_1x1_s8_ch48_fpreq.cc
-	@$(CXX) $(CXXFLAGS) $(CFLAGS) -c $(SOURCE)/convolve_1x1_s8_ch48_fpreq.cc -I$(INCLUDE)
+convolve_1x1_s8_ch48_fpreq.o: $(SOURCE)/convolve_1x1_s8_ch48_fpreq.c
+	@$(CXX) $(CXXFLAGS) $(CFLAGS) -c $(SOURCE)/convolve_1x1_s8_ch48_fpreq.c -I$(INCLUDE)
 
-convolve_s8_kernel3_inputch3_stride2_pad1_fpreq.o: $(SOURCE)/convolve_s8_kernel3_inputch3_stride2_pad1_fpreq.cc
-	@$(CXX) $(CXXFLAGS) $(CFLAGS) -c $(SOURCE)/convolve_s8_kernel3_inputch3_stride2_pad1_fpreq.cc -I$(INCLUDE)
+convolve_s8_kernel3_inputch3_stride2_pad1_fpreq.o: $(SOURCE)/convolve_s8_kernel3_inputch3_stride2_pad1_fpreq.c
+	@$(CXX) $(CXXFLAGS) $(CFLAGS) -c $(SOURCE)/convolve_s8_kernel3_inputch3_stride2_pad1_fpreq.c -I$(INCLUDE)
 
-mat_mul_kernels_fpreq.o: $(SOURCE)/mat_mul_kernels_fpreq.cc
-	@$(CXX) $(CXXFLAGS) $(CFLAGS) -c $(SOURCE)/mat_mul_kernels_fpreq.cc -I$(INCLUDE)
+mat_mul_kernels_fpreq.o: $(SOURCE)/mat_mul_kernels_fpreq.c
+	@$(CXX) $(CXXFLAGS) $(CFLAGS) -c $(SOURCE)/mat_mul_kernels_fpreq.c -I$(INCLUDE)
 
-avgpooling.o: $(SOURCE)/avgpooling.cc
-	@$(CXX) $(CXXFLAGS) $(CFLAGS) -c $(SOURCE)/avgpooling.cc -I$(INCLUDE)
+avgpooling.o: $(SOURCE)/avgpooling.c
+	@$(CXX) $(CXXFLAGS) $(CFLAGS) -c $(SOURCE)/avgpooling.c -I$(INCLUDE)
 
 reference.o: $(SOURCE)/reference.cc
 	@$(CXX) $(CXXFLAGS) $(CFLAGS) -c $(SOURCE)/reference.cc -I$(INCLUDE)
 
-depthwise_kernel3x3_stride1_inplace_CHW_fpreq.o: $(CODEGEN_SOURCE)/depthwise_kernel3x3_stride1_inplace_CHW_fpreq.cc
-	@$(CXX) $(CXXFLAGS) $(CFLAGS) -c $(CODEGEN_SOURCE)/depthwise_kernel3x3_stride1_inplace_CHW_fpreq.cc -I$(INCLUDE)
+depthwise_kernel3x3_stride1_inplace_CHW_fpreq.o: $(CODEGEN_SOURCE)/depthwise_kernel3x3_stride1_inplace_CHW_fpreq.c
+	@$(CXX) $(CXXFLAGS) $(CFLAGS) -c $(CODEGEN_SOURCE)/depthwise_kernel3x3_stride1_inplace_CHW_fpreq.c -I$(INCLUDE)
 
-depthwise_kernel3x3_stride2_inplace_CHW_fpreq.o: $(CODEGEN_SOURCE)/depthwise_kernel3x3_stride2_inplace_CHW_fpreq.cc
-	@$(CXX) $(CXXFLAGS) $(CFLAGS) -c $(CODEGEN_SOURCE)/depthwise_kernel3x3_stride2_inplace_CHW_fpreq.cc -I$(INCLUDE)
+depthwise_kernel3x3_stride2_inplace_CHW_fpreq.o: $(CODEGEN_SOURCE)/depthwise_kernel3x3_stride2_inplace_CHW_fpreq.c
+	@$(CXX) $(CXXFLAGS) $(CFLAGS) -c $(CODEGEN_SOURCE)/depthwise_kernel3x3_stride2_inplace_CHW_fpreq.c -I$(INCLUDE)
 
-depthwise_kernel5x5_stride1_inplace_CHW_fpreq.o: $(CODEGEN_SOURCE)/depthwise_kernel5x5_stride1_inplace_CHW_fpreq.cc
-	@$(CXX) $(CXXFLAGS) $(CFLAGS) -c $(CODEGEN_SOURCE)/depthwise_kernel5x5_stride1_inplace_CHW_fpreq.cc -I$(INCLUDE)
+depthwise_kernel5x5_stride1_inplace_CHW_fpreq.o: $(CODEGEN_SOURCE)/depthwise_kernel5x5_stride1_inplace_CHW_fpreq.c
+	@$(CXX) $(CXXFLAGS) $(CFLAGS) -c $(CODEGEN_SOURCE)/depthwise_kernel5x5_stride1_inplace_CHW_fpreq.c -I$(INCLUDE)
 
-depthwise_kernel5x5_stride2_inplace_CHW_fpreq.o: $(CODEGEN_SOURCE)/depthwise_kernel5x5_stride2_inplace_CHW_fpreq.cc
-	@$(CXX) $(CXXFLAGS) $(CFLAGS) -c $(CODEGEN_SOURCE)/depthwise_kernel5x5_stride2_inplace_CHW_fpreq.cc -I$(INCLUDE)
+depthwise_kernel5x5_stride2_inplace_CHW_fpreq.o: $(CODEGEN_SOURCE)/depthwise_kernel5x5_stride2_inplace_CHW_fpreq.c
+	@$(CXX) $(CXXFLAGS) $(CFLAGS) -c $(CODEGEN_SOURCE)/depthwise_kernel5x5_stride2_inplace_CHW_fpreq.c -I$(INCLUDE)
 
-depthwise_kernel7x7_stride1_inplace_CHW_fpreq.o: $(CODEGEN_SOURCE)/depthwise_kernel7x7_stride1_inplace_CHW_fpreq.cc
-	@$(CXX) $(CXXFLAGS) $(CFLAGS) -c $(CODEGEN_SOURCE)/depthwise_kernel7x7_stride1_inplace_CHW_fpreq.cc -I$(INCLUDE)
+depthwise_kernel7x7_stride1_inplace_CHW_fpreq.o: $(CODEGEN_SOURCE)/depthwise_kernel7x7_stride1_inplace_CHW_fpreq.c
+	@$(CXX) $(CXXFLAGS) $(CFLAGS) -c $(CODEGEN_SOURCE)/depthwise_kernel7x7_stride1_inplace_CHW_fpreq.c -I$(INCLUDE)
 
-depthwise_kernel7x7_stride2_inplace_CHW_fpreq.o: $(CODEGEN_SOURCE)/depthwise_kernel7x7_stride2_inplace_CHW_fpreq.cc
-	@$(CXX) $(CXXFLAGS) $(CFLAGS) -c $(CODEGEN_SOURCE)/depthwise_kernel7x7_stride2_inplace_CHW_fpreq.cc -I$(INCLUDE)
+depthwise_kernel7x7_stride2_inplace_CHW_fpreq.o: $(CODEGEN_SOURCE)/depthwise_kernel7x7_stride2_inplace_CHW_fpreq.c
+	@$(CXX) $(CXXFLAGS) $(CFLAGS) -c $(CODEGEN_SOURCE)/depthwise_kernel7x7_stride2_inplace_CHW_fpreq.c -I$(INCLUDE)
 
-genModel.o: $(CODEGEN_SOURCE)/genModel.cc
-	@$(CXX) $(CXXFLAGS) $(CFLAGS) -c $(CODEGEN_SOURCE)/genModel.cc -I$(INCLUDE) -I$(CODEGEN_INCLUDE)
+genModel.o: $(CODEGEN_SOURCE)/genModel.c
+	@$(CXX) $(CXXFLAGS) $(CFLAGS) -c $(CODEGEN_SOURCE)/genModel.c -I$(INCLUDE) -I$(CODEGEN_INCLUDE)
 
 .PHONY: clean
 clean:
