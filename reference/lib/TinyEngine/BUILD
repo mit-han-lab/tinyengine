@@ -24,7 +24,7 @@ cc_library(
             "include/yoloOutput.h",
             "codegen/Include/genModel.h",
             "codegen/Include/genInclude.h",],
-    copts = ["-Ilib/TinyEngine/include", "-Ilib/TinyEngine/codegen/Include", "-O3"],
+    copts = ["-Ilib/TinyEngine/include", "-Ilib/TinyEngine/codegen/Include"],
     visibility = ["//application:__pkg__"],
 )
 
