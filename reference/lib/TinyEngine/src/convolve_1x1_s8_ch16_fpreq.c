@@ -33,6 +33,7 @@ tinyengine_status convolve_1x1_s8_ch16_fpreq(const q7_t *input, const uint16_t i
     (void)input_x;
     (void)input_y;
 
+#ifdef UNROLL
     /* Partial(two columns) im2col buffer */
     q15_t *two_column_buffer = runtime_buf;
     q7_t *out = output;
@@ -101,6 +102,41 @@ tinyengine_status convolve_1x1_s8_ch16_fpreq(const q7_t *input, const uint16_t i
             *out++ = (q7_t)sum;
         }
     }
+#else
+    const int kernel_y = 1, kernel_x = 1, stride = 1;
+    for (int h = 0; h < output_y; h++) {
+        for (int w = 0; w < output_x; w++) {
+            for (int o = 0; o < output_ch; o++) {
+                int32_t acc = bias[o];
+
+                for (int k_h = 0; k_h < kernel_y; k_h++) {
+                    for (int k_w = 0; k_w < kernel_x; k_w++) {
+                        for (int i_ch = 0; i_ch < input_ch; i_ch++) {
+                            int start_y = h * stride;
+                            int start_x = w * stride;
+
+                            q7_t pixel = get_pixel(start_y + k_h - kernel_y / 2, start_x + k_w - kernel_x / 2, i_ch,
+                                                   input_y, input_x, input_ch, input);
+                            q15_t offset_pixel = (q15_t)pixel + input_offset;
+                            // assume weights are in the OHWI format
+                            int weight_idx = ((o * kernel_y + k_h) * kernel_x + k_w) * input_ch + i_ch;
+                            q7_t kernel_v = kernel[weight_idx];
+                            acc += offset_pixel * kernel_v;
+                        }
+                    }
+                }
+
+                // requantize
+                acc = (q31_t)((float)acc * scales[o]);
+                acc += (q31_t)out_offset;
+                acc = TN_MAX(acc, out_activation_min);
+                acc = TN_MIN(acc, out_activation_max);
+
+                output[(h * output_x + w) * output_ch + o] = (q7_t)acc;
+            }
+        }
+    }
+#endif
 
     /* Return to application */
     return STATE_SUCCESS;

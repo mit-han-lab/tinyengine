@@ -1,6 +1,7 @@
 CXX = g++
 CXXFLAGS = -std=c++14
-CFLAGS = -Wall -ansi -Ofast
+CFLAGS = -Wall -ansi -O3
+OPTFLAG =
 INCLUDE = ../lib/TinyEngine/include
 SOURCE = ../lib/TinyEngine/src
 CODEGEN_INCLUDE = ../lib/TinyEngine/codegen/Include
@@ -22,7 +23,7 @@ OBJECTS = main.o add_fpreq.o convolve_1x1_s8_fpreq.o convolve_1x1_s8_ch8_fpreq.o
 		depthwise_kernel3x3_stride1_inplace_CHW_fpreq.o depthwise_kernel3x3_stride2_inplace_CHW_fpreq.o \
 		depthwise_kernel5x5_stride1_inplace_CHW_fpreq.o depthwise_kernel5x5_stride2_inplace_CHW_fpreq.o \
 		depthwise_kernel7x7_stride1_inplace_CHW_fpreq.o depthwise_kernel7x7_stride2_inplace_CHW_fpreq.o \
-		genModel.o reference.o
+		genModel.o reference.o common.o
 
 .SUFFIXS: .c .cc .cpp
 main: $(OBJECTS)
@@ -32,23 +33,26 @@ main: $(OBJECTS)
 main.o: main.cc
 	@$(CXX) $(CXXFLAGS) -Wall -Ofast -c main.cc -I$(INCLUDE) -I$(CODEGEN_INCLUDE) -I$(OPENCV_INCLUDE)
 
+common.o: $(SOURCE)/common.c
+	@$(CXX) $(CXXFLAGS) $(CFLAGS) -c $(SOURCE)/common.c -I$(INCLUDE)
+
 add_fpreq.o: $(SOURCE)/add_fpreq.c
 	@$(CXX) $(CXXFLAGS) $(CFLAGS) -c $(SOURCE)/add_fpreq.c -I$(INCLUDE)
 
 convolve_1x1_s8_fpreq.o: $(SOURCE)/convolve_1x1_s8_fpreq.c
-	@$(CXX) $(CXXFLAGS) $(CFLAGS) -c $(SOURCE)/convolve_1x1_s8_fpreq.c -I$(INCLUDE)
+	@$(CXX) $(CXXFLAGS) $(CFLAGS) -c $(SOURCE)/convolve_1x1_s8_fpreq.c -I$(INCLUDE) -D $(OPTFLAG)
 
 convolve_1x1_s8_ch8_fpreq.o: $(SOURCE)/convolve_1x1_s8_ch8_fpreq.c
-	@$(CXX) $(CXXFLAGS) $(CFLAGS) -c $(SOURCE)/convolve_1x1_s8_ch8_fpreq.c -I$(INCLUDE)
+	@$(CXX) $(CXXFLAGS) $(CFLAGS) -c $(SOURCE)/convolve_1x1_s8_ch8_fpreq.c -I$(INCLUDE) -D $(OPTFLAG)
 
 convolve_1x1_s8_ch16_fpreq.o: $(SOURCE)/convolve_1x1_s8_ch16_fpreq.c
-	@$(CXX) $(CXXFLAGS) $(CFLAGS) -c $(SOURCE)/convolve_1x1_s8_ch16_fpreq.c -I$(INCLUDE)
+	@$(CXX) $(CXXFLAGS) $(CFLAGS) -c $(SOURCE)/convolve_1x1_s8_ch16_fpreq.c -I$(INCLUDE) -D $(OPTFLAG)
 
 convolve_1x1_s8_ch24_fpreq.o: $(SOURCE)/convolve_1x1_s8_ch24_fpreq.c
-	@$(CXX) $(CXXFLAGS) $(CFLAGS) -c $(SOURCE)/convolve_1x1_s8_ch24_fpreq.c -I$(INCLUDE)
+	@$(CXX) $(CXXFLAGS) $(CFLAGS) -c $(SOURCE)/convolve_1x1_s8_ch24_fpreq.c -I$(INCLUDE) -D $(OPTFLAG)
 
 convolve_1x1_s8_ch48_fpreq.o: $(SOURCE)/convolve_1x1_s8_ch48_fpreq.c
-	@$(CXX) $(CXXFLAGS) $(CFLAGS) -c $(SOURCE)/convolve_1x1_s8_ch48_fpreq.c -I$(INCLUDE)
+	@$(CXX) $(CXXFLAGS) $(CFLAGS) -c $(SOURCE)/convolve_1x1_s8_ch48_fpreq.c -I$(INCLUDE) -D $(OPTFLAG)
 
 convolve_s8_kernel3_inputch3_stride2_pad1_fpreq.o: $(SOURCE)/convolve_s8_kernel3_inputch3_stride2_pad1_fpreq.c
 	@$(CXX) $(CXXFLAGS) $(CFLAGS) -c $(SOURCE)/convolve_s8_kernel3_inputch3_stride2_pad1_fpreq.c -I$(INCLUDE)
@@ -83,6 +87,6 @@ depthwise_kernel7x7_stride2_inplace_CHW_fpreq.o: $(CODEGEN_SOURCE)/depthwise_ker
 genModel.o: $(CODEGEN_SOURCE)/genModel.c
 	@$(CXX) $(CXXFLAGS) $(CFLAGS) -c $(CODEGEN_SOURCE)/genModel.c -I$(INCLUDE) -I$(CODEGEN_INCLUDE)
 
-.PHONY: clean
+.PHONY: main clean
 clean:
 	-rm *.o main

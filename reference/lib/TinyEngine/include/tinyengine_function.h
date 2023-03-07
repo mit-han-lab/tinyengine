@@ -176,4 +176,6 @@ tinyengine_status element_mult_nx1(const q7_t *input, const uint16_t input_h, co
                                    const int32_t out_activation_min, const int32_t out_activation_max,
                                    const float output_scale, q7_t *output);
 
+q7_t get_pixel(int h, int w, int c, int input_h, int input_w, int input_c, const q7_t *input);
+
 #include "fp_requantize_op.h"
