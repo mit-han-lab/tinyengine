@@ -26,7 +26,7 @@ OBJECTS = main.o add_fpreq.o convolve_1x1_s8_fpreq.o convolve_1x1_s8_ch8_fpreq.o
 		genModel.o reference.o common.o
 
 .SUFFIXS: .c .cc .cpp
-main: $(OBJECTS)
+main: clean $(OBJECTS)
 	@$(CXX) $(CXXFLAGS) $(CFLAGS) $(OBJECTS) -o main -I$(INCLUDE) -I$(CODEGEN_INCLUDE) $(LIB) -I$(OPENCV_INCLUDE) $(OPENCV_LIB) $(OPENCV_LINK)
 	@echo "Compilation and build completed - [MIT Hanlab] Platform-independent TinyEngine VWW Demo"
 

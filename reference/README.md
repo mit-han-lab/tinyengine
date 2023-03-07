@@ -29,7 +29,7 @@ git checkout dev/platform-independent-vww
   - OPT: with all optimization (TODO).
 
 ```bash
-cd application
+cd reference/application
 make OPTFLAG=NAIVE
 ```
 
