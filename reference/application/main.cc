@@ -17,15 +17,12 @@
 #include <sys/time.h>
 
 #include <iostream>
+#include <opencv2/opencv.hpp>
 #include <string>
 
-extern "C" {
+#include "genModel.h"
 #include "genNN.h"
 #include "tinyengine_function.h"
-}
-#include <opencv2/opencv.hpp>
-
-#include "genModel.h"
 
 #define CROP_SIZE 720
 #define DOWN_WIDTH 80
