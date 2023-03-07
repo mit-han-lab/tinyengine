@@ -1,5 +1,12 @@
 # Running VWW on laptop/desktop
 
+This demo is currently on the dev/platform-independent-vww branch. Please run the following to clone the repo and switch to the branch.
+
+```bash
+git clone --recursive https://github.com/mit-han-lab/tinyengine.git
+git checkout dev/platform-independent-vww
+```
+
 ## Dependency
 
 - On MacOS: The application needs opencv in order to access your camera.
