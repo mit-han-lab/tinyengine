@@ -1,11 +1,10 @@
 /* Automatically generated source file */
-#include "genModel.h"
-
 #include <float.h>
 #include <tinyengine_function.h>
 #include <tinyengine_function_fp.h>
 
 #include "genInclude.h"
+#include "genModel.h"
 #include "genNN.h"
 
 /* Variables used by all ops */
