@@ -25,8 +25,8 @@
 #include "tinyengine_function.h"
 
 #define CROP_SIZE 720
-#define DOWN_WIDTH 80
-#define DOWN_HEIGHT 80
+#define DOWN_WIDTH 144
+#define DOWN_HEIGHT 144
 #define OUTPUT_CH 2
 
 using namespace cv;
@@ -140,8 +140,7 @@ int main() {
             ui_red = 151;
             ui_green = 41;
             ui_blue = 52;
-        }
-        else{
+        } else {
             strcpy(buf_person, "Person!");
             ui_red = 41;
             ui_green = 98;

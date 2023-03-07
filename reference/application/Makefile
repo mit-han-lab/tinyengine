@@ -23,7 +23,7 @@ LIB = -L../lib/TinyEngine/codegen/Source -L../lib/TinyEngine/src
 OBJECTS = main.o add_fpreq.o convolve_1x1_s8_fpreq.o convolve_1x1_s8_ch8_fpreq.o convolve_1x1_s8_ch16_fpreq.o convolve_1x1_s8_ch24_fpreq.o \
 		convolve_1x1_s8_ch48_fpreq.o convolve_s8_kernel3_inputch3_stride2_pad1_fpreq.o mat_mul_kernels_fpreq.o avgpooling.o \
 		depthwise_kernel3x3_stride1_inplace_CHW_fpreq.o depthwise_kernel3x3_stride2_inplace_CHW_fpreq.o \
-		depthwise_kernel5x5_stride1_inplace_CHW_fpreq.o depthwise_kernel5x5_stride2_inplace_CHW_fpreq.o \
+		depthwise_kernel5x5_stride1_inplace_CHW_fpreq.o \
 		depthwise_kernel7x7_stride1_inplace_CHW_fpreq.o depthwise_kernel7x7_stride2_inplace_CHW_fpreq.o \
 		genModel.o reference.o common.o
 
@@ -77,8 +77,8 @@ depthwise_kernel3x3_stride2_inplace_CHW_fpreq.o: $(CODEGEN_SOURCE)/depthwise_ker
 depthwise_kernel5x5_stride1_inplace_CHW_fpreq.o: $(CODEGEN_SOURCE)/depthwise_kernel5x5_stride1_inplace_CHW_fpreq.c
 	@$(CXX) $(CXXFLAGS) $(CFLAGS) -c $(CODEGEN_SOURCE)/depthwise_kernel5x5_stride1_inplace_CHW_fpreq.c -I$(INCLUDE)
 
-depthwise_kernel5x5_stride2_inplace_CHW_fpreq.o: $(CODEGEN_SOURCE)/depthwise_kernel5x5_stride2_inplace_CHW_fpreq.c
-	@$(CXX) $(CXXFLAGS) $(CFLAGS) -c $(CODEGEN_SOURCE)/depthwise_kernel5x5_stride2_inplace_CHW_fpreq.c -I$(INCLUDE)
+# depthwise_kernel5x5_stride2_inplace_CHW_fpreq.o: $(CODEGEN_SOURCE)/depthwise_kernel5x5_stride2_inplace_CHW_fpreq.c
+# 	@$(CXX) $(CXXFLAGS) $(CFLAGS) -c $(CODEGEN_SOURCE)/depthwise_kernel5x5_stride2_inplace_CHW_fpreq.c -I$(INCLUDE)
 
 depthwise_kernel7x7_stride1_inplace_CHW_fpreq.o: $(CODEGEN_SOURCE)/depthwise_kernel7x7_stride1_inplace_CHW_fpreq.c
 	@$(CXX) $(CXXFLAGS) $(CFLAGS) -c $(CODEGEN_SOURCE)/depthwise_kernel7x7_stride1_inplace_CHW_fpreq.c -I$(INCLUDE)
