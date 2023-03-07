@@ -94,13 +94,13 @@ int main() {
         uint8_t *pixels = (uint8_t *)resized_myImage.data;
         for (int i = 0; i < num_row; i++) {
             for (int j = 0; j < num_col; j++) {
-                uint8_t b = pixels[(i * num_col + j) * num_channel + 0] >> 3;
-                uint8_t g = pixels[(i * num_col + j) * num_channel + 1] >> 2;
-                uint8_t r = pixels[(i * num_col + j) * num_channel + 2] >> 3;
+                uint8_t b = pixels[(i * num_col + j) * num_channel + 0];
+                uint8_t g = pixels[(i * num_col + j) * num_channel + 1];
+                uint8_t r = pixels[(i * num_col + j) * num_channel + 2];
 
-                *input++ = (int)((r & 0x1F) << 3) - 128;
-                *input++ = (int)((g & 0x3F) << 2) - 128;
-                *input++ = (int)((b & 0x1F) << 3) - 128;
+                *input++ = (int)r - 128;
+                *input++ = (int)g - 128;
+                *input++ = (int)b - 128;
             }
         }
 
