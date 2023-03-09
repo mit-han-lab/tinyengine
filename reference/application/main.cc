@@ -78,7 +78,7 @@ int main() {
         resize(myImage, resized_myImage, Size(DOWN_WIDTH, DOWN_HEIGHT));
 
         if (flag == 0) {
-            cout << "[MIT Hanlab] Platform-independent TinyEngine VWW Demo, Start!" << endl;
+            cout << "[MIT Hanlab] Platform-independent TinyEngine Demo, Start!" << endl;
             cout << "Original (Cropped) Image Width : " << myImage.size().width << endl;
             cout << "Original (Cropped) Image Height: " << myImage.size().height << endl;
             cout << "Original (Cropped) Image Channel: " << myImage.channels() << endl;
@@ -168,7 +168,7 @@ int main() {
         putText(myImage, buf_peak_mem, Point(1, 44), FONT_HERSHEY_DUPLEX, 0.7, CV_RGB(ui_red, ui_green, ui_blue), 2);
         putText(myImage, buf_model_size, Point(1, 66), FONT_HERSHEY_DUPLEX, 0.7, CV_RGB(ui_red, ui_green, ui_blue), 2);
         putText(myImage, buf_result, Point(1, 88), FONT_HERSHEY_DUPLEX, 0.7, CV_RGB(ui_red, ui_green, ui_blue), 2);
-        imshow("[MIT Hanlab] Platform-independent TinyEngine VWW Demo", myImage);
+        imshow("[MIT Hanlab] Platform-independent TinyEngine Demo", myImage);
 
         char c = (char)waitKey(25);
         if (c == 27) {  // Press ESC to leave
