@@ -15,6 +15,7 @@
 
 #include <stdio.h>
 #include <sys/time.h>
+#include <limits.h>
 
 #include <iostream>
 #include <opencv2/opencv.hpp>
@@ -24,20 +25,23 @@
 #include "genNN.h"
 #include "tinyengine_function.h"
 
+using namespace cv;
+using namespace std;
+
 #define CROP_SIZE 720
 #define DOWN_WIDTH 144
 #define DOWN_HEIGHT 144
+#define USE_CASE 0 // 0: VWW (Visual Wake Words), 1: MNIST
+#if USE_CASE == 0
 #define OUTPUT_CH 2
-
-using namespace cv;
-using namespace std;
+#elif USE_CASE == 1
+#define OUTPUT_CH 10
+#endif
 
 float interval_to_ms(struct timeval *start, struct timeval *end) {
     float us_seconds = (end->tv_sec - start->tv_sec) * 1000000 + (end->tv_usec - start->tv_usec);
     return us_seconds / 1000;
 }
-
-signed char out_int[OUTPUT_CH];
 
 void invoke_new_weights_givenimg(signed char *out_int8) {
     invoke_inf();
@@ -50,7 +54,7 @@ void invoke_new_weights_givenimg(signed char *out_int8) {
 int main() {
     VideoCapture cap(0);
     if (!cap.isOpened()) {
-        cout << "No video stream detected" << endl;
+        cout << "No video stream is detected." << endl;
         system("pause");
         return -1;
     }
@@ -86,7 +90,7 @@ int main() {
             flag = 1;
         }
 
-        /* Convert the OpenCV image from BGR to RGB565 */
+        /* Convert the OpenCV image from BGR to RGB */
         signed char *input = getInput();
         int num_row = resized_myImage.rows;
         int num_col = resized_myImage.cols;
@@ -107,10 +111,12 @@ int main() {
         /* Inference for dectection */
         struct timeval start, end;
         gettimeofday(&start, NULL);
+        signed char out_int[OUTPUT_CH];
         invoke_new_weights_givenimg(out_int);
         gettimeofday(&end, NULL);
         float ms = interval_to_ms(&start, &end);
 
+        /* Generate UI information */
         char buf[6];
         gcvt(ms, 6, buf);
         char buf_time[30] = "Inference time: ";
@@ -127,30 +133,41 @@ int main() {
         strcat(buf_model_size, buf);
         strcat(buf_model_size, " KB");
 
-        int person = 0;
         uint8_t ui_red, ui_green, ui_blue;
-        if (out_int[0] > out_int[1]) {
-            person = 0;
-        } else {
-            person = 1;
+        char buf_result[25];
+        int tmp_max = INT_MIN, result = INT_MIN;
+        for (int i = 0; i < OUTPUT_CH; i++) {
+            if (out_int[i] > tmp_max) {
+                tmp_max = out_int[i];
+                result = i;
+            }
         }
-        char buf_person[12];
-        if (person == 0) {
-            strcpy(buf_person, "No Person!");
+#if USE_CASE == 0 // VWW Case
+        if (result == 0) {
+            strcpy(buf_result, "No Person!");
             ui_red = 151;
             ui_green = 41;
             ui_blue = 52;
-        } else {
-            strcpy(buf_person, "Person!");
+        }
+        else {
+            strcpy(buf_result, "Person!");
             ui_red = 41;
             ui_green = 98;
             ui_blue = 25;
         }
+#elif USE_CASE == 1  // MNIST Case
+        strcpy(buf_result, "Recognized Digit: ");
+        sprintf(buf, "%d", result);
+        strcat(buf_result, buf);
+        ui_red = 151;
+        ui_green = 41;
+        ui_blue = 52;
+#endif
 
         putText(myImage, buf_time, Point(1, 22), FONT_HERSHEY_DUPLEX, 0.7, CV_RGB(ui_red, ui_green, ui_blue), 2);
         putText(myImage, buf_peak_mem, Point(1, 44), FONT_HERSHEY_DUPLEX, 0.7, CV_RGB(ui_red, ui_green, ui_blue), 2);
         putText(myImage, buf_model_size, Point(1, 66), FONT_HERSHEY_DUPLEX, 0.7, CV_RGB(ui_red, ui_green, ui_blue), 2);
-        putText(myImage, buf_person, Point(1, 88), FONT_HERSHEY_DUPLEX, 0.7, CV_RGB(ui_red, ui_green, ui_blue), 2);
+        putText(myImage, buf_result, Point(1, 88), FONT_HERSHEY_DUPLEX, 0.7, CV_RGB(ui_red, ui_green, ui_blue), 2);
         imshow("[MIT Hanlab] Platform-independent TinyEngine VWW Demo", myImage);
 
         char c = (char)waitKey(25);
