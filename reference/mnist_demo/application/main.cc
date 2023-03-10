@@ -174,7 +174,7 @@ int main() {
         }
 
         char buf_person[50];
-        sprintf(buf_person, "Pred: %d", max_idx);
+        snprintf(buf_person, 50, "Pred: %d", max_idx);
         ui_red = 151;
         ui_green = 41;
         ui_blue = 52;

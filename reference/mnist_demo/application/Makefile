@@ -1,6 +1,6 @@
 CXX = g++
 CXXFLAGS = -std=c++14
-CFLAGS = -Wall -ansi -O3
+CFLAGS = -Wall -ansi
 OPTFLAG =
 INCLUDE = ../include
 SOURCE = ../src
@@ -28,8 +28,8 @@ main: clean $(OBJECTS)
 main.o: main.cc
 	@$(CXX) $(CXXFLAGS) -Wall -Ofast -c main.cc -I$(INCLUDE) -I$(OPENCV_INCLUDE)
 
-model.o: $(SOURCE)/model.c
-	@$(CXX) $(CXXFLAGS) $(CFLAGS) -c $(SOURCE)/model.c -I$(INCLUDE)
+model.o: $(SOURCE)/model.cc
+	@$(CXX) $(CXXFLAGS) $(CFLAGS) -c $(SOURCE)/model.cc -I$(INCLUDE)
 
 .PHONY: main clean
 clean:
