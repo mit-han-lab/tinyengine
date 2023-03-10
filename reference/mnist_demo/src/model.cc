@@ -16,6 +16,18 @@ int32_t requantize_single_rounding(const int32_t val, const int32_t multiplier, 
 void fully_connected(const int8_t* input, const uint16_t input_ch, const int8_t* filter, int8_t* output,
                      const uint16_t output_ch, const int32_t* bias, const int32_t input_offset,
                      const int32_t output_offset, const int32_t multiplier, const int32_t shift) {
+#ifdef UNROLL_TILING
+    for (int oc = 0; oc < output_ch; oc++) {
+    }
+#else  // UNROLL_TILING
+#ifdef SIMD
+    for (int oc = 0; oc < output_ch; oc++) {
+    }
+#else  // SIMD
+#ifdef OPT
+    for (int oc = 0; oc < output_ch; oc++) {
+    }
+#else   // Baseline implementation
     for (int oc = 0; oc < output_ch; oc++) {
         int accumulator = bias[oc];
         for (int ic = 0; ic < input_ch; ic++) {
@@ -28,6 +40,9 @@ void fully_connected(const int8_t* input, const uint16_t input_ch, const int8_t*
         accumulator = accumulator < OUTPUT_MIN ? OUTPUT_MIN : accumulator;
         output[oc] = (int8_t)(accumulator);
     }
+#endif  // OPT
+#endif  // SIMD
+#endif  // UNROLL_TILING
 }
 
 signed char* getInput() { return &buffer[0]; }

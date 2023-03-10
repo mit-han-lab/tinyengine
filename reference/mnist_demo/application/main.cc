@@ -127,8 +127,8 @@ int main() {
                 uint8_t r = pixels[(i * num_col + j) * num_channel + 2];
 
                 float fp_input = ((0.3 * (float)r + 0.59 * (float)g + 0.11 * (float)b)) - 128;
-                *input++ = (int8_t)fp_input;
-                // *input++ = (int8_t)((int)input_g[(i * num_col + j)] - 128);
+                // *input++ = (int8_t)fp_input;
+                *input++ = (int8_t)((int)input_g[(i * num_col + j)] - 128);
             }
         }
 
@@ -137,15 +137,6 @@ int main() {
         invoke_new_weights_givenimg(out_int);
         gettimeofday(&end, NULL);
         float ms = interval_to_ms(&start, &end);
-
-        // FILE *f = fopen("temp.txt", "w");
-        // input = getInput();
-        // input += 100;
-        // for (int i = 0; i < 10; i++) {
-        //     fprintf(f, "%d,", *input++);
-        // }
-        // fclose(f);
-        // return 0;
 
         char buf[6];
         gcvt(ms, 6, buf);
