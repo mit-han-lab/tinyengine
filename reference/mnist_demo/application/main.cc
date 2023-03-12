@@ -185,7 +185,7 @@ int main() {
         putText(multi_img, buf_result[i], Point(155 + (i%IMAGE_PER_ROW)*220, 244 + (i/IMAGE_PER_ROW)*220), FONT_HERSHEY_DUPLEX, 1.1, CV_RGB(ui_red, ui_green, ui_blue), 2);
         putText(multi_img, buf_label, Point(155 + (i%IMAGE_PER_ROW)*220, 290 + (i/IMAGE_PER_ROW)*220), FONT_HERSHEY_DUPLEX, 1.1, CV_RGB(ui_red, ui_green, ui_blue), 2);
 
-        ui_red = 172, ui_green = 252, ui_blue = 152;
+        ui_red = 172; ui_green = 252; ui_blue = 152;
     }
     namedWindow("[MIT Hanlab] Platform-independent TinyEngine MNIST Demo",WINDOW_AUTOSIZE);
     imshow("[MIT Hanlab] Platform-independent TinyEngine MNIST Demo", multi_img);
