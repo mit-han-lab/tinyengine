@@ -1,7 +1,7 @@
 CXX = g++
 CXXFLAGS = -std=c++14
 CFLAGS = -Wall -ansi
-OPTFLAG =
+OPTFLAG = NAIVE
 INCLUDE = ../include
 SOURCE = ../src
 # Please set up your own path for OpenCV
@@ -29,7 +29,7 @@ main.o: main.cc
 	@$(CXX) $(CXXFLAGS) -Wall -Ofast -c main.cc -I$(INCLUDE) -I$(OPENCV_INCLUDE)
 
 model.o: $(SOURCE)/model.cc
-	@$(CXX) $(CXXFLAGS) $(CFLAGS) -c $(SOURCE)/model.cc -I$(INCLUDE)
+	@$(CXX) $(CXXFLAGS) $(CFLAGS) -c $(SOURCE)/model.cc -I$(INCLUDE)  -D $(OPTFLAG)
 
 .PHONY: main clean
 clean:
