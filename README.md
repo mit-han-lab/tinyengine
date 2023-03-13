@@ -157,8 +157,10 @@ The **latency** results:
 | mcunet-in3                   |           7821ms        |         770ms      |    414ms  |   336ms    |
 | mcunet-in4                   |           OOM           |         OOM        |    516ms  |   463ms    |
 | *# baseline models*          |                         |                    |           |            |
-| mbv2-w0.35                   |           OOM           |         OOM        |   118ms   |   124ms    |
-| proxyless-w0.3              |           3801ms        |         380ms      |   205ms   |   176ms    |
+| proxyless-w0.3-r64              |          512ms         |        54kB      |  35kB   |   23kB    |
+| proxyless-w0.3-r176               |           3801ms        |         380ms      |   205ms   |   176ms    |
+| mbv2-w0.3-r64                   |           467ms         |        43ms      |  29ms   |   23ms    |
+
 
 The **peak memory (SRAM)** results:
 
@@ -175,8 +177,9 @@ The **peak memory (SRAM)** results:
 | mcunet-in3                   |           493kB         |        493kB       |    243kB  |   260kB    |
 | mcunet-in4                   |           OOM           |         OOM        |    342kB  |   416kB    |
 | *# baseline models*          |                         |                    |           |            |
-| mbv2-w0.35                   |           OOM           |         OOM        |   296kB   |   295kB    |
-| proxyless-w0.3              |           453kB         |        453kB       |   221kB   |   259kB    |
+| proxyless-w0.3-r64              |          128kB         |        136kB      |  97kB   |   35kB    |
+| proxyless-w0.3-r176              |           453kB         |        453kB       |   221kB   |   259kB    |
+| mbv2-w0.3-r64                   |           173kB         |        173kB      |  88kB   |   61kB    |
 
 The **Flash memory usage** results:
 
@@ -193,8 +196,9 @@ The **Flash memory usage** results:
 | mcunet-in3                   |          1091kB         |        1106kB      |    867kB  |   835kB    |
 | mcunet-in4                   |           OOM           |         OOM        |    1843kB |  1825kB    |
 | *# baseline models*          |                         |                    |           |            |
-| mbv2-w0.35                   |           OOM           |         OOM        |    857kB  |   839kB    |
-| proxyless-w0.3              |          1065kB         |        1075kB      |   865kB   |   842kB    |
+| proxyless-w0.3-r64              |          1065kB         |        1084kB      |   865kB   |   777kB    |
+| proxyless-w0.3-r176              |          1065kB         |        1084kB      |   865kB   |   779kB    |
+| mbv2-w0.3-r64                   |           940kB           |         959kB        |    768kB  |   690kB    |
 
 ## Citation
 
