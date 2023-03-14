@@ -38,7 +38,7 @@ float interval_to_ms(struct timeval *start, struct timeval *end) {
 
 signed char out_int[OUTPUT_CH];
 
-void invoke_new_weights_givenimg(signed char *out_int8, int imp_choice) {
+void invoke_givenimg(signed char *out_int8, int imp_choice) {
     inference(imp_choice);
     signed char *output = (signed char *)getOutput();
     for (int i = 0; i < OUTPUT_CH; i++) {
@@ -142,7 +142,7 @@ int main() {
 
         gettimeofday(&start, NULL);
         signed char out_int[OUTPUT_CH];
-        invoke_new_weights_givenimg(out_int, naive);
+        invoke_givenimg(out_int, naive);
         gettimeofday(&end, NULL);
         ms += (interval_to_ms(&start, &end)) / NUM_IMAGES;
 

@@ -20,17 +20,10 @@ git checkout dev/platform-independent-vww
 
 ## Compile and run
 
-- Enter the application directory and compile the code with an optimization option. Available options:
-  - NAIVE: basic implementation.
-  - UNROLL: with loop unrolling.
-  - UNROLL_SIMD: with loop unrolling and SIMD intrinsic instructions.
+- Enter the application directory, compile the code, and run the demo.
 
 ```bash
 cd reference/mnist_demo/application
-make OPTFLAG=UNROLL_SIMD
+make
+./main
 ```
-
-- Run the demo
-  ```bash
-  ./main
-  ```
