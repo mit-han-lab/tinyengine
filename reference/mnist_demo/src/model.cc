@@ -1,8 +1,11 @@
 #include "model.h"
 
 #include <assert.h>
-#include <smmintrin.h>
 #include <stdio.h>
+
+#ifdef UNROLL_SIMD
+#include <smmintrin.h>
+#endif
 
 #define OUTPUT_MAX 127
 #define OUTPUT_MIN -128
