@@ -10,7 +10,7 @@ git checkout dev/platform-independent-vww
 
 ## Dependency
 
-- On MacOS: The application needs opencv in order to access your camera.
+- On MacOS: The application needs opencv in order to show images and prediction results.
   - Install opencv
   ```bash
   brew install opencv
