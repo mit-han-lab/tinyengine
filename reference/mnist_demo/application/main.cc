@@ -161,8 +161,8 @@ int main() {
     char buf[3];
     gcvt(ms, 3, buf);
     char buf_time[100];
-    snprintf(buf_time, 100, "Latency (per image): %.2f(Naive), %.2f(Unroll), %.2f(Unroll+SIMD)", time_naive,
-             time_unroll, time_unroll_simd);
+    snprintf(buf_time, 100, "Latency per image: %.2f(Naive), %.2f(Unroll), %.2f(Unroll+SIMD)", time_naive, time_unroll,
+             time_unroll_simd);
 
     char buf_model_size[30] = "Model size: ";
     gcvt(MODEL_SIZE / 1024, 6, buf);
