@@ -61,7 +61,7 @@ void fully_connected(const int8_t* input, const uint16_t input_ch, const int8_t*
         // left over
         if (input_ch % 16) {
             for (int ic = input_ch / 16 * 16; ic < input_ch; ic++) {
-                input_int32[ic] = input[ic] + input_offset;
+                input_int32[ic] = *input++ + input_offset;
             }
         }
 
@@ -117,7 +117,6 @@ void fully_connected(const int8_t* input, const uint16_t input_ch, const int8_t*
 }
 
 signed char* getInput() { return &buffer[0]; }
-// signed char* getOutput() { return &buffer[0];} //NNoutput; }
 signed char* getOutput() { return NNoutput; }
 void inference(int imp_choice) {
     fully_connected(&buffer[0], 784, weight0, &buffer[784], 300, bias0, 128, -128, 1714425232, -10, imp_choice);

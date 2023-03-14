@@ -142,7 +142,7 @@ int main() {
 
         gettimeofday(&start, NULL);
         signed char out_int[OUTPUT_CH];
-        invoke_givenimg(out_int, naive);
+        invoke_givenimg(out_int, unroll_simd);
         gettimeofday(&end, NULL);
         ms += (interval_to_ms(&start, &end)) / NUM_IMAGES;
 
