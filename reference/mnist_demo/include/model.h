@@ -3,7 +3,13 @@
 
 signed char* getInput();
 signed char* getOutput();
-void inference();
+void inference(int imp_choice);
+
+enum fc_imp {
+    naive = 0,
+    unroll = 1,
+    unroll_simd = 2,
+};
 
 #define NNoutput &buffer[100];
 

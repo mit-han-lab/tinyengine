@@ -13,17 +13,17 @@
  *  - Song Han, songhan@mit.edu
  * -------------------------------------------------------------------- */
 
+#include <limits.h>
+#include <math.h>
 #include <stdio.h>
 #include <sys/time.h>
-#include <math.h>
-#include <limits.h>
 
 #include <iostream>
-#include <string>
 #include <opencv2/opencv.hpp>
+#include <string>
 
-#include "model.h"
 #include "image_digits.h"
+#include "model.h"
 
 #define OUTPUT_CH 10
 #define IMAGE_PER_ROW 5
@@ -38,17 +38,17 @@ float interval_to_ms(struct timeval *start, struct timeval *end) {
 
 signed char out_int[OUTPUT_CH];
 
-void invoke_new_weights_givenimg(signed char *out_int8) {
-    inference();
+void invoke_new_weights_givenimg(signed char *out_int8, int imp_choice) {
+    inference(imp_choice);
     signed char *output = (signed char *)getOutput();
     for (int i = 0; i < OUTPUT_CH; i++) {
         out_int8[i] = output[i];
     }
 }
 
-Mat makeMultipleImages(vector<Mat>& vecMat, int windowHeight, int nRows) {
+Mat makeMultipleImages(vector<Mat> &vecMat, int windowHeight, int nRows) {
     int N = vecMat.size();
-    nRows  = nRows > N ? N : nRows; 
+    nRows = nRows > N ? N : nRows;
     int edgeThickness = 100;
     int imagesPerRow = ceil(double(N) / nRows);
     int resizeHeight = floor(2.0 * ((floor(double(windowHeight - edgeThickness) / nRows)) / 2.0)) - edgeThickness;
@@ -90,8 +90,7 @@ Mat makeMultipleImages(vector<Mat>& vecMat, int windowHeight, int nRows) {
                 if (vecMat[k].channels() == 1) {
                     cvtColor(vecMat[k], target_ROI, COLOR_GRAY2BGR);
                 }
-            } 
-            else {             
+            } else {
                 vecMat[k].copyTo(target_ROI);
             }
 
@@ -108,23 +107,44 @@ Mat makeMultipleImages(vector<Mat>& vecMat, int windowHeight, int nRows) {
 }
 
 int main() {
-    float ms = 0;
+    struct timeval start, end;
+    float ms = 0, time_naive, time_unroll, time_unroll_simd;
     char buf_result[NUM_IMAGES][2];
 
-    /* Inference for dectection */
+    /* Measure time */
+    gettimeofday(&start, NULL);
+    for (int i = 0; i < NUM_IMAGES; i++) {
+        inference(naive);
+    }
+    gettimeofday(&end, NULL);
+    time_naive = (interval_to_ms(&start, &end)) / NUM_IMAGES;
+
+    gettimeofday(&start, NULL);
+    for (int i = 0; i < NUM_IMAGES; i++) {
+        inference(unroll);
+    }
+    gettimeofday(&end, NULL);
+    time_unroll = (interval_to_ms(&start, &end)) / NUM_IMAGES;
+
+    gettimeofday(&start, NULL);
+    for (int i = 0; i < NUM_IMAGES; i++) {
+        inference(unroll_simd);
+    }
+    gettimeofday(&end, NULL);
+    time_unroll_simd = (interval_to_ms(&start, &end)) / NUM_IMAGES;
+
+    /* Inference for classification */
     for (int i = 0; i < NUM_IMAGES; i++) {
         signed char *input = getInput();
         for (int j = 0; j < IMAGE_SIZE; j++) {
             *input++ = (int)mnist_images[i][j] - 128;
         }
 
-        struct timeval start, end;
         gettimeofday(&start, NULL);
         signed char out_int[OUTPUT_CH];
-        invoke_new_weights_givenimg(out_int);
+        invoke_new_weights_givenimg(out_int, naive);
         gettimeofday(&end, NULL);
         ms += (interval_to_ms(&start, &end)) / NUM_IMAGES;
-
 
         int tmp_max = INT_MIN, result = INT_MIN;
         for (int j = 0; j < OUTPUT_CH; j++) {
@@ -138,16 +158,11 @@ int main() {
     }
 
     /* Generate UI information */
-    char buf[6];
-    gcvt(ms, 6, buf);
-    char buf_time[40] = "Inference time per image: ";
-    strcat(buf_time, buf);
-    strcat(buf_time, " ms");
-
-    char buf_peak_mem[30] = "Peak memory: ";
-    gcvt(PEAK_MEM / 1024, 6, buf);
-    strcat(buf_peak_mem, buf);
-    strcat(buf_peak_mem, " KB");
+    char buf[3];
+    gcvt(ms, 3, buf);
+    char buf_time[100];
+    snprintf(buf_time, 100, "Latency (per image): %.2f(Naive), %.2f(Unroll), %.2f(Unroll+SIMD)", time_naive,
+             time_unroll, time_unroll_simd);
 
     char buf_model_size[30] = "Model size: ";
     gcvt(MODEL_SIZE / 1024, 6, buf);
@@ -163,15 +178,17 @@ int main() {
 
     uint8_t ui_red = 172, ui_green = 252, ui_blue = 152;
     putText(multi_img, buf_time, Point(5, 22), FONT_HERSHEY_DUPLEX, 0.9, CV_RGB(ui_red, ui_green, ui_blue), 2);
-    putText(multi_img, buf_peak_mem, Point(5, 52), FONT_HERSHEY_DUPLEX, 0.9, CV_RGB(ui_red, ui_green, ui_blue), 2);
-    putText(multi_img, buf_model_size, Point(5, 82), FONT_HERSHEY_DUPLEX, 0.9, CV_RGB(ui_red, ui_green, ui_blue), 2);
+    putText(multi_img, buf_model_size, Point(5, 52), FONT_HERSHEY_DUPLEX, 0.9, CV_RGB(ui_red, ui_green, ui_blue), 2);
 
     for (int i = 0; i < NUM_IMAGES; i++) {
         if (i % IMAGE_PER_ROW == 0) {
-            putText(multi_img, "Prediction:", Point(5, 240 + (i/IMAGE_PER_ROW)*220), FONT_HERSHEY_DUPLEX, 0.7, CV_RGB(ui_red, ui_green, ui_blue), 2);
+            putText(multi_img, "Prediction:", Point(5, 240 + (i / IMAGE_PER_ROW) * 220), FONT_HERSHEY_DUPLEX, 0.7,
+                    CV_RGB(ui_red, ui_green, ui_blue), 2);
 
-            putText(multi_img, "Ground", Point(5, 272 + (i/IMAGE_PER_ROW)*220), FONT_HERSHEY_DUPLEX, 0.7, CV_RGB(ui_red, ui_green, ui_blue), 2);
-            putText(multi_img, "truth:", Point(5, 297 + (i/IMAGE_PER_ROW)*220), FONT_HERSHEY_DUPLEX, 0.7, CV_RGB(ui_red, ui_green, ui_blue), 2);
+            putText(multi_img, "Ground", Point(5, 272 + (i / IMAGE_PER_ROW) * 220), FONT_HERSHEY_DUPLEX, 0.7,
+                    CV_RGB(ui_red, ui_green, ui_blue), 2);
+            putText(multi_img, "truth:", Point(5, 297 + (i / IMAGE_PER_ROW) * 220), FONT_HERSHEY_DUPLEX, 0.7,
+                    CV_RGB(ui_red, ui_green, ui_blue), 2);
         }
 
         char buf_label[2];
@@ -182,12 +199,16 @@ int main() {
             ui_green = 172;
             ui_blue = 170;
         }
-        putText(multi_img, buf_result[i], Point(155 + (i%IMAGE_PER_ROW)*220, 244 + (i/IMAGE_PER_ROW)*220), FONT_HERSHEY_DUPLEX, 1.1, CV_RGB(ui_red, ui_green, ui_blue), 2);
-        putText(multi_img, buf_label, Point(155 + (i%IMAGE_PER_ROW)*220, 290 + (i/IMAGE_PER_ROW)*220), FONT_HERSHEY_DUPLEX, 1.1, CV_RGB(ui_red, ui_green, ui_blue), 2);
+        putText(multi_img, buf_result[i], Point(155 + (i % IMAGE_PER_ROW) * 220, 244 + (i / IMAGE_PER_ROW) * 220),
+                FONT_HERSHEY_DUPLEX, 1.1, CV_RGB(ui_red, ui_green, ui_blue), 2);
+        putText(multi_img, buf_label, Point(155 + (i % IMAGE_PER_ROW) * 220, 290 + (i / IMAGE_PER_ROW) * 220),
+                FONT_HERSHEY_DUPLEX, 1.1, CV_RGB(ui_red, ui_green, ui_blue), 2);
 
-        ui_red = 172; ui_green = 252; ui_blue = 152;
+        ui_red = 172;
+        ui_green = 252;
+        ui_blue = 152;
     }
-    namedWindow("[MIT Hanlab] Platform-independent TinyEngine MNIST Demo",WINDOW_AUTOSIZE);
+    namedWindow("[MIT Hanlab] Platform-independent TinyEngine MNIST Demo", WINDOW_AUTOSIZE);
     imshow("[MIT Hanlab] Platform-independent TinyEngine MNIST Demo", multi_img);
     waitKey(0);
     destroyWindow("[MIT Hanlab] Platform-independent TinyEngine MNIST Demo");
