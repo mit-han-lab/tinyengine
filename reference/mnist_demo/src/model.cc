@@ -123,9 +123,10 @@ void fully_connected(const int8_t* input, const uint16_t input_ch, const int8_t*
 }
 
 signed char* getInput() { return &buffer[0]; }
+// signed char* getOutput() { return &buffer[0];} //NNoutput; }
 signed char* getOutput() { return NNoutput; }
 void inference() {
     fully_connected(&buffer[0], 784, weight0, &buffer[784], 300, bias0, 128, -128, 1714425232, -10);
     fully_connected(&buffer[784], 300, weight1, &buffer[0], 100, bias1, 128, -128, 1490186346, -8);
-    fully_connected(&buffer[0], 100, weight2, &buffer[100], 10, bias1, 128, 21, 1349101615, -9);
+    fully_connected(&buffer[0], 100, weight2, &buffer[100], 10, bias2, 128, 21, 1349101615, -9);
 }
