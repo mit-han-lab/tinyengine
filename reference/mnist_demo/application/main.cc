@@ -154,8 +154,6 @@ int main() {
     strcat(buf_model_size, buf);
     strcat(buf_model_size, " KB");
 
-    uint8_t ui_red = 229, ui_green = 172, ui_blue = 170;
-
     vector<Mat> imgvector = {};
     for (int i = 0; i < NUM_IMAGES; i++) {
         Mat mnist_image_mat(28, 28, CV_8U, mnist_images[i]);
@@ -163,6 +161,7 @@ int main() {
     }
     Mat multi_img = makeMultipleImages(imgvector, 1200, IMAGE_PER_ROW);
 
+    uint8_t ui_red = 172, ui_green = 252, ui_blue = 152;
     putText(multi_img, buf_time, Point(5, 22), FONT_HERSHEY_DUPLEX, 0.9, CV_RGB(ui_red, ui_green, ui_blue), 2);
     putText(multi_img, buf_peak_mem, Point(5, 52), FONT_HERSHEY_DUPLEX, 0.9, CV_RGB(ui_red, ui_green, ui_blue), 2);
     putText(multi_img, buf_model_size, Point(5, 82), FONT_HERSHEY_DUPLEX, 0.9, CV_RGB(ui_red, ui_green, ui_blue), 2);
@@ -175,10 +174,18 @@ int main() {
             putText(multi_img, "truth:", Point(5, 297 + (i/IMAGE_PER_ROW)*220), FONT_HERSHEY_DUPLEX, 0.7, CV_RGB(ui_red, ui_green, ui_blue), 2);
         }
 
-        putText(multi_img, buf_result[i], Point(155 + (i%IMAGE_PER_ROW)*220, 244 + (i/IMAGE_PER_ROW)*220), FONT_HERSHEY_DUPLEX, 1.1, CV_RGB(ui_red, ui_green, ui_blue), 2);
         char buf_label[2];
         snprintf(buf_label, 2, "%d", mnist_labels[i]);
+
+        if (strcmp(buf_result[i], buf_label) != 0) {
+            ui_red = 229;
+            ui_green = 172;
+            ui_blue = 170;
+        }
+        putText(multi_img, buf_result[i], Point(155 + (i%IMAGE_PER_ROW)*220, 244 + (i/IMAGE_PER_ROW)*220), FONT_HERSHEY_DUPLEX, 1.1, CV_RGB(ui_red, ui_green, ui_blue), 2);
         putText(multi_img, buf_label, Point(155 + (i%IMAGE_PER_ROW)*220, 290 + (i/IMAGE_PER_ROW)*220), FONT_HERSHEY_DUPLEX, 1.1, CV_RGB(ui_red, ui_green, ui_blue), 2);
+
+        ui_red = 172; ui_green = 252; ui_blue = 152;
     }
     namedWindow("[MIT Hanlab] Platform-independent TinyEngine MNIST Demo",WINDOW_AUTOSIZE);
     imshow("[MIT Hanlab] Platform-independent TinyEngine MNIST Demo", multi_img);

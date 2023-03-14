@@ -23,7 +23,7 @@ OBJECTS = main.o model.o
 .SUFFIXS: .c .cc .cpp
 main: clean $(OBJECTS)
 	@$(CXX) $(CXXFLAGS) $(CFLAGS) $(OBJECTS) -o main -I$(INCLUDE) $(LIB) -I$(OPENCV_INCLUDE) $(OPENCV_LIB) $(OPENCV_LINK)
-	@echo "Compilation and build completed - [MIT Hanlab] Platform-independent TinyEngine VWW Demo"
+	@echo "Compilation and build completed - [MIT Hanlab] Platform-independent TinyEngine MNIST Demo"
 
 main.o: main.cc
 	@$(CXX) $(CXXFLAGS) -Wall -Ofast -c main.cc -I$(INCLUDE) -I$(OPENCV_INCLUDE)
