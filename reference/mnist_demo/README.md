@@ -21,6 +21,7 @@ git checkout dev/platform-independent-vww
 ## Compile and run
 
 - Enter the application directory, compile the code, and run the demo.
+  - Note: The current implementation only supports Intel devices due to its SIMD dependency. Support for M1 chip is still on-going.
 
 ```bash
 cd reference/mnist_demo/application
