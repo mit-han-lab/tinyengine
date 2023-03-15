@@ -113,23 +113,17 @@ int main() {
 
     /* Measure time */
     gettimeofday(&start, NULL);
-    for (int i = 0; i < NUM_IMAGES; i++) {
-        batch_inference(25, naive);
-    }
+    batch_inference(25, naive);
     gettimeofday(&end, NULL);
     time_naive = (interval_to_ms(&start, &end)) / NUM_IMAGES;
 
     gettimeofday(&start, NULL);
-    for (int i = 0; i < NUM_IMAGES; i++) {
-        batch_inference(25, unroll);
-    }
+    batch_inference(25, unroll);
     gettimeofday(&end, NULL);
     time_unroll = (interval_to_ms(&start, &end)) / NUM_IMAGES;
 
     gettimeofday(&start, NULL);
-    for (int i = 0; i < NUM_IMAGES; i++) {
-        batch_inference(25, unroll_simd);
-    }
+    batch_inference(25, unroll_simd);
     gettimeofday(&end, NULL);
     time_unroll_simd = (interval_to_ms(&start, &end)) / NUM_IMAGES;
 
