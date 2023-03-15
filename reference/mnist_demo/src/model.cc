@@ -18,12 +18,12 @@ int32_t requantize_single_rounding(const int32_t val, const int32_t multiplier, 
 }
 
 void fully_connected(const int8_t* input, const uint16_t input_ch, const int8_t* filter, int8_t* output,
-                     const uint16_t output_ch, const int32_t* bias, const int32_t input_offset,
-                     const int32_t output_offset, const int32_t multiplier, const int32_t shift, int imp_choice) {
+                     const uint16_t output_ch, const int32_t input_offset, const int32_t output_offset,
+                     const int32_t multiplier, const int32_t shift, int imp_choice) {
     if (imp_choice == unroll) {
         assert(input_ch % 4 == 0);
         for (int oc = 0; oc < output_ch; oc++) {
-            int accumulator = bias[oc];
+            int accumulator = 0;
             const int8_t* input_ptr = input;
             for (int ic = 0; ic < input_ch; ic += 4) {
                 accumulator += ((int)input_ptr[0] + input_offset) * filter[0];
@@ -66,7 +66,7 @@ void fully_connected(const int8_t* input, const uint16_t input_ch, const int8_t*
         }
 
         for (int oc = 0; oc < output_ch; oc++) {
-            int accumulator = bias[oc];
+            int accumulator = 0;
             int accumulators32[4] = {0, 0, 0, 0};
             __m128i* accumulators = (__m128i*)accumulators32;
             input128_ptr = (__m128i*)input_int32;
@@ -103,7 +103,7 @@ void fully_connected(const int8_t* input, const uint16_t input_ch, const int8_t*
         }
     } else if (imp_choice == naive)
         for (int oc = 0; oc < output_ch; oc++) {
-            int accumulator = bias[oc];
+            int accumulator = 0;
             for (int ic = 0; ic < input_ch; ic++) {
                 accumulator += ((int)input[ic] + input_offset) * (int)filter[oc * input_ch + ic];
             }
@@ -119,7 +119,7 @@ void fully_connected(const int8_t* input, const uint16_t input_ch, const int8_t*
 signed char* getInput() { return &buffer[0]; }
 signed char* getOutput() { return NNoutput; }
 void inference(int imp_choice) {
-    fully_connected(&buffer[0], 784, weight0, &buffer[784], 300, bias0, 128, -128, 1714425232, -10, imp_choice);
-    fully_connected(&buffer[784], 300, weight1, &buffer[0], 100, bias1, 128, -128, 1490186346, -8, imp_choice);
-    fully_connected(&buffer[0], 100, weight2, &buffer[100], 10, bias2, 128, 21, 1349101615, -9, imp_choice);
+    fully_connected(&buffer[0], 784, weight0, &buffer[784], 300, 128, -128, 1714425232, -10, imp_choice);
+    fully_connected(&buffer[784], 300, weight1, &buffer[0], 100, 128, -128, 1490186346, -8, imp_choice);
+    fully_connected(&buffer[0], 100, weight2, &buffer[100], 10, 128, 21, 1349101615, -9, imp_choice);
 }

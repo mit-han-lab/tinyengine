@@ -21,7 +21,7 @@ from code_generator.CodegenUtilTFlite import GenerateSourceFilesFromTFlite
 # 1: Let's first build our pretrained VWW model
 # 2: To deploy the model on MCU, we need to first convert the model to an Intermediate Representation (IR) and
 # get the weight parameters and scale parameters.
-tflite_path = "./assets/ptq_mnist_lenet-300-100.tflite"
+tflite_path = "./assets/ptq_mnist_lenet-300-100_nobias.tflite"
 
 # 3. Let's generate source code for on-device deployment
 peakmem = GenerateSourceFilesFromTFlite(

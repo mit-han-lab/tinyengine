@@ -18,14 +18,13 @@ int32_t requantize_single_rounding(const int32_t val, const int32_t multiplier, 
 }
 
 void batch_fully_connected(const uint16_t batch_size, const int8_t* input, const uint16_t input_ch,
-                           const int8_t* filter, int8_t* output, const uint16_t output_ch, const int32_t* bias,
-                           const int32_t input_offset, const int32_t output_offset, const int32_t multiplier,
-                           const int32_t shift, int imp_choice) {
+                           const int8_t* filter, int8_t* output, const uint16_t output_ch, const int32_t input_offset,
+                           const int32_t output_offset, const int32_t multiplier, const int32_t shift, int imp_choice) {
     if (imp_choice == unroll) {
         for (int b = 0; b < batch_size; b++) {
             const int8_t* filter_ptr = filter;
             for (int oc = 0; oc < output_ch; oc++) {
-                int accumulator = bias[oc];
+                int accumulator = 0;
                 const int8_t* input_ptr = &input[b * input_ch];
                 for (int ic = 0; ic < input_ch; ic += 4) {
                     accumulator += ((int)input_ptr[0] + input_offset) * filter_ptr[0];
@@ -71,7 +70,7 @@ void batch_fully_connected(const uint16_t batch_size, const int8_t* input, const
 
             int8_t* filter_ptr = (int8_t*)filter;
             for (int oc = 0; oc < output_ch; oc++) {
-                int accumulator = bias[oc];
+                int accumulator = 0;
                 int accumulators32[4] = {0, 0, 0, 0};
                 __m128i* accumulators = (__m128i*)accumulators32;
                 input128_ptr = (__m128i*)input_int32;
@@ -114,7 +113,7 @@ void batch_fully_connected(const uint16_t batch_size, const int8_t* input, const
         for (int b = 0; b < batch_size; b++) {
             const int8_t* input_ptr = &input[b * input_ch];
             for (int oc = 0; oc < output_ch; oc++) {
-                int accumulator = bias[oc];
+                int accumulator = 0;
                 for (int ic = 0; ic < input_ch; ic++) {
                     accumulator += ((int)input_ptr[ic] + input_offset) * (int)filter[oc * input_ch + ic];
                 }
@@ -134,9 +133,9 @@ signed char* getOutput() { return NNoutput; }
 void batch_inference(int batch_size, int imp_choice) {
     assert(MAX_BATCH_SIZE > batch_size);
     batch_fully_connected(batch_size, &buffer[0 * MAX_BATCH_SIZE], 784, weight0, &buffer[784 * MAX_BATCH_SIZE], 300,
-                          bias0, 128, -128, 1714425232, -10, imp_choice);
+                          128, -128, 1521392405, -10, imp_choice);
     batch_fully_connected(batch_size, &buffer[784 * MAX_BATCH_SIZE], 300, weight1, &buffer[0 * MAX_BATCH_SIZE], 100,
-                          bias1, 128, -128, 1490186346, -8, imp_choice);
-    batch_fully_connected(batch_size, &buffer[0 * MAX_BATCH_SIZE], 100, weight2, &buffer[100 * MAX_BATCH_SIZE], 10,
-                          bias2, 128, 21, 1349101615, -9, imp_choice);
+                          128, -128, 1594643846, -8, imp_choice);
+    batch_fully_connected(batch_size, &buffer[0 * MAX_BATCH_SIZE], 100, weight2, &buffer[100 * MAX_BATCH_SIZE], 10, 128,
+                          16, 1275591344, -9, imp_choice);
 }
