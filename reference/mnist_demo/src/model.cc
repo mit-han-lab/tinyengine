@@ -6,6 +6,8 @@
 
 #define OUTPUT_MAX 127
 #define OUTPUT_MIN -128
+#define MAX_INPUT_CH 784
+int32_t input_int32[MAX_INPUT_CH];
 
 int32_t requantize_single_rounding(const int32_t val, const int32_t multiplier, const int32_t shift) {
     const int64_t total_shift = 31 - shift;
@@ -43,7 +45,6 @@ void fully_connected(const int8_t* input, const uint16_t input_ch, const int8_t*
     } else if (imp_choice == unroll_simd) {
         assert(input_ch % 4 == 0);
 
-        int32_t input_int32[input_ch];
         __m128i* input128_ptr = (__m128i*)input_int32;
         int32_t input_offset_128[4] = {input_offset, input_offset, input_offset, input_offset};
         __m128i* input_offset128 = (__m128i*)input_offset_128;
