@@ -72,6 +72,94 @@ void *thread_func(void *_args) {
 pthread_t thread_pool[NUM_THREAD];
 struct thread_args threads_args[NUM_THREAD];
 #endif
+#ifdef OPT
+#include <pthread.h>
+struct thread_args {
+    const q7_t *input, *kernel;
+    q7_t *output;
+    uint16_t input_x, input_y, input_ch, output_x, output_y, output_ch, start_h, end_h;
+    const int32_t *bias;
+    int32_t out_offset, input_offset;
+    const float *scales;
+    q15_t *runtime_buf;
+};
+void *thread_func(void *_args) {
+    struct thread_args *args = (struct thread_args *)_args;
+
+    int32_t input_offset_128[4] = {args->input_offset, args->input_offset, args->input_offset, args->input_offset};
+    __m128i *input_offset128 = (__m128i *)input_offset_128;
+    int32_t input_int32[args->input_ch];
+
+    for (int h = args->start_h; h < args->end_h; h++) {
+        for (int w = 0; w < args->output_x; w++) {
+            __m128i *input128_ptr = (__m128i *)input_int32;
+            const q7_t *input = &args->input[(h * args->input_x + w) * args->input_ch];
+            // Load 8bit input to the int32 buffer
+            for (int ic = 0; ic < args->input_ch / 16; ic++) {
+                __m128i input_vec = _mm_loadu_si128(reinterpret_cast<__m128i *>((int8_t *)input));
+                input += 16;
+
+                *input128_ptr++ = _mm_add_epi32(_mm_cvtepi8_epi32(input_vec), *input_offset128);
+                *input128_ptr++ = _mm_add_epi32(_mm_cvtepi8_epi32(_mm_srli_si128(input_vec, 4)), *input_offset128);
+                *input128_ptr++ = _mm_add_epi32(_mm_cvtepi8_epi32(_mm_srli_si128(input_vec, 8)), *input_offset128);
+                *input128_ptr++ = _mm_add_epi32(_mm_cvtepi8_epi32(_mm_srli_si128(input_vec, 12)), *input_offset128);
+            }
+            // left over
+            if (args->input_ch % 16) {
+                for (int ic = args->input_ch / 16 * 16; ic < args->input_ch; ic++) {
+                    input_int32[ic] = *input++ + args->input_offset;
+                }
+            }
+
+            const q7_t *filter = args->kernel;
+            for (int o = 0; o < args->output_ch; o++) {
+                int32_t acc = args->bias[o];
+                int accumulators32[4] = {0, 0, 0, 0};
+                __m128i *accumulators = (__m128i *)accumulators32;
+                input128_ptr = (__m128i *)input_int32;
+
+                for (int ic = 0; ic < args->input_ch / 16; ic++) {
+                    __m128i filter_vec = _mm_loadu_si128(reinterpret_cast<__m128i *>((int8_t *)filter));
+                    filter += 16;
+
+                    *accumulators =
+                        _mm_add_epi32(_mm_mullo_epi32(_mm_cvtepi8_epi32(filter_vec), *input128_ptr++), *accumulators);
+                    *accumulators = _mm_add_epi32(
+                        _mm_mullo_epi32(_mm_cvtepi8_epi32(_mm_srli_si128(filter_vec, 4)), *input128_ptr++),
+                        *accumulators);
+                    *accumulators = _mm_add_epi32(
+                        _mm_mullo_epi32(_mm_cvtepi8_epi32(_mm_srli_si128(filter_vec, 8)), *input128_ptr++),
+                        *accumulators);
+                    *accumulators = _mm_add_epi32(
+                        _mm_mullo_epi32(_mm_cvtepi8_epi32(_mm_srli_si128(filter_vec, 12)), *input128_ptr++),
+                        *accumulators);
+                }
+                if (args->input_ch % 16) {
+                    for (int ic = args->input_ch / 16 * 16; ic < args->input_ch; ic += 4) {
+                        acc += (input_int32[ic]) * filter[0];
+                        acc += (input_int32[ic + 1]) * filter[1];
+                        acc += (input_int32[ic + 2]) * filter[2];
+                        acc += (input_int32[ic + 3]) * filter[3];
+                        filter += 4;
+                    }
+                }
+
+                // requantize
+                acc += accumulators32[0] + accumulators32[1] + accumulators32[2] + accumulators32[3];
+                acc = (q31_t)((float)acc * args->scales[o]);
+                acc += (q31_t)args->out_offset;
+                acc = TN_MAX(acc, -128);
+                acc = TN_MIN(acc, 127);
+
+                args->output[(h * args->output_x + w) * args->output_ch + o] = (q7_t)acc;
+            }
+        }
+    }
+}
+#define NUM_THREAD 4
+pthread_t thread_pool[NUM_THREAD];
+struct thread_args threads_args[NUM_THREAD];
+#endif
 
 tinyengine_status convolve_1x1_s8_fpreq(const q7_t *input, const uint16_t input_x, const uint16_t input_y,
                                         const uint16_t input_ch, const q7_t *kernel, const int32_t *bias,
@@ -231,7 +319,6 @@ tinyengine_status convolve_1x1_s8_fpreq(const q7_t *input, const uint16_t input_
     for (int h = 0; h < output_y; h++) {
         for (int w = 0; w < output_x; w++) {
             __m128i *input128_ptr = (__m128i *)input_int32;
-            const q7_t *src = &input[(h * input_x + w) * input_ch];
             // Load 8bit input to the int32 buffer
             for (int ic = 0; ic < input_ch / 16; ic++) {
                 __m128i input_vec = _mm_loadu_si128(reinterpret_cast<__m128i *>((int8_t *)input));
@@ -294,9 +381,73 @@ tinyengine_status convolve_1x1_s8_fpreq(const q7_t *input, const uint16_t input_
         }
     }
 #else  // SIMD
-#ifdef REORDERING
+#ifdef OPT
+    const int kernel_y = 1, kernel_x = 1, stride = 1;
 
-#else   // REORDERING
+    if (NUM_THREAD > output_y) {
+        for (int h = 0; h < output_y; h++) {
+            threads_args[h].input = input;
+            threads_args[h].kernel = kernel;
+            threads_args[h].output = output;
+
+            threads_args[h].input_x = input_x;
+            threads_args[h].input_y = input_y;
+            threads_args[h].input_ch = input_ch;
+
+            threads_args[h].output_x = output_x;
+            threads_args[h].output_y = output_y;
+            threads_args[h].output_ch = output_ch;
+
+            threads_args[h].start_h = h;
+            threads_args[h].end_h = h + 1;
+
+            threads_args[h].bias = bias;
+            threads_args[h].out_offset = out_offset;
+            threads_args[h].input_offset = input_offset;
+
+            threads_args[h].scales = scales;
+            threads_args[h].runtime_buf = runtime_buf;
+
+            pthread_create(&thread_pool[h], NULL, thread_func, &threads_args[h]);
+        }
+
+        for (int h = 0; h < output_y; h++) {
+            pthread_join(thread_pool[h], NULL);
+        }
+    } else {
+        for (int i = 0; i < NUM_THREAD; i++) {
+            threads_args[i].input = input;
+            threads_args[i].kernel = kernel;
+            threads_args[i].output = output;
+
+            threads_args[i].input_x = input_x;
+            threads_args[i].input_y = input_y;
+            threads_args[i].input_ch = input_ch;
+
+            threads_args[i].output_x = output_x;
+            threads_args[i].output_y = output_y;
+            threads_args[i].output_ch = output_ch;
+
+            threads_args[i].start_h = i * output_y / NUM_THREAD;
+            if (i == NUM_THREAD - 1)
+                threads_args[i].end_h = output_y;
+            else
+                threads_args[i].end_h = (i + 1) * output_y / NUM_THREAD;
+
+            threads_args[i].bias = bias;
+            threads_args[i].out_offset = out_offset;
+            threads_args[i].input_offset = input_offset;
+
+            threads_args[i].scales = scales;
+            threads_args[i].runtime_buf = runtime_buf;
+
+            pthread_create(&thread_pool[i], NULL, thread_func, &threads_args[i]);
+        }
+        for (int i = 0; i < output_y; i++) {
+            pthread_join(thread_pool[i], NULL);
+        }
+    }
+#else   // OPT
     const int kernel_y = 1, kernel_x = 1, stride = 1;
     for (int h = 0; h < output_y; h++) {
         for (int w = 0; w < output_x; w++) {
@@ -330,9 +481,9 @@ tinyengine_status convolve_1x1_s8_fpreq(const q7_t *input, const uint16_t input_
             }
         }
     }
+#endif  // OPT
 #endif  // SIMD
 #endif  // MULTITHREADING
-#endif  // REORDERING
 #endif  // UNROLL_TILING
 
     /* Return to application */

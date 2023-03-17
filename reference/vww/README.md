@@ -23,10 +23,9 @@ git checkout dev/platform-independent-vww
 - Enter the application directory and compile the code with an optimization option. Available options:
   - NAIVE: basic implementation.
   - UNROLL_TILING: with loop unrolling and tiling.
-  - REORDERING: with loop reordering (TODO).
   - MULTITHREADING: with multithreading.
   - SIMD: with SIMD intrinsic (Intel only).
-  - OPT: with all optimization (TODO).
+  - OPT: with all optimization.
 
 ```bash
 cd reference/application
