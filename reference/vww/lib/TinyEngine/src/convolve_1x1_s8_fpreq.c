@@ -18,6 +18,8 @@
 
 // #include "arm_nnfunctions.h"
 // #include "img2col_element.h"
+#include <smmintrin.h>
+
 #include "tinyengine_function.h"
 
 #define DIM_KER_X (1U)
@@ -219,6 +221,79 @@ tinyengine_status convolve_1x1_s8_fpreq(const q7_t *input, const uint16_t input_
     }
 
 #else  // MULTITHREADING
+#ifdef SIMD
+    const int kernel_y = 1, kernel_x = 1, stride = 1;
+
+    int32_t input_offset_128[4] = {input_offset, input_offset, input_offset, input_offset};
+    __m128i *input_offset128 = (__m128i *)input_offset_128;
+    int32_t *input_int32 = (int32_t *)runtime_buf;
+
+    for (int h = 0; h < output_y; h++) {
+        for (int w = 0; w < output_x; w++) {
+            __m128i *input128_ptr = (__m128i *)input_int32;
+            const q7_t *src = &input[(h * input_x + w) * input_ch];
+            // Load 8bit input to the int32 buffer
+            for (int ic = 0; ic < input_ch / 16; ic++) {
+                __m128i input_vec = _mm_loadu_si128(reinterpret_cast<__m128i *>((int8_t *)input));
+                input += 16;
+
+                *input128_ptr++ = _mm_add_epi32(_mm_cvtepi8_epi32(input_vec), *input_offset128);
+                *input128_ptr++ = _mm_add_epi32(_mm_cvtepi8_epi32(_mm_srli_si128(input_vec, 4)), *input_offset128);
+                *input128_ptr++ = _mm_add_epi32(_mm_cvtepi8_epi32(_mm_srli_si128(input_vec, 8)), *input_offset128);
+                *input128_ptr++ = _mm_add_epi32(_mm_cvtepi8_epi32(_mm_srli_si128(input_vec, 12)), *input_offset128);
+            }
+            // left over
+            if (input_ch % 16) {
+                for (int ic = input_ch / 16 * 16; ic < input_ch; ic++) {
+                    input_int32[ic] = *input++ + input_offset;
+                }
+            }
+
+            const q7_t *filter = kernel;
+            for (int o = 0; o < output_ch; o++) {
+                int32_t acc = bias[o];
+                int accumulators32[4] = {0, 0, 0, 0};
+                __m128i *accumulators = (__m128i *)accumulators32;
+                input128_ptr = (__m128i *)input_int32;
+
+                for (int ic = 0; ic < input_ch / 16; ic++) {
+                    __m128i filter_vec = _mm_loadu_si128(reinterpret_cast<__m128i *>((int8_t *)filter));
+                    filter += 16;
+
+                    *accumulators =
+                        _mm_add_epi32(_mm_mullo_epi32(_mm_cvtepi8_epi32(filter_vec), *input128_ptr++), *accumulators);
+                    *accumulators = _mm_add_epi32(
+                        _mm_mullo_epi32(_mm_cvtepi8_epi32(_mm_srli_si128(filter_vec, 4)), *input128_ptr++),
+                        *accumulators);
+                    *accumulators = _mm_add_epi32(
+                        _mm_mullo_epi32(_mm_cvtepi8_epi32(_mm_srli_si128(filter_vec, 8)), *input128_ptr++),
+                        *accumulators);
+                    *accumulators = _mm_add_epi32(
+                        _mm_mullo_epi32(_mm_cvtepi8_epi32(_mm_srli_si128(filter_vec, 12)), *input128_ptr++),
+                        *accumulators);
+                }
+                if (input_ch % 16) {
+                    for (int ic = input_ch / 16 * 16; ic < input_ch; ic += 4) {
+                        acc += (input_int32[ic]) * filter[0];
+                        acc += (input_int32[ic + 1]) * filter[1];
+                        acc += (input_int32[ic + 2]) * filter[2];
+                        acc += (input_int32[ic + 3]) * filter[3];
+                        filter += 4;
+                    }
+                }
+
+                // requantize
+                acc += accumulators32[0] + accumulators32[1] + accumulators32[2] + accumulators32[3];
+                acc = (q31_t)((float)acc * scales[o]);
+                acc += (q31_t)out_offset;
+                acc = TN_MAX(acc, out_activation_min);
+                acc = TN_MIN(acc, out_activation_max);
+
+                output[(h * output_x + w) * output_ch + o] = (q7_t)acc;
+            }
+        }
+    }
+#else  // SIMD
 #ifdef REORDERING
 
 #else   // REORDERING
@@ -255,6 +330,7 @@ tinyengine_status convolve_1x1_s8_fpreq(const q7_t *input, const uint16_t input_
             }
         }
     }
+#endif  // SIMD
 #endif  // MULTITHREADING
 #endif  // REORDERING
 #endif  // UNROLL_TILING
