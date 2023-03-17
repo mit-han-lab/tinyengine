@@ -17,11 +17,13 @@ OPENCV_LINK = -lopencv_gapi -lopencv_stitching -lopencv_alphamat -lopencv_aruco 
 			-lopencv_calib3d -lopencv_imgcodecs -lopencv_features2d -lopencv_dnn -lopencv_flann -lopencv_xphoto -lopencv_photo \
 			-lopencv_imgproc -lopencv_core  # Here we list most of the linkers for convenience. Feel free to trim unnecessary ones, if needed.
 LIB = -L../src
+BATCH_OBJECTS = main_batch.o batch_model.o
 OBJECTS = main.o model.o
 
 .SUFFIXS: .c .cc .cpp
-main: clean $(OBJECTS)
+main: clean $(OBJECTS) $(BATCH_OBJECTS)
 	@$(CXX) $(CXXFLAGS) $(CFLAGS) $(OBJECTS) -o main -I$(INCLUDE) $(LIB) -I$(OPENCV_INCLUDE) $(OPENCV_LIB) $(OPENCV_LINK)
+	@$(CXX) $(CXXFLAGS) $(CFLAGS) $(BATCH_OBJECTS) -o main_batch -I$(INCLUDE) $(LIB) -I$(OPENCV_INCLUDE) $(OPENCV_LIB) $(OPENCV_LINK)
 	@echo "Compilation and build completed - [MIT Hanlab] Platform-independent TinyEngine MNIST Demo"
 
 main.o: main.cc
@@ -30,6 +32,12 @@ main.o: main.cc
 model.o: $(SOURCE)/model.cc
 	@$(CXX) $(CXXFLAGS) $(CFLAGS) -c $(SOURCE)/model.cc -I$(INCLUDE)
 
+main_batch.o: main_batch.cc
+	@$(CXX) $(CXXFLAGS) -Wall -Ofast -c main_batch.cc -I$(INCLUDE) -I$(OPENCV_INCLUDE)
+
+batch_model.o: $(SOURCE)/batch_model.cc
+	@$(CXX) $(CXXFLAGS) $(CFLAGS) -c $(SOURCE)/batch_model.cc -I$(INCLUDE)
+
 .PHONY: main clean
 clean:
-	-rm *.o main
+	-rm *.o main main_batch

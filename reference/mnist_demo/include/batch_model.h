@@ -12,6 +12,7 @@ enum fc_imp {
     naive = 0,
     unroll = 1,
     unroll_simd = 2,
+    unroll_simd_tiling = 3,
 };
 
 #define NNoutput &buffer[MAX_BATCH_SIZE * 100];

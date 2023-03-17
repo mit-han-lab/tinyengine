@@ -108,7 +108,7 @@ Mat makeMultipleImages(vector<Mat> &vecMat, int windowHeight, int nRows) {
 
 int main() {
     struct timeval start, end;
-    float ms = 0, time_naive, time_unroll, time_unroll_simd;
+    float ms = 0, time_naive, time_unroll, time_unroll_simd, time_unroll_simd_tiling;
     char buf_result[NUM_IMAGES][2];
 
     /* Measure time */
@@ -127,13 +127,18 @@ int main() {
     gettimeofday(&end, NULL);
     time_unroll_simd = (interval_to_ms(&start, &end)) / NUM_IMAGES;
 
+    gettimeofday(&start, NULL);
+    batch_inference(25, unroll_simd_tiling);
+    gettimeofday(&end, NULL);
+    time_unroll_simd_tiling = (interval_to_ms(&start, &end)) / NUM_IMAGES;
+
     signed char *input = getInput();
     for (int i = 0; i < NUM_IMAGES; i++) {
         for (int j = 0; j < IMAGE_SIZE; j++) {
             *input++ = (int)mnist_images[i][j] - 128;
         }
     }
-    batch_inference(NUM_IMAGES, unroll_simd);
+    batch_inference(NUM_IMAGES, unroll_simd_tiling);
 
     signed char *output = getOutput();
     for (int i = 0; i < NUM_IMAGES; i++) {
@@ -152,8 +157,8 @@ int main() {
     char buf[3];
     gcvt(ms, 3, buf);
     char buf_time[100];
-    snprintf(buf_time, 100, "Latency per image: %.2f(Naive), %.2f(Unroll), %.2f(Unroll+SIMD)", time_naive, time_unroll,
-             time_unroll_simd);
+    snprintf(buf_time, 100, "Latency: %.2f(Naive), %.2f(Unroll), %.2f(Unroll+SIMD), %.2f(Unroll+SIMD+TILING)",
+             time_naive, time_unroll, time_unroll_simd, time_unroll_simd_tiling);
 
     char buf_model_size[30] = "Model size: ";
     gcvt(MODEL_SIZE / 1024, 6, buf);
