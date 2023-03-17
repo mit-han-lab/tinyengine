@@ -1,12 +1,11 @@
 /* Automatically generated source file */
-#include "genModel.h"
-
 #include <float.h>
 #include <tinyengine_function.h>
 #include <tinyengine_function_fp.h>
 
 #include "genInclude.h"
 #include "genNN.h"
+#include "genModel.h"
 
 /* Variables used by all ops */
 ADD_params add_params;
