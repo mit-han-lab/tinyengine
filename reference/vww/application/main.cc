@@ -13,9 +13,9 @@
  *  - Song Han, songhan@mit.edu
  * -------------------------------------------------------------------- */
 
+#include <limits.h>
 #include <stdio.h>
 #include <sys/time.h>
-#include <limits.h>
 
 #include <iostream>
 #include <opencv2/opencv.hpp>
@@ -31,7 +31,7 @@ using namespace std;
 #define CROP_SIZE 720
 #define DOWN_WIDTH 144
 #define DOWN_HEIGHT 144
-#define USE_CASE 0 // 0: VWW (Visual Wake Words), 1: MNIST
+#define USE_CASE 0  // 0: VWW (Visual Wake Words), 1: MNIST
 #if USE_CASE == 0
 #define OUTPUT_CH 2
 #elif USE_CASE == 1
@@ -142,14 +142,13 @@ int main() {
                 result = i;
             }
         }
-#if USE_CASE == 0 // VWW Case
+#if USE_CASE == 0  // VWW Case
         if (result == 0) {
             strcpy(buf_result, "No Person!");
             ui_red = 151;
             ui_green = 41;
             ui_blue = 52;
-        }
-        else {
+        } else {
             strcpy(buf_result, "Person!");
             ui_red = 41;
             ui_green = 98;
