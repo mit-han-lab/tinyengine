@@ -24,7 +24,7 @@ git checkout dev/platform-independent-vww
   - NAIVE: basic implementation.
   - UNROLL_TILING: with loop unrolling and tiling.
   - REORDERING: with loop reordering (TODO).
-  - MULTITHREADING: with multithreading (TODO).
+  - MULTITHREADING: with multithreading.
   - SIMD: with simd (TODO).
   - OPT: with all optimization (TODO).
 

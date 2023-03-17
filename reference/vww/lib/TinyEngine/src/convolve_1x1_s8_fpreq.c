@@ -23,6 +23,54 @@
 #define DIM_KER_X (1U)
 #define DIM_KER_Y (1U)
 
+#ifdef MULTITHREADING
+#include <pthread.h>
+struct thread_args {
+    const q7_t *input, *kernel;
+    q7_t *output;
+    uint16_t input_x, input_y, input_ch, output_x, output_y, output_ch, start_h, end_h;
+    const int32_t *bias;
+    int32_t out_offset, input_offset;
+    const float *scales;
+    q15_t *runtime_buf;
+};
+void *thread_func(void *_args) {
+    struct thread_args *args = (struct thread_args *)_args;
+
+    for (int h = args->start_h; h < args->end_h; h++) {
+        for (int w = 0; w < args->output_x; w++) {
+            for (int o = 0; o < args->output_ch; o++) {
+                int32_t acc = args->bias[o];
+
+                for (int i_ch = 0; i_ch < args->input_ch; i_ch++) {
+                    int start_y = h;
+                    int start_x = w;
+
+                    q7_t pixel =
+                        get_pixel(start_y, start_x, i_ch, args->input_y, args->input_x, args->input_ch, args->input);
+                    q15_t offset_pixel = (q15_t)pixel + args->input_offset;
+                    // assume weights are in the OHWI format
+                    int weight_idx = o * args->input_ch + i_ch;
+                    q7_t kernel_v = args->kernel[weight_idx];
+                    acc += offset_pixel * kernel_v;
+                }
+
+                // requantize
+                acc = (q31_t)((float)acc * args->scales[o]);
+                acc += (q31_t)args->out_offset;
+                acc = TN_MAX(acc, -128);
+                acc = TN_MIN(acc, 127);
+
+                args->output[(h * args->output_x + w) * args->output_ch + o] = (q7_t)acc;
+            }
+        }
+    }
+}
+#define NUM_THREAD 4
+pthread_t thread_pool[NUM_THREAD];
+struct thread_args threads_args[NUM_THREAD];
+#endif
+
 tinyengine_status convolve_1x1_s8_fpreq(const q7_t *input, const uint16_t input_x, const uint16_t input_y,
                                         const uint16_t input_ch, const q7_t *kernel, const int32_t *bias,
                                         const float *scales, const int32_t out_offset, const int32_t input_offset,
@@ -59,9 +107,9 @@ tinyengine_status convolve_1x1_s8_fpreq(const q7_t *input, const uint16_t input_
             cnt--;
         }
 
-        out = mat_mult_kernel_s8_s16_reordered_fpreq(kernel, two_column_buffer, output_ch, scales, (q7_t)out_offset,
-                                                     out_activation_min, out_activation_max,
-                                                     input_ch * DIM_KER_Y * DIM_KER_X, bias, out);
+        out = mat_mult_kernel_s8_s16_fpreq(kernel, two_column_buffer, output_ch, scales, (q7_t)out_offset,
+                                           out_activation_min, out_activation_max, input_ch * DIM_KER_Y * DIM_KER_X,
+                                           bias, out);
     }
 
     /* check if there is an odd column left-over for computation */
@@ -102,7 +150,78 @@ tinyengine_status convolve_1x1_s8_fpreq(const q7_t *input, const uint16_t input_
             *out++ = (q7_t)sum;
         }
     }
-#else
+#else  // UNROLL_TILING
+#ifdef MULTITHREADING
+    const int kernel_y = 1, kernel_x = 1, stride = 1;
+
+    if (NUM_THREAD > output_y) {
+        for (int h = 0; h < output_y; h++) {
+            threads_args[h].input = input;
+            threads_args[h].kernel = kernel;
+            threads_args[h].output = output;
+
+            threads_args[h].input_x = input_x;
+            threads_args[h].input_y = input_y;
+            threads_args[h].input_ch = input_ch;
+
+            threads_args[h].input_x = output_x;
+            threads_args[h].input_y = output_y;
+            threads_args[h].input_ch = output_ch;
+
+            threads_args[h].start_h = h;
+            threads_args[h].end_h = h + 1;
+
+            threads_args[h].bias = bias;
+            threads_args[h].out_offset = out_offset;
+            threads_args[h].input_offset = input_offset;
+
+            threads_args[h].scales = scales;
+            threads_args[h].runtime_buf = runtime_buf;
+
+            pthread_create(&thread_pool[h], NULL, thread_func, &threads_args[h]);
+        }
+
+        for (int h = 0; h < output_y; h++) {
+            pthread_join(thread_pool[h], NULL);
+        }
+    } else {
+        for (int i = 0; i < NUM_THREAD; i++) {
+            threads_args[i].input = input;
+            threads_args[i].kernel = kernel;
+            threads_args[i].output = output;
+
+            threads_args[i].input_x = input_x;
+            threads_args[i].input_y = input_y;
+            threads_args[i].input_ch = input_ch;
+
+            threads_args[i].input_x = output_x;
+            threads_args[i].input_y = output_y;
+            threads_args[i].input_ch = output_ch;
+
+            threads_args[i].start_h = i * output_y / NUM_THREAD;
+            if (i == NUM_THREAD - 1)
+                threads_args[i].end_h = output_y;
+            else
+                threads_args[i].end_h = (i + 1) * output_y / NUM_THREAD;
+
+            threads_args[i].bias = bias;
+            threads_args[i].out_offset = out_offset;
+            threads_args[i].input_offset = input_offset;
+
+            threads_args[i].scales = scales;
+            threads_args[i].runtime_buf = runtime_buf;
+
+            pthread_create(&thread_pool[i], NULL, thread_func, &threads_args[i]);
+        }
+        for (int i = 0; i < output_y; i++) {
+            pthread_join(thread_pool[i], NULL);
+        }
+    }
+
+#else  // MULTITHREADING
+#ifdef REORDERING
+
+#else   // REORDERING
     const int kernel_y = 1, kernel_x = 1, stride = 1;
     for (int h = 0; h < output_y; h++) {
         for (int w = 0; w < output_x; w++) {
@@ -136,7 +255,9 @@ tinyengine_status convolve_1x1_s8_fpreq(const q7_t *input, const uint16_t input_
             }
         }
     }
-#endif
+#endif  // MULTITHREADING
+#endif  // REORDERING
+#endif  // UNROLL_TILING
 
     /* Return to application */
     return STATE_SUCCESS;
