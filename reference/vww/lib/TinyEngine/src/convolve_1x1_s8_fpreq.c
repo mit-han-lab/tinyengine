@@ -166,9 +166,9 @@ tinyengine_status convolve_1x1_s8_fpreq(const q7_t *input, const uint16_t input_
             threads_args[h].input_y = input_y;
             threads_args[h].input_ch = input_ch;
 
-            threads_args[h].input_x = output_x;
-            threads_args[h].input_y = output_y;
-            threads_args[h].input_ch = output_ch;
+            threads_args[h].output_x = output_x;
+            threads_args[h].output_y = output_y;
+            threads_args[h].output_ch = output_ch;
 
             threads_args[h].start_h = h;
             threads_args[h].end_h = h + 1;
@@ -196,9 +196,9 @@ tinyengine_status convolve_1x1_s8_fpreq(const q7_t *input, const uint16_t input_
             threads_args[i].input_y = input_y;
             threads_args[i].input_ch = input_ch;
 
-            threads_args[i].input_x = output_x;
-            threads_args[i].input_y = output_y;
-            threads_args[i].input_ch = output_ch;
+            threads_args[i].output_x = output_x;
+            threads_args[i].output_y = output_y;
+            threads_args[i].output_ch = output_ch;
 
             threads_args[i].start_h = i * output_y / NUM_THREAD;
             if (i == NUM_THREAD - 1)

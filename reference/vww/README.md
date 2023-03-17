@@ -25,7 +25,7 @@ git checkout dev/platform-independent-vww
   - UNROLL_TILING: with loop unrolling and tiling.
   - REORDERING: with loop reordering (TODO).
   - MULTITHREADING: with multithreading.
-  - SIMD: with simd.
+  - SIMD: with SIMD intrinsic (Intel only).
   - OPT: with all optimization (TODO).
 
 ```bash
