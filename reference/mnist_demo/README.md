@@ -8,23 +8,56 @@ cd tinyengine
 git checkout dev/platform-independent-vww
 ```
 
-## Dependency
+## Run the demo with MacOS
 
-- On MacOS: The application needs opencv in order to show images and prediction results.
-  - Install opencv
+- Requirement
+  - Opencv: The application needs opencv in order to show images and prediction results, so let's install opencv first.
   ```bash
   brew install opencv
   ```
-  - Update Line 8 in `reference/mnist_demo/application/Makefile` according to the path of opencv on your machine. (use `brew info opencv` to get the installation path.)
-- On Windows: TBD
-
-## Compile and run
-
+- Update Line 8 in `reference/mnist_demo/application/Makefile` according to the path of opencv on your machine. (use `brew info opencv` to get the installation path.)
 - Enter the application directory, compile the code, and run the demo.
-  - Note: The current implementation only supports Intel devices due to its SIMD dependency. Support for M1 chip is still on-going.
+  ```bash
+  cd reference/mnist_demo/application
+  make
+  ./main
+  ```
 
-```bash
-cd reference/mnist_demo/application
-make
-./main
-```
+Note: The current implementation only supports Intel devices due to its SIMD dependency. Support for M1 chip is still on-going.
+
+## Run the demo with Windows
+
+- Requirement
+
+  - Visual studio (ver. 2022 is recommended)
+  - Opencv 4.7.0
+    - Option 1: Use the prebuilt the opencv dependency
+    ```bash
+    cd reference/mnist_demo/windows_visual_studio_mnist
+    unzip opencv_deps.zip
+    ```
+  - Option 2: Build and opencv from the source (refer the official guide) and put the generated libraries and headers in the following structure.
+    ```
+    ├── ...
+    ├── mnist_demo
+    │   ├── windows_visual_studio_mnist
+    │   │   ├── opencv_deps                    # Visual studio project directory
+    │   │   │   ├── include                    # Header files
+    │   │   │   │   └── opencv2
+    │   │   │   |       ├── opencv.hpp
+    │   │   │   |       └── ...
+    │   │   │   ├── lib                        # Static libraries
+    │   │   │   |   ├── opencv_core470.lib
+    │   │   │   |   └── ...
+    │   │   │   └── bin                        # Dynamic libraries
+    │   │   │       ├── opencv_core470.dll
+    │   │   │       └── ...
+    │   │   ├── main.cc                        # Entry point of the windows program
+    │   │   └── ...
+    │   └── ...
+    └── ...
+    ```
+
+- Open the project (reference/mnist_demo/windows_visual_studio.sln) with visual studio
+
+- Choose `Release` and run the demo
