@@ -15,10 +15,10 @@ git checkout dev/platform-independent-vww
   ```bash
   brew install opencv
   ```
-- Update Line 8 in `reference/mnist_demo/application/Makefile` according to the path of opencv on your machine. (use `brew info opencv` to get the installation path.)
+- Update Line 8 in `experimental/mnist_demo/application/Makefile` according to the path of opencv on your machine. (use `brew info opencv` to get the installation path.)
 - Enter the application directory, compile the code, and run the demo.
   ```bash
-  cd reference/mnist_demo/application
+  cd experimental/mnist_demo/application
   make
   ./main
   ```
@@ -33,7 +33,7 @@ Note: The current implementation only supports Intel devices due to its SIMD dep
   - Opencv 4.7.0
     - Option 1: Use the prebuilt the opencv dependency
     ```bash
-    cd reference/mnist_demo/windows_visual_studio_mnist
+    cd experimental/mnist_demo/windows_visual_studio_mnist
     unzip opencv_deps.zip
     ```
   - Option 2: Build and opencv from the source (refer the official guide) and put the generated libraries and headers in the following structure.
@@ -58,6 +58,6 @@ Note: The current implementation only supports Intel devices due to its SIMD dep
     └── ...
     ```
 
-- Open the project (reference/mnist_demo/windows_visual_studio.sln) with visual studio
+- Open the project (experimental/mnist_demo/windows_visual_studio.sln) with visual studio
 
 - Choose `Release` and run the demo
