@@ -9,6 +9,7 @@ default_params = {
     "output_idx": None,
     # tensor related
     "input_dim": None,
+    "permute": None,
     "input_h": None,
     "input_w": None,
     "input_c": None,
@@ -28,7 +29,7 @@ class transpose(basicOperator):
         overwrite_dicts(self.params, params)
         super().__init__()
         # handle input/output tensors in HWC format
-        if "weight" in self.params["input_idx"]:
+        if isinstance(self.params["input_idx"], str) and "weight" in self.params["input_idx"]:
             self.params["input_buf_add"] = self.params["input_idx"]
             self.params["input_buf_add_offset"] = 0
         else:
@@ -54,9 +55,10 @@ class transpose(basicOperator):
         params = self.params
         if params["input_dtype"] == "float32":
             string = (
-                f"transpose_3Dto3D({self._getBufferstrCast(params['input_buf_add'], params['input_buf_add_offset'])},"
+                f"transpose4D_fp({self._getBufferstrCast(params['input_buf_add'], params['input_buf_add_offset'])},"
             )
-            string += f"{str(params['input_h'])},{str(params['input_w'])},{str(params['input_c'])},"
+            string += f"{str(params['permute'][0])},{str(params['permute'][1])},{str(params['permute'][2])},"
+            string += f"{str(params['permute'][3])},"
             string += f"{self._getBufferstrCast(params['output_buf_add'], params['output_buf_add_offset'])});\n"
         else:
             raise NotImplementedError

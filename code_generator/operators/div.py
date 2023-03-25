@@ -14,6 +14,15 @@ default_params = {
     "output_idx": None,
     # tensor related
     "input_size": None,
+    "input_h": None,
+    "input_w": None,
+    "input_c": None,
+    "input2_h": None,
+    "input2_w": None,
+    "input2_c": None,
+    "output_h": None,
+    "output_w": None,
+    "output_c": None,
     "input2": None,
     "input_dtype": "int8",
     "input2_dtype": "int8",
@@ -41,7 +50,11 @@ class div(basicOperator):
         super().__init__()
         # handle input/output tensors in HWC format
         self._add_input(self.params["input_idx"], self.params["input_dtype"], self.params["input_size"], 1, 1)
-        self._add_input(self.params["input2_idx"], self.params["input2_dtype"], self.params["input_size"], 1, 1)
+        if "constant" not in self.params["input2_idx"]:
+            self._add_input(self.params["input2_idx"], self.params["input2_dtype"], self.params["input_size"], 1, 1)
+            # TODO: Refactor this
+            if self.input_tensors[1].constant():
+                self.input_tensors[1].set_data(self.params["input2"], self.params["input2_idx"])
         self._add_output(self.params["output_idx"], self.params["output_dtype"], self.params["input_size"], 1, 1)
 
         if None in default_params:
@@ -52,6 +65,7 @@ class div(basicOperator):
         string = ""
 
         if params["input_dtype"] == "float32":
+            function_name = "div_fp"
             if self.params["scale_from_add"] is not None:
                 scale_divisor = f"{self.params['scale_from_add']}"
                 string += (
@@ -67,6 +81,8 @@ class div(basicOperator):
                 if iterable(self.params["input2"]):
                     for v in self.params["input2"]:
                         string += f"{str(v)},"
+                    if len(self.params["input2"]) == 1:
+                        function_name = "div_fp_scaler"
                 else:
                     string += f"{str(self.params['input2'])},"
                 string += "};\n"
@@ -76,7 +92,7 @@ class div(basicOperator):
                 input2_str = f"{self._getBufferstrCast(params['input2_buf_add'], params['input2_buf_add_offset'])}"
 
             string += (
-                f"div_fp({self.params['input_size']},"
+                f"{function_name}({self.params['input_size']},"
                 + f"{self._getBufferstrCast(params['input_buf_add'], params['input_buf_add_offset'])},"
                 + f"{input2_str},"
                 + f"{self._getBufferstrCast(params['output_buf_add'], params['output_buf_add_offset'])});\n"

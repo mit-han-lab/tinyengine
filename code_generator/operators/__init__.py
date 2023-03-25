@@ -23,4 +23,11 @@ __all__ = [
     "div",
     "strided_slice",
     "se_element_mult",
+    "batchmatmul",
+    "concat",
+    "equal",
+    "softmax",
+    "squarddiff",
+    "rsqrt",
+    "slice",
 ]

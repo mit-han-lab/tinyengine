@@ -18,7 +18,10 @@
 
 import os
 
+import numpy as np
+
 from .constant import FUSE_SGD_UPDATE_STR, FUSHION_CONFIG
+from .operators.basic_utils import tensor
 from .OpGenerator import OpGenerator
 
 Codegen_root = "./codegen/"
@@ -34,8 +37,6 @@ class CodeGenerator:
     """Provide utilities to generate C code for a given model and memory schdeule."""
 
     parse_count = 0
-    header_handle = None
-    source_handle = None
 
     def __init__(
         self,
@@ -585,12 +586,13 @@ signed char* getOutput() {
                     )
                 else:
                     self._parseBias(self.parse_count, layer_info["bias"].flatten())
-                self._parseEffectivescales(self.parse_count, layer_info["effective_scale"].flatten())
-                self._parseRequantize(
-                    self.parse_count,
-                    layer_info["shift"].flatten(),
-                    layer_info["multiplier"].flatten(),
-                )
+                if layer_info["input_dtype"] == "int8":
+                    self._parseEffectivescales(self.parse_count, layer_info["effective_scale"].flatten())
+                    self._parseRequantize(
+                        self.parse_count,
+                        layer_info["shift"].flatten(),
+                        layer_info["multiplier"].flatten(),
+                    )
 
                 layer_info["parsed_trainable"] = self.parse_count
                 self.parse_count += 1
@@ -770,6 +772,37 @@ signed char* getOutput() {
 
                     layer_info["parsed_trainable"] = self.parse_count
                     self.parse_count += 1
+            else:
+                # Parse constants of inputs
+                for t in op.input_tensors:
+                    if t.constant():
+                        # for TTE compatible
+                        if "constant" in layer_info and layer_info["constant"] is not None:
+                            continue
+                        if t.data is None:
+                            raise ValueError(f"constant tensor data not found for op:{layer_info['op']}")
+                        self._parseConstant(t)
+
+    def _parseConstant(self, t: tensor):
+        def type_to_c_type(type: str) -> str:
+            if type == "int8":
+                return "unsigned char"
+            elif type == "float32":
+                return "float"
+            elif type == "int32":
+                return "int32_t"
+            elif type == "bool":
+                return "char"  # Using bytes to store boolean
+            raise NotImplementedError
+
+        fp = self.header_handle
+        # 8bit implementation
+        string = f"const {type_to_c_type(t.dtype)} {t.graph_idx}" + "[" + str(np.prod(t.size)) + "] = {"
+        flat_data = t.data.flatten()
+        for d in flat_data:
+            string += f"{d}, "
+        string += "};\n"
+        fp.write(string)
 
     def _parseCWHWeight(self, Lindex, weight, height, width, channel):
         fp = self.header_handle
@@ -818,34 +851,43 @@ signed char* getOutput() {
     def _parseWeight(self, Lindex, weight, weight_name=None, is_const=True):
         fp = self.header_handle
         const_str = "const " if is_const else ""
-        string = f"{const_str}unsigned char weight" + str(Lindex) + "[" + str(len(weight)) + "] = {"
-        fp.write(string)
-        for _, value in enumerate(weight):
-            value = int(value)
-            if value < 0:
-                value += 256
-            fp.write(str(format(value, "#04x")) + ", ")
-        fp.write("};\n")
-
-        if self.is_training:
-            string = f"{const_str}float weight_fp" + str(Lindex) + "[" + str(len(weight)) + "] = {"
+        if weight.dtype == "float32":
+            string = f"{const_str}unsigned char weight_fp" + str(Lindex) + "[" + str(len(weight)) + "] = {"
+            for _, value in enumerate(weight):
+                string += f"{value}, "
+            string += "};\n"
             fp.write(string)
-            for _, w in enumerate(weight):
-                value = float(w)
-                fp.write(str(value) + ", ")
+        elif weight.dtype == "int8":
+            string = f"{const_str}unsigned char weight" + str(Lindex) + "[" + str(len(weight)) + "] = {"
+            fp.write(string)
+            for _, value in enumerate(weight):
+                value = int(value)
+                if value < 0:
+                    value += 256
+                fp.write(str(format(value, "#04x")) + ", ")
             fp.write("};\n")
 
-        if weight_name is not None:
-            for r in self.trainSRAMTable:
-                if r.name == weight_name:
-                    return
-            self.trainSRAMTable.append(tensorRecorder(weight_name, len(weight), "unknown"))
+            if self.is_training:
+                string = f"{const_str}float weight_fp" + str(Lindex) + "[" + str(len(weight)) + "] = {"
+                fp.write(string)
+                for _, w in enumerate(weight):
+                    value = float(w)
+                    fp.write(str(value) + ", ")
+                fp.write("};\n")
 
-            if weight.dtype == "int8":
-                string = f"{const_str}unsigned char* {weight_name}=weight" + str(Lindex) + ";\n"
-            else:
-                raise NotImplementedError
-            fp.write(string)
+            if weight_name is not None:
+                for r in self.trainSRAMTable:
+                    if r.name == weight_name:
+                        return
+                self.trainSRAMTable.append(tensorRecorder(weight_name, len(weight), "unknown"))
+
+                if weight.dtype == "int8":
+                    string = f"{const_str}unsigned char* {weight_name}=weight" + str(Lindex) + ";\n"
+                else:
+                    raise NotImplementedError
+                fp.write(string)
+        else:
+            raise NotImplementedError
 
     def _parseWeightPartial(self, Lindex, weight, first_k_channel=None, weight_name=None, is_const=True):
         fp = self.header_handle

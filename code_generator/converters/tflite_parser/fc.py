@@ -32,7 +32,7 @@ def parse_fc(op, model: Model.Model):
     # shapes
     _, input_h, input_w, input_c = get_nhwc_from_shape(input_tensor.tensor.ShapeAsNumpy())
     _, _, output_c, input_c_dual = get_nhwc_from_shape(weight_tensor.tensor.ShapeAsNumpy())
-    _, _, output_h, output_c_dual = get_nhwc_from_shape(output_tensor.tensor.ShapeAsNumpy())
+    _, output_h, output_w, output_c_dual = get_nhwc_from_shape(output_tensor.tensor.ShapeAsNumpy())
     assert input_c_dual == input_c, "channels not match"
     assert output_c_dual == output_c, "channels not match"
 
@@ -84,11 +84,14 @@ def parse_fc(op, model: Model.Model):
         "input_dim": 3,
         "output_dim": 2,
         "output_h": output_h,
-        "output_w": 1,
+        "output_w": output_w,
         "output_c": output_c,
-        "dtypte": input_type,
+        "input_dtype": input_type,
+        "output_dtype": output_type,
         "kernel_h": 1,
         "kernel_w": 1,
+        "stride_h": 1,
+        "stride_w": 1,
         # trainable parameters
         "weight_value": weight,
         "bias": bias,

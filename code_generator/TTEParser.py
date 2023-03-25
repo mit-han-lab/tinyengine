@@ -1405,6 +1405,7 @@ class TTEParser(object):
             "input2_idx": input2_info["name"],
             "output_idx": output_info["name"],
             "input_size": input0_h * input0_w * input0_c,
+            "input2_size": input0_h * input0_w * input0_c,
             "input_dtype": input_dtype,
             "input2_dtype": input2_dtype,
             "output_dtype": output_dtype,

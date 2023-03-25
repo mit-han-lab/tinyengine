@@ -18,6 +18,7 @@
 
 import math
 from copy import deepcopy
+from typing import List
 
 import numpy as np
 
@@ -43,6 +44,9 @@ class basicOperator:
     3. Be easy to add support of different precision levels
     4. Generate the corresponding kernel code (optional)
     """
+
+    input_tensors: List
+    output_tensors: List
 
     def __init__(self) -> None:
         self.input_tensors = []
@@ -183,6 +187,16 @@ sprintf(buf, \""""
 
 
 class tensor:
+    size: int
+    dtype: str
+    buffer_placement: int
+    buffer_name: str
+    buffer_address: int
+    allocator_idx: str
+    graph_idx: str
+    is_constant: bool
+    data: np.ndarray = None
+
     byte_size = {
         "bool": 1,
         "int8": 1,
@@ -210,6 +224,18 @@ class tensor:
         self.buffer_address = None
         self.allocator_idx = None
         self.graph_idx = str(graph_idx)
+        # TODO: This constant logic is only temporary solution, need to refactor this part
+        if "weight" in str(graph_idx) or "constant" in str(graph_idx):
+            self.is_constant = True
+        else:
+            self.is_constant = False
+
+    def set_data(self, data: np.ndarray, name):
+        self.data = data
+        self.buffer_name = name
+
+    def constant(self):
+        return self.is_constant
 
     def input_c(self):
         return self.size[0]
@@ -225,6 +251,9 @@ class tensor:
 
     def set_input_h(self, h):
         self.size = (self.size[0], self.size[1], h)
+
+    def num_elements(self):
+        return np.prod(self.size)
 
     def len(self):
         byte_cnt = math.ceil(np.prod(self.size) * self.byte_size[self.dtype])
@@ -265,13 +294,15 @@ def isconstanttstr(str):
     return False
 
 
-def islabelstr(str):
-    if "label" in str:
-        return True
+def islabelstr(idx_name):
+    if isinstance(idx_name, str):
+        if "label" in idx_name:
+            return True
     return False
 
 
-def isParamstr(str):
-    if "scale" in str or "weight" in str or "bias" in str:
-        return True
+def isParamstr(idx_name):
+    if isinstance(idx_name, str):
+        if "scale" in idx_name or "weight" in idx_name or "bias" in idx_name:
+            return True
     return False
