@@ -485,6 +485,8 @@ void invoke_1patch(uint16_t pad_t, uint16_t pad_b, uint16_t pad_l ,uint16_t pad_
 
         # activation buffers
         string = "\n/* sram:" + str(schedule.peakmem) + ", flash:" + str(schedule.flash) + " */\n"
+        fp.write(string)
+        string = "#define PEAK_MEM " + str(schedule.peakmem) + "\n" + "#define MODEL_SIZE " + str(schedule.flash) + "\n"
         fp.write(string + "\n")
 
         string = "static signed char buffer[" + str(schedule.peakmem) + "];\n"
@@ -493,14 +495,11 @@ void invoke_1patch(uint16_t pad_t, uint16_t pad_b, uint16_t pad_l ,uint16_t pad_
         string = "static signed char *buffer0 = &buffer[" + str(accumulate_ptr) + "];\n"
         accumulate_ptr += int(schedule.buffers["input_output"])
         fp.write(string)
-        string = "static signed char *buffer1 = &buffer[" + str(accumulate_ptr) + "];\n"
-        accumulate_ptr += int(schedule.buffers["residual"])
-        fp.write(string)
 
         string = "static int16_t *sbuf = (int16_t *)&buffer[" + str(accumulate_ptr) + "];\n"
         accumulate_ptr += int(schedule.buffers["im2col"])
         fp.write(string)
-        string = "static int32_t *kbuf = (int32_t *)&buffer[" + str(accumulate_ptr) + "];\n"
+        string = "static int16_t *kbuf = (int16_t *)&buffer[" + str(accumulate_ptr) + "];\n"
         accumulate_ptr += int(schedule.buffers["kernel"])
         fp.write(string)
         string = "const int SBuffer_size = " + str(int(schedule.buffers["im2col"])) + ";\n"
@@ -511,14 +510,12 @@ void invoke_1patch(uint16_t pad_t, uint16_t pad_b, uint16_t pad_l ,uint16_t pad_
     def _includeHeaders(self):
         include_string = """/* Automatically generated source file */
 #include <float.h>
-#include "arm_nnfunctions.h"
+#include <tinyengine_function.h>
+#include <tinyengine_function_fp.h>
 
 #include "genNN.h"
 #include "genModel.h"
-
-#include "tinyengine_function.h"
-#include "tinyengine_function_fp.h"
-
+#include "genInclude.h"
 """
         if self.profile_mode:
             include_string += '#include "profile.h"\n'
@@ -527,8 +524,6 @@ void invoke_1patch(uint16_t pad_t, uint16_t pad_b, uint16_t pad_l ,uint16_t pad_
             """
 /* Variables used by all ops */
 ADD_params add_params;
-//Conv_Params conv_params;
-//Depthwise_Params dpconv_params;
 int i;
 int8_t *int8ptr,*int8ptr2;
 int32_t *int32ptr;
