@@ -7,7 +7,7 @@ TinyEngine is a part of MCUNet, which also consists of TinyNAS. MCUNet is a syst
 
 ### [MCUNetV1](https://mcunet.mit.edu/#mcunetv1) | [MCUNetV2](https://mcunet.mit.edu/#mcunetv2) | [MCUNetV3](https://mcunet.mit.edu/#mcunetv3)
 
-### [Demo (Inference)](https://www.youtube.com/watch?v=YvioBgtec4U)
+### [Demo (Inference)](https://www.youtube.com/watch?v=F4XKn0iDfxg)
 
 ![demo](assets/figures/mcunet_demo.gif)
 
