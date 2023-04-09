@@ -322,7 +322,8 @@ void MatmulOperator::evaluate(IMP_TYPE type, const struct matmul_params *params)
     }
     gettimeofday(&end, NULL);
     ms = interval_to_ms(&start, &end);
-    std::cout << function_name << ": " << ms << " ms" << std::endl;
+    float GOPS = (float)(params->C.column * params->C.row * params->B.row) * 2 / (1000000000);
+    std::cout << function_name << ": " << ms << " ms, GOPS/s:" << GOPS / ((float)ms / 1000) << std::endl;
 }
 
 void *fast_thread_func(void *args) {
