@@ -45,13 +45,7 @@ __global__ void matrixMultiplyShared(const float *A, const float *B, float *C, i
 
 namespace matmul{
 
-	float interval_to_us(struct timeval *start, struct timeval *end)
-	{
-		float us_seconds = (end->tv_sec - start->tv_sec) * 1000000 + (end->tv_usec - start->tv_usec);
-		return us_seconds;
-	}
-
-	void MatmulOperator::mat_mul_cuda(const struct matmul_params *params){	
+	void MatmulOperator::mat_mul_cuda(const struct matmul_params *params){
 		const struct matrix *A = &params->A, *B = &params->B, *C = &params->C;
 		assert(A->column == B->row);
 		assert(C->column == B->column);
@@ -59,7 +53,7 @@ namespace matmul{
 
 		float *d_A;
 		float *d_B;
-		float *d_C; 
+		float *d_C;
 
 		// Initailize C
 		/*for (int i = 0; i < C->row; i++)

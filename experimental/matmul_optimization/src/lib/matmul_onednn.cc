@@ -1,4 +1,7 @@
 #ifdef ONEDNN_ENABLE
+#include <cstdlib>
+#include <iostream>
+
 #include "matmul.h"
 #include "oneapi/dnnl/dnnl.hpp"
 
@@ -56,10 +59,15 @@ void MatmulOperator::mat_mul_onednn(const struct matmul_params *params) {
     // Operator
     dnnl::matmul matmul_p(matmul_desc);
 
+    struct timeval start, end;
+    gettimeofday(&start, NULL);
     dnnl::stream s(eng);
     matmul_p.execute(s, {{DNNL_ARG_SRC, A_fp_mem}, {DNNL_ARG_WEIGHTS, B_fp_mem}, {DNNL_ARG_DST, C_fp_mem}});
 
     s.wait();
+    gettimeofday(&end, NULL);
+    int us = interval_to_us(&start, &end);
+    std::cout << "onednn kernel: " << us / 1000 << " ms" << std::endl;
 }
 }  // namespace matmul
 #endif

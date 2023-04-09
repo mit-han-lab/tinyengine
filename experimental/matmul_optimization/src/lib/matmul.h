@@ -1,3 +1,4 @@
+#include <sys/time.h>
 // Data structures
 struct matrix {
     int row;
@@ -48,6 +49,9 @@ class MatmulOperator {
     void mat_mul_onednn(const struct matmul_params *params);
     void mat_mul_cuda(const struct matmul_params *params);
     void evaluate(IMP_TYPE type, const struct matmul_params *params);
+
+   private:
+    float interval_to_us(struct timeval *start, struct timeval *end);
     void CHECK_MATRICES(const struct matrix *A, const struct matrix *B, const struct matrix *C);
 };
 }  // namespace matmul
