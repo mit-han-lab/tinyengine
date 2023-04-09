@@ -317,6 +317,20 @@ void MatmulOperator::evaluate(IMP_TYPE type, const struct matmul_params *params)
             fprintf(stderr, "ONEDNN not enable!\n");
             exit(-1);
 #endif
+            break;
+        case ONEDNN_INT8:
+            function_name = "mat_mul_onednn_int8";
+#ifdef ONEDNN_ENABLE
+            for (int i = 0; i < RUNS; i++) this->mat_mul_onednn_int8(params);
+#else
+            fprintf(stderr, "ONEDNN not enable!\n");
+            exit(-1);
+#endif
+            break;
+        case INT8_BASELINE:
+            function_name = "naive_mat_mul_int8";
+            for (int i = 0; i < RUNS; i++) this->naive_mat_mul_int8(params);
+            break;
         default:
             break;
     }
