@@ -181,10 +181,13 @@ int main() {
     // int8
     matmul_op.evaluate(MatmulOperator::INT8_BASELINE, &params_int8);
 
+// ONEDNN
+#ifdef ONEDNN_ENABLE
     params_int8.C.int8_data_ptr = output_C_s8;
     matmul_op.evaluate(MatmulOperator::ONEDNN_INT8, &params_int8);
     if (!check_identical(native_C_s8, output_C_s8, C_ROW * C_COLUMN))
         printf("incorrect output from mat_mul_unrolling\n");
+#endif
 
     // Debugging
     // dump_integer_array(MAT_A_s8, A_ROW * A_COLUMN);
