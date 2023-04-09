@@ -48,7 +48,7 @@ endif
 # Files
 TARGET = benchmark_run
 CUDA_SRCS = lib/matmul.cu
-CPP_SRCS = benchmark/main.cc lib/matmul_imp.cc
+CPP_SRCS = benchmark/main.cc lib/matmul_imp.cc lib/utils.cc
 ONEDNN_SRCS = lib/matmul_onednn.cc
 
 # Objects

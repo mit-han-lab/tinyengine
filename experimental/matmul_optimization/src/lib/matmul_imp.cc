@@ -5,7 +5,7 @@
 #include <math.h>
 #include <pthread.h>
 #include <stdio.h>
-#include <sys/time.h>
+// #include <sys/time.h>
 #include <xmmintrin.h>  // intel SSE intrinsic
 
 #include <iostream>
