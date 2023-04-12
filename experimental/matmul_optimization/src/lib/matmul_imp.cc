@@ -14,7 +14,7 @@
 #include "matmul.h"
 
 #define MAX_TRANSPOSE_BUFFER 2048 * 20480
-#define RUNS 1
+#define RUNS 10
 
 float transpose_tmp[MAX_TRANSPOSE_BUFFER];
 
@@ -331,12 +331,20 @@ void MatmulOperator::evaluate(IMP_TYPE type, const struct matmul_params *params)
             function_name = "naive_mat_mul_int8";
             for (int i = 0; i < RUNS; i++) this->naive_mat_mul_int8(params);
             break;
+        case INT8_AVX:
+            function_name = "mat_mul_avx_int8";
+            for (int i = 0; i < RUNS; i++) this->mat_mul_avx_int8(params);
+            break;
+        case INT8_AVX_FAST:
+            function_name = "mat_mul_avx_int8_fast";
+            for (int i = 0; i < RUNS; i++) this->mat_mul_avx_int8_fast(params);
+            break;
         default:
             break;
     }
     gettimeofday(&end, NULL);
     ms = interval_to_ms(&start, &end);
-    float GOPS = (float)(params->C.column * params->C.row * params->B.row) * 2 / (1000000000);
+    float GOPS = (float)(params->C.column * params->C.row * params->B.row) * 2 / (1000000000) * RUNS;
     std::cout << function_name << ": " << ms << " ms, GOPS/s:" << GOPS / ((float)ms / 1000) << std::endl;
 }
 
