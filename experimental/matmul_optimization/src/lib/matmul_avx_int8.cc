@@ -95,10 +95,6 @@ void MatmulOperator::mat_mul_avx_int8(const struct matmul_params *params) {
     for (i = 0; i < C->row; i++)
         for (j = 0; j < C->column; j++) {
             int acc = 0;
-            __m256i aa = _mm256_loadu_si256((const __m256i_u *)A), bb = _mm256_loadu_si256((const __m256i_u *)B);
-            __m256i aa2 = _mm256_loadu_si256((const __m256i_u *)(&A[32])),
-                    bb2 = _mm256_loadu_si256((const __m256i_u *)(&B[32]));
-
             __m256i acc8x32 = _mm256_setzero_si256();
             for (k = 0; k < A->column; k += 64) {
                 __m256i aa = _mm256_loadu_si256((const __m256i_u *)&data_A[i * A->column + k]),
@@ -135,10 +131,6 @@ void *mat_mul_avx_int8_thread_func(void *args) {
     for (i = start_i; i < end_i; i++)
         for (j = 0; j < C->column; j++) {
             int acc = 0;
-            __m256i aa = _mm256_loadu_si256((const __m256i_u *)A), bb = _mm256_loadu_si256((const __m256i_u *)B);
-            __m256i aa2 = _mm256_loadu_si256((const __m256i_u *)(&A[32])),
-                    bb2 = _mm256_loadu_si256((const __m256i_u *)(&B[32]));
-
             __m256i acc8x32 = _mm256_setzero_si256();
             for (k = 0; k < A->column; k += 64) {
                 __m256i aa = _mm256_loadu_si256((const __m256i_u *)&data_A[i * A->column + k]),
