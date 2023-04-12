@@ -19,7 +19,7 @@ endif
 # Check if CUDA is available
 CUDA_AVAILABLE := $(shell command -v /usr/local/cuda/bin/nvcc 2> /dev/null)
 
-CC_FLAGS = -O3 -std=c++11 -mavx2 -mfma
+CC_FLAGS = -O3 -std=c++11
 # Compiler and flags
 ifdef CUDA_AVAILABLE
 	CC = /usr/local/cuda/bin/nvcc
@@ -27,6 +27,7 @@ ifdef CUDA_AVAILABLE
     $(info CUDA is available)
 else
     CC = g++
+    CC_FLAGS += -mavx2 -mfma
 endif
 ifdef ONEDNN_AVAILABLE
 	CC_FLAGS += -DONEDNN_ENABLE
