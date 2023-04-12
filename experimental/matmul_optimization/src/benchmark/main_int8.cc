@@ -103,7 +103,7 @@ int main() {
     initialize_matrix(output_C_s8, C_ROW * C_COLUMN);
     matmul_op.evaluate(MatmulOperator::INT8_AVX_FAST, &params_int8);
     if (!check_identical(native_C_s8, output_C_s8, C_ROW * C_COLUMN))
-        printf("incorrect output from mat_mul_avx_int8_fasts\n");
+        printf("incorrect output from mat_mul_avx_int8_fast\n");
     // Debugging
     // dump_integer_array(MAT_A_s8, A_ROW * A_COLUMN);
     // dump_integer_array(MAT_B_s8, B_ROW * B_COLUMN);
