@@ -19,7 +19,7 @@ endif
 # Check if CUDA is available
 CUDA_AVAILABLE := $(shell command -v /usr/local/cuda/bin/nvcc 2> /dev/null)
 
-CC_FLAGS = -O3 -std=c++11
+CC_FLAGS = -O3 -std=c++11 -mavx2 -mfma
 # Compiler and flags
 ifdef CUDA_AVAILABLE
 	CC = /usr/local/cuda/bin/nvcc
@@ -48,7 +48,7 @@ endif
 # Files
 TARGET = benchmark_run
 CUDA_SRCS = lib/matmul.cu
-CPP_SRCS = benchmark/main.cc lib/matmul_imp.cc lib/utils.cc lib/matmul_int8.cc
+CPP_SRCS = benchmark/main.cc lib/matmul_imp.cc lib/utils.cc lib/matmul_int8.cc lib/matmul_avx_int8.cc
 ONEDNN_SRCS = lib/matmul_onednn.cc
 
 # Objects

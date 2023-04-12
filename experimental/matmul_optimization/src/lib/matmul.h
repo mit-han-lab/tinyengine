@@ -14,13 +14,6 @@ struct matrix {
     struct quantization_params qparams;
 };
 
-struct thread_args {
-    const struct matrix *A;
-    const struct matrix *B;
-    const struct matrix *C;
-    int start_i, end_i, blk_size;
-};
-
 struct optimization_params {
     int blk_size;
     int num_thread = 8;
@@ -29,6 +22,14 @@ struct optimization_params {
 struct matmul_params {
     struct matrix A, B, C;
     struct optimization_params opt_params;
+};
+
+struct thread_args {
+    const struct matrix *A;
+    const struct matrix *B;
+    const struct matrix *C;
+    const struct matmul_params *params;
+    int start_i, end_i, blk_size;
 };
 
 #define MAX(A, B) ((A) > (B) ? (A) : (B))
@@ -49,6 +50,8 @@ class MatmulOperator {
         ONEDNN_FP32 = 9,
         INT8_BASELINE = 10,
         ONEDNN_INT8 = 11,
+        INT8_AVX = 12,
+        INT8_AVX_FAST = 13,
     };
     void naive_mat_mul(const struct matmul_params *params);
     void mat_mul_unrolling(const struct matmul_params *params);
@@ -61,6 +64,8 @@ class MatmulOperator {
     void mat_mul_onednn(const struct matmul_params *params);
     void mat_mul_onednn_int8(const struct matmul_params *params);
     void naive_mat_mul_int8(const struct matmul_params *params);
+    void mat_mul_avx_int8(const struct matmul_params *params);
+    void mat_mul_avx_int8_fast(const struct matmul_params *params);
     void mat_mul_cuda(const struct matmul_params *params);
     void evaluate(IMP_TYPE type, const struct matmul_params *params);
 

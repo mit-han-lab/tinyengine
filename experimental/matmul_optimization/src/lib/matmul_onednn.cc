@@ -1,4 +1,5 @@
 #ifdef ONEDNN_ENABLE
+//#define DUMP_KERNEL_TIME
 #include <cstdlib>
 #include <iostream>
 
@@ -67,7 +68,9 @@ void MatmulOperator::mat_mul_onednn(const struct matmul_params *params) {
     s.wait();
     gettimeofday(&end, NULL);
     int us = interval_to_us(&start, &end);
+#ifdef INT8_AVX_FAST
     std::cout << "onednn kernel: " << us / 1000 << " ms" << std::endl;
+#endif
 }
 
 void MatmulOperator::mat_mul_onednn_int8(const struct matmul_params *params) {
@@ -133,7 +136,9 @@ void MatmulOperator::mat_mul_onednn_int8(const struct matmul_params *params) {
     s.wait();
     gettimeofday(&end, NULL);
     int us = interval_to_us(&start, &end);
+#ifdef INT8_AVX_FAST
     std::cout << "onednn kernel: " << us / 1000 << " ms" << std::endl;
+#endif
 }
 
 }  // namespace matmul
