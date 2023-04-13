@@ -57,11 +57,11 @@ __m256i multiply_signed_int8(__m256i &a, __m256i &b, __m256i &a2, __m256i &b2) {
     // Manipulate the `sign` of B to represent the sign of the 16 bit result
     __m256i sign_mask_a_sub_b = _mm256_sub_epi8(a_sign_mask, b_sign_mask);
     __m256i sign_mask_a2_sub_b2 = _mm256_sub_epi8(a2_sign_mask, b2_sign_mask);
-    __m256i two_complement_mask = _mm256_cmpeq_epi8(
-        sign_mask_a_sub_b, zero_vec);  // two_complement_mask[i] if a[i] and b[i] have different sign bits
-    __m256i two_complement_mask2 = _mm256_cmpeq_epi8(sign_mask_a2_sub_b2, zero_vec);
-    __m256i corrected_b = _mm256_blendv_epi8(b_negated, b_abs, two_complement_mask);
-    __m256i corrected_b2 = _mm256_blendv_epi8(b2_negated, b2_abs, two_complement_mask2);
+    __m256i sign_mask =
+        _mm256_cmpeq_epi8(sign_mask_a_sub_b, zero_vec);  // sign_mask[i] if a[i] and b[i] have different sign bits
+    __m256i sign_mask2 = _mm256_cmpeq_epi8(sign_mask_a2_sub_b2, zero_vec);
+    __m256i corrected_b = _mm256_blendv_epi8(b_negated, b_abs, sign_mask);
+    __m256i corrected_b2 = _mm256_blendv_epi8(b2_negated, b2_abs, sign_mask2);
 
     // Multiply the absolute values of a_abs (unsigned 8-bit integers) and corrected_b (signed 8-bit integers)
     __m256i product_16x16 = _mm256_maddubs_epi16(a_abs, corrected_b);
@@ -81,6 +81,26 @@ __m256i multiply_signed_int8(__m256i &a, __m256i &b, __m256i &a2, __m256i &b2) {
 
     return sum_product_8x32;
 }
+// Note: This implementation could have potential overflow!
+// __m256i multiply_signed_int8(__m256i &a, __m256i &b, __m256i &a2, __m256i &b2) {
+//     // Multiply the absolute values of a_abs (unsigned 8-bit integers) and corrected_b (signed 8-bit integers)
+//     __m256i product_16x16 = _mm256_maddubs_epi16(a, b);
+//     __m256i product_16x16_2 = _mm256_maddubs_epi16(a2, b2);
+
+//     // Sign extend the 16-bit integers in vector to 32-bit integers
+//     __m256i a_ext1 = _mm256_cvtepi16_epi32(_mm256_extracti128_si256(product_16x16, 0));
+//     __m256i b_ext1 = _mm256_cvtepi16_epi32(_mm256_extracti128_si256(product_16x16_2, 0));
+//     __m256i a_ext2 = _mm256_cvtepi16_epi32(_mm256_extracti128_si256(product_16x16, 1));
+//     __m256i b_ext2 = _mm256_cvtepi16_epi32(_mm256_extracti128_si256(product_16x16_2, 1));
+
+//     // Element-wise add the 32-bit integer vectors
+//     __m256i sum1 = _mm256_add_epi32(a_ext1, b_ext1);
+//     __m256i sum2 = _mm256_add_epi32(a_ext2, b_ext2);
+
+//     __m256i sum_product_8x32 = _mm256_add_epi32(sum1, sum2);
+
+//     return sum_product_8x32;
+// }
 
 void MatmulOperator::mat_mul_avx_int8(const struct matmul_params *params) {
     int i, j, k;

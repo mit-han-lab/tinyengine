@@ -47,10 +47,9 @@ LDFLAGS += -ldnnl
 endif
 
 # Files
-TARGET = benchmark_run benchmark_run_int8
+TARGET = benchmark_run
 CUDA_SRCS = lib/matmul.cu
-CPP_SRCS = benchmark/main.cc lib/matmul_imp.cc lib/utils.cc lib/matmul_int8.cc
-INT8_CPP_SRCS = benchmark/main_int8.cc lib/matmul_imp.cc lib/utils.cc lib/matmul_int8.cc lib/matmul_avx_int8.cc
+CPP_SRCS = benchmark/main.cc lib/matmul_imp.cc lib/utils.cc lib/matmul_int8.cc lib/matmul_avx_int8.cc
 ONEDNN_SRCS = lib/matmul_onednn.cc
 
 # Objects
@@ -72,12 +71,8 @@ $(info CC_FLAGS: $(CC_FLAGS))
 # Targets
 all: $(TARGET)
 
-# $(TARGET): $(OBJS)
-# 	$(CC) $(CC_FLAGS) $(INCLUDE_DIRS) $(LDFLAGS) -o $(TARGET) $(OBJS)
-benchmark_run: $(OBJS)
-	$(CC) $(CC_FLAGS) $(INCLUDE_DIRS) $(LDFLAGS) -o benchmark_run $(OBJS)
-benchmark_run_int8: $(INT8_OBJS)
-	$(CC) $(CC_FLAGS) $(INCLUDE_DIRS) $(LDFLAGS) -o benchmark_run_int8 $(INT8_OBJS)
+$(TARGET): $(OBJS)
+	$(CC) $(CC_FLAGS) $(INCLUDE_DIRS) $(LDFLAGS) -o $(TARGET) $(OBJS)
 
 %.o: %.cu
 	$(CC) $(CC_FLAGS) $(INCLUDE_DIRS) $(LDFLAGS) -c $< -o $@

@@ -21,7 +21,7 @@
 // #define B_COLUMN 2
 // #define C_ROW 2
 // #define C_COLUMN 2
-#define NUM_THREAD 8
+#define NUM_THREAD 1
 
 float MAT_A[A_ROW * A_COLUMN];
 float MAT_B[B_ROW * B_COLUMN];
