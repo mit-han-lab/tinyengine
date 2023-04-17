@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include "matmul.h"
+// #include <omp.h> // currently it is bugged
 
 namespace matmul {
 void dump_64x8_signed(__m256i &target, char *title) {
@@ -390,6 +391,73 @@ void MatmulOperator::mat_mul_avx_int8_fast_2x2(const struct matmul_params *param
     for (j = 0; j < num_thread; j++) {
         pthread_join(thread_pool[j], NULL);
     }
+}
+
+void MatmulOperator::mat_mul_avx_int8_fast_2x2_omp(const struct matmul_params *params) {
+    int i, j, k;
+    const struct matrix *A = &params->A, *B = &params->B, *C = &params->C;
+    int32_t A_zp = A->qparams.zero_point, C_zp = C->qparams.zero_point;
+    float A_sc = A->qparams.scale, B_sc = B->qparams.scale, C_sc = C->qparams.scale;
+    float effective_scale = A_sc * B_sc / C_sc;
+    int8_t *data_A = A->int8_data_ptr, *data_B = B->int8_data_ptr, *data_C = C->int8_data_ptr;
+
+    assert(A->column % 64 == 0);
+    assert((C->column) % 2 == 0);
+    assert((C->row) % 2 == 0);
+
+    // #pragma omp parallel for
+    for (i = 0; i < C->row; i += 2)
+        for (j = 0; j < C->column; j += 2) {
+            // (i, j), (i, j+1), (i+1, j), (i+1, j+1)
+            int acc0 = 0, acc1 = 0, acc2 = 0, acc3 = 0;
+            __m256i acc0_8x32 = _mm256_setzero_si256(), acc1_8x32 = _mm256_setzero_si256(),
+                    acc2_8x32 = _mm256_setzero_si256(), acc3_8x32 = _mm256_setzero_si256();
+            for (k = 0; k < A->column; k += 64) {
+                __m256i aa = _mm256_loadu_si256((const __m256i_u *)&data_A[i * A->column + k]),
+                        aa2 = _mm256_loadu_si256((const __m256i_u *)(&data_A[i * A->column + k + 32]));
+                __m256i cc = _mm256_loadu_si256((const __m256i_u *)&data_A[(i + 1) * A->column + k]),
+                        cc2 = _mm256_loadu_si256((const __m256i_u *)(&data_A[(i + 1) * A->column + k + 32]));
+                // assume B is transposed
+                __m256i bb = _mm256_loadu_si256((const __m256i_u *)&data_B[j * B->row + k]),
+                        bb2 = _mm256_loadu_si256((const __m256i_u *)(&data_B[j * B->row + k + 32]));
+                __m256i dd = _mm256_loadu_si256((const __m256i_u *)&data_B[(j + 1) * B->row + k]),
+                        dd2 = _mm256_loadu_si256((const __m256i_u *)(&data_B[(j + 1) * B->row + k + 32]));
+
+                multiply_signed_int8_2x2(aa, bb, aa2, bb2, cc, cc2, dd, dd2, acc0_8x32, acc1_8x32, acc2_8x32,
+                                         acc3_8x32);
+            }
+            int32_t *accptr = (int32_t *)&acc0_8x32;
+            acc0 = accptr[0] + accptr[1] + accptr[2] + accptr[3] + accptr[4] + accptr[5] + accptr[6] + accptr[7];
+            accptr = (int32_t *)&acc1_8x32;
+            acc1 = accptr[0] + accptr[1] + accptr[2] + accptr[3] + accptr[4] + accptr[5] + accptr[6] + accptr[7];
+            accptr = (int32_t *)&acc2_8x32;
+            acc2 = accptr[0] + accptr[1] + accptr[2] + accptr[3] + accptr[4] + accptr[5] + accptr[6] + accptr[7];
+            accptr = (int32_t *)&acc3_8x32;
+            acc3 = accptr[0] + accptr[1] + accptr[2] + accptr[3] + accptr[4] + accptr[5] + accptr[6] + accptr[7];
+
+            acc0 = (int32_t)((float)acc0 * effective_scale);
+            acc1 = (int32_t)((float)acc1 * effective_scale);
+            acc2 = (int32_t)((float)acc2 * effective_scale);
+            acc3 = (int32_t)((float)acc3 * effective_scale);
+
+            acc0 -= C_zp;
+            acc1 -= C_zp;
+            acc2 -= C_zp;
+            acc3 -= C_zp;
+
+            acc0 = MAX(acc0, -128);
+            acc1 = MAX(acc1, -128);
+            acc2 = MAX(acc2, -128);
+            acc3 = MAX(acc3, -128);
+            acc0 = MIN(acc0, 127);
+            acc1 = MIN(acc1, 127);
+            acc2 = MIN(acc2, 127);
+            acc3 = MIN(acc3, 127);
+            data_C[i * C->column + j] = (int8_t)acc0;
+            data_C[i * C->column + j + 1] = (int8_t)acc1;
+            data_C[(i + 1) * C->column + j] = (int8_t)acc2;
+            data_C[(i + 1) * C->column + j + 1] = (int8_t)acc3;
+        }
 }
 
 }  // namespace matmul

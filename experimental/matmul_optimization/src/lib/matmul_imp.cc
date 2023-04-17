@@ -343,6 +343,10 @@ void MatmulOperator::evaluate(IMP_TYPE type, const struct matmul_params *params)
             function_name = "mat_mul_avx_int8_fast_2x2";
             for (int i = 0; i < RUNS; i++) this->mat_mul_avx_int8_fast_2x2(params);
             break;
+        case INT8_AVX_FAST_2x2_OMP:
+            function_name = "mat_mul_avx_int8_fast_2x2_omp";
+            for (int i = 0; i < RUNS; i++) this->mat_mul_avx_int8_fast_2x2_omp(params);
+            break;
         default:
             break;
     }

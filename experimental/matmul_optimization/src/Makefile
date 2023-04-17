@@ -20,6 +20,7 @@ endif
 CUDA_AVAILABLE := $(shell command -v /usr/local/cuda/bin/nvcc 2> /dev/null)
 
 CC_FLAGS = -O3 -std=c++11 #-g
+#CC_FLAGS = -O3 -std=c++11 -Xclang -fopenmp -g
 # Compiler and flags
 ifdef CUDA_AVAILABLE
 	CC = /usr/local/cuda/bin/nvcc
@@ -35,6 +36,7 @@ ifdef ONEDNN_AVAILABLE
 endif
 
 # Include directories
+# INCLUDE_DIRS = -I./ -I/usr/local/opt/libomp/include
 INCLUDE_DIRS = -I./
 
 # Library directories
@@ -45,6 +47,10 @@ LDFLAGS =
 ifdef ONEDNN_AVAILABLE
 LDFLAGS += -ldnnl
 endif
+
+# TODO: openmp flag
+OMP_FLAGS =  -L/usr/local/opt/libomp/lib/ -lomp
+# LDFLAGS += $(OMP_FLAGS
 
 # Files
 TARGET = benchmark_run
@@ -83,6 +89,7 @@ ifdef CUDA_AVAILABLE
 else
 %.o: %.cc
 	$(CC) $(CC_FLAGS) $(INCLUDE_DIRS) $(LDFLAGS) -c $< -o $@
+    #$(CC) $(CC_FLAGS) $(INCLUDE_DIRS) $(LDFLAGS) -c $< -o $@ $(OMP_FLAGS)
 endif
 
 clean:
