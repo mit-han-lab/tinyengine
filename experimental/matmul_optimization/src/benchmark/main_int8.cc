@@ -15,7 +15,7 @@
 #define B_COLUMN 1024
 #define C_ROW 1024
 #define C_COLUMN 1024
-#define NUM_THREAD 8
+#define NUM_THREAD 16
 
 int8_t MAT_A_s8[A_ROW * A_COLUMN];
 int8_t MAT_B_s8[B_ROW * B_COLUMN];
