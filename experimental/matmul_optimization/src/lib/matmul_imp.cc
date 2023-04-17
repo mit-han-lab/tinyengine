@@ -14,7 +14,7 @@
 #include "matmul.h"
 
 #define MAX_TRANSPOSE_BUFFER 2048 * 20480
-#define RUNS 1
+#define RUNS 10
 
 float transpose_tmp[MAX_TRANSPOSE_BUFFER];
 
@@ -338,6 +338,10 @@ void MatmulOperator::evaluate(IMP_TYPE type, const struct matmul_params *params)
         case INT8_AVX_FAST:
             function_name = "mat_mul_avx_int8_fast";
             for (int i = 0; i < RUNS; i++) this->mat_mul_avx_int8_fast(params);
+            break;
+        case INT8_AVX_FAST_2x2:
+            function_name = "mat_mul_avx_int8_fast_2x2";
+            for (int i = 0; i < RUNS; i++) this->mat_mul_avx_int8_fast_2x2(params);
             break;
         default:
             break;

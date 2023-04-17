@@ -19,7 +19,7 @@ endif
 # Check if CUDA is available
 CUDA_AVAILABLE := $(shell command -v /usr/local/cuda/bin/nvcc 2> /dev/null)
 
-CC_FLAGS = -O3 -std=c++11
+CC_FLAGS = -O3 -std=c++11 #-g
 # Compiler and flags
 ifdef CUDA_AVAILABLE
 	CC = /usr/local/cuda/bin/nvcc
