@@ -53,7 +53,8 @@ class MatmulOperator {
         INT8_AVX = 12,
         INT8_AVX_FAST = 13,
         INT8_AVX_FAST_2x2 = 14,
-        INT8_AVX_FAST_2x2_OMP = 15,
+        INT8_AVX_FAST_2x2_32UNROLL = 15,
+        INT8_AVX_FAST_2x2_OMP = 16,
     };
     void naive_mat_mul(const struct matmul_params *params);
     void mat_mul_unrolling(const struct matmul_params *params);
@@ -69,6 +70,7 @@ class MatmulOperator {
     void mat_mul_avx_int8(const struct matmul_params *params);
     void mat_mul_avx_int8_fast(const struct matmul_params *params);
     void mat_mul_avx_int8_fast_2x2(const struct matmul_params *params);
+    void mat_mul_avx_int8_fast_2x2_32unroll(const struct matmul_params *params);
     void mat_mul_avx_int8_fast_2x2_omp(const struct matmul_params *params);
     void mat_mul_cuda(const struct matmul_params *params);
     void evaluate(IMP_TYPE type, const struct matmul_params *params);
