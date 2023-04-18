@@ -343,6 +343,10 @@ void MatmulOperator::evaluate(IMP_TYPE type, const struct matmul_params *params)
             function_name = "mat_mul_avx_int8_fast_2x2";
             for (int i = 0; i < RUNS; i++) this->mat_mul_avx_int8_fast_2x2(params);
             break;
+        case INT8_AVX_FAST_2x2_32UNROLL:
+            function_name = "mat_mul_avx_int8_fast_2x2_32unroll";
+            for (int i = 0; i < RUNS; i++) this->mat_mul_avx_int8_fast_2x2_32unroll(params);
+            break;
         case INT8_AVX_FAST_2x2_OMP:
             function_name = "mat_mul_avx_int8_fast_2x2_omp";
             for (int i = 0; i < RUNS; i++) this->mat_mul_avx_int8_fast_2x2_omp(params);
@@ -352,7 +356,8 @@ void MatmulOperator::evaluate(IMP_TYPE type, const struct matmul_params *params)
     }
     gettimeofday(&end, NULL);
     ms = interval_to_ms(&start, &end);
-    float GOPS = (float)(params->C.column * params->C.row * params->B.row) * 2 / (1000000000) * RUNS;
+    float GOPS =
+        (float)((float)params->C.column * (float)params->C.row * (float)params->B.row) * 2 / (1000000000) * RUNS;
     std::cout << function_name << ": " << ms << " ms, GOPS/s:" << GOPS / ((float)ms / 1000) << std::endl;
 }
 
