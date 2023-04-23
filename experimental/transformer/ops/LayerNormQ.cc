@@ -17,18 +17,18 @@ void LayerNormQ(Matrix3D<float> &x, Matrix3D<float> &weight, Matrix3D<float> &bi
             for (int k = 0; k < x.m_dim_z; k++) {  // hideden states
                 mean += x(i, j, k);
             }
-            mean /= x.m_dim_z;
+            mean /= static_cast<float>(x.m_dim_z);
             float squared_diff_sum = 0;
             for (int k = 0; k < x.m_dim_z; k++) {
                 float value = x(i, j, k);
                 squared_diff_sum += (value - mean) * (value - mean);
             }
-            float std_dev = std::sqrt(squared_diff_sum / x.m_dim_z);
+            float std_dev = std::sqrt(squared_diff_sum / static_cast<float>(x.m_dim_z));
 
             for (int k = 0; k < x.m_dim_z; k++) {
                 float value = x(i, j, k);
                 float fp_out = ((value - mean) / (std_dev + eps) * weight(0, 0, k)) + bias(0, 0, k);
-                output(i, j, k) = static_cast<int8_t>(fp_out);
+                output(i, j, k) = static_cast<int8_t>(std::round(fp_out));
             }
         }
     }
