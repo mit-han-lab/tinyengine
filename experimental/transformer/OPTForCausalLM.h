@@ -1,7 +1,7 @@
 #include "Int8OPTDecoder.h"
 
 struct OPTForCausalLM_output{
-    void* logits;
+    Matrix3D<float> logits;
 };
 struct OPTForCausalLM_input{
     Matrix3D<int> input_ids;
