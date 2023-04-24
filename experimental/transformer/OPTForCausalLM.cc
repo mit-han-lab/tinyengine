@@ -24,16 +24,16 @@ struct OPTForCausalLM_output OPTForCausalLM::forward(const struct OPTForCausalLM
     //     output_hidden_states=output_hidden_states,
     //     return_dict=return_dict,
     // )
-    struct Int8OPTDecoder_input decoder_input = {input.input_ids};
+    // struct Int8OPTDecoder_input decoder_input = {input.input_ids};
 
-    struct Int8OPTDecoder_output decoder_output = this->m_decoder.forward(decoder_input);
+    // struct Int8OPTDecoder_output decoder_output = this->m_decoder.forward(decoder_input);
     // TODO: Mock the output for now
-    // Matrix3D<float> mock_model_output(mock_model_output_arr, 1, 512, 768);
-    // read_to_array((char*)"sample_output.bin", mock_model_output_arr, 512 * 768);
+    Matrix3D<float> mock_model_output(mock_model_output_arr, 1, 512, 768);
+    read_to_array((char*)"sample_output.bin", mock_model_output_arr, 512 * 768);
 
     // logits = self.lm_head(outputs[0]).contiguous()
     Matrix3D<float> logits(logits_output, 1, 512, 50272);
-    linear_fp(decoder_output.last_hidden_state, this->lm_head_weights, logits);
+    linear_fp(mock_model_output, this->lm_head_weights, logits);
 
     struct OPTForCausalLM_output LMoutput = {logits};
     return LMoutput;

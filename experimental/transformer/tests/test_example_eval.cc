@@ -1,6 +1,6 @@
-#include "OPTForCausalLM.h"
-#include "input_input_ids.h"
-#include "utils.h"
+#include "../OPTForCausalLM.h"
+#include "../input_input_ids.h"
+#include "../utils.h"
 #include <vector>
 #include <cstdlib>
 
@@ -29,7 +29,6 @@ int main() {
     for (int i = 0; i < 50272; i++){
         last_token_logits(0, 0, i) = output.logits(0, (512 - (2 + pad_len)), i);
     }
-    std::cout << std::endl;
 
     // End result tests here
     read_to_array((char*)"last_token_logits.bin", gt_last_token_logits_array, 50272);
