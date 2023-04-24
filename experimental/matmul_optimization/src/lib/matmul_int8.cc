@@ -12,6 +12,7 @@ void MatmulOperator::naive_mat_mul_int8(const struct matmul_params *params) {
     float A_sc = A->qparams.scale, B_sc = B->qparams.scale, C_sc = C->qparams.scale;
     float effective_scale = A_sc * B_sc / C_sc;
     int8_t *data_A = A->int8_data_ptr, *data_B = B->int8_data_ptr, *data_C = C->int8_data_ptr;
+    const int8_t q_min = C->qparams.q_min, q_max = C->qparams.q_max;
     CHECK_MATRICES(A, B, C);
 
     for (i = 0; i < C->row; i++)
@@ -22,8 +23,8 @@ void MatmulOperator::naive_mat_mul_int8(const struct matmul_params *params) {
 
             acc = (int32_t)((float)acc * effective_scale);
             acc -= C_zp;
-            acc = MAX(acc, -128);
-            acc = MIN(acc, 127);
+            acc = MAX(acc, q_min);
+            acc = MIN(acc, q_max);
             data_C[i * C->column + j] = (int8_t)acc;
         }
 }
