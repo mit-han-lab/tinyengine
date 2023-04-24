@@ -483,7 +483,7 @@ void *mat_mul_avx_int8_thread_func_2x2_32unroll(void *args) {
             acc0 += params->bias.int32_data_ptr[j];
             accptr = (int32_t *)&acc1_8x32;
             acc1 = accptr[0] + accptr[1] + accptr[2] + accptr[3] + accptr[4] + accptr[5] + accptr[6] + accptr[7];
-            acc0 += params->bias.int32_data_ptr[j + 1];
+            acc1 += params->bias.int32_data_ptr[j + 1];
             accptr = (int32_t *)&acc2_8x32;
             acc2 = accptr[0] + accptr[1] + accptr[2] + accptr[3] + accptr[4] + accptr[5] + accptr[6] + accptr[7];
             acc2 += params->bias.int32_data_ptr[j];
@@ -602,7 +602,7 @@ void MatmulOperator::mat_mul_avx_int8_fast_2x2_omp(const struct matmul_params *p
             acc0 += params->bias.int32_data_ptr[j];
             accptr = (int32_t *)&acc1_8x32;
             acc1 = accptr[0] + accptr[1] + accptr[2] + accptr[3] + accptr[4] + accptr[5] + accptr[6] + accptr[7];
-            acc0 += params->bias.int32_data_ptr[j + 1];
+            acc1 += params->bias.int32_data_ptr[j + 1];
             accptr = (int32_t *)&acc2_8x32;
             acc2 = accptr[0] + accptr[1] + accptr[2] + accptr[3] + accptr[4] + accptr[5] + accptr[6] + accptr[7];
             acc2 += params->bias.int32_data_ptr[j];
