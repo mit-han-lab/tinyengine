@@ -15,7 +15,8 @@ bool check_two_equal(T* array, T* array2, int size){
     for (int i = 0; i < size; i++){
         float diff = (float)array[i] - (float)array2[i];
         if (abs(diff) > ERROR_MAX){
-            std::cout << i << ":" << diff << std::endl;
+            std::cout << i << ":" << diff << "," << (float)array[i] << "," << (float)array2[i] << std::endl;
+            // std::cout << i << ":" << diff << std::endl;
             return false;
         }
     }

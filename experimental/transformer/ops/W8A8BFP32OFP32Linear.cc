@@ -30,8 +30,6 @@ void W8A8BFP32OFP32Linear(Matrix3D<int8_t> &x, Matrix3D<int8_t> &weight, Matrix3
     params.C.qparams.zero_point = 0;
     params.opt_params.blk_size = BLK_SIZE;
     params.opt_params.num_thread = NUM_THREAD;
-    params.C.qparams.q_max = 127;
-    params.C.qparams.q_min = 0;
     params.bias.data_ptr = bias.m_data;
     params.bias.row = 1;
     params.bias.column = bias.m_dim_z;
@@ -42,7 +40,7 @@ void W8A8BFP32OFP32Linear(Matrix3D<int8_t> &x, Matrix3D<int8_t> &weight, Matrix3
     for (int bz = 0; bz < x.m_dim_x; bz++){
         matmul_op.mat_mul_avx_int8_fast_2x2_32unroll_bfp32_ofp32(&params);
         params.A.int8_data_ptr += m * k;
-        params.C.int8_data_ptr += m * n;
+        params.C.data_ptr += m * n;
     }
 
 }
