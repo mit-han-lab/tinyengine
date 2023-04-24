@@ -409,13 +409,17 @@ void *mat_mul_avx_int8_thread_func_2x2(void *args) {
                                          acc3_8x32);
             }
             int32_t *accptr = (int32_t *)&acc0_8x32;
-            acc0 = accptr[0] + accptr[1] + accptr[2] + accptr[3] + accptr[4] + accptr[5] + accptr[6] + accptr[7];
+            acc0 = accptr[0] + accptr[1] + accptr[2] + accptr[3] + accptr[4] + accptr[5] + accptr[6] + accptr[7] +
+                   params->bias.int32_data_ptr[j];
             accptr = (int32_t *)&acc1_8x32;
-            acc1 = accptr[0] + accptr[1] + accptr[2] + accptr[3] + accptr[4] + accptr[5] + accptr[6] + accptr[7];
+            acc1 = accptr[0] + accptr[1] + accptr[2] + accptr[3] + accptr[4] + accptr[5] + accptr[6] + accptr[7] +
+                   params->bias.int32_data_ptr[j + 1];
             accptr = (int32_t *)&acc2_8x32;
-            acc2 = accptr[0] + accptr[1] + accptr[2] + accptr[3] + accptr[4] + accptr[5] + accptr[6] + accptr[7];
+            acc2 = accptr[0] + accptr[1] + accptr[2] + accptr[3] + accptr[4] + accptr[5] + accptr[6] + accptr[7] +
+                   params->bias.int32_data_ptr[j];
             accptr = (int32_t *)&acc3_8x32;
-            acc3 = accptr[0] + accptr[1] + accptr[2] + accptr[3] + accptr[4] + accptr[5] + accptr[6] + accptr[7];
+            acc3 = accptr[0] + accptr[1] + accptr[2] + accptr[3] + accptr[4] + accptr[5] + accptr[6] + accptr[7] +
+                   params->bias.int32_data_ptr[j + 1];
 
             acc0 = (int32_t)((float)acc0 * effective_scale);
             acc1 = (int32_t)((float)acc1 * effective_scale);
@@ -474,13 +478,17 @@ void *mat_mul_avx_int8_thread_func_2x2_32unroll(void *args) {
                 // multiply_signed_int8_2x2_32epi(aa, bb, cc, dd, acc0_8x32, acc1_8x32, acc2_8x32, acc3_8x32);
             }
             int32_t *accptr = (int32_t *)&acc0_8x32;
-            acc0 = accptr[0] + accptr[1] + accptr[2] + accptr[3] + accptr[4] + accptr[5] + accptr[6] + accptr[7];
+            acc0 = accptr[0] + accptr[1] + accptr[2] + accptr[3] + accptr[4] + accptr[5] + accptr[6] + accptr[7] +
+                   params->bias.int32_data_ptr[j];
             accptr = (int32_t *)&acc1_8x32;
-            acc1 = accptr[0] + accptr[1] + accptr[2] + accptr[3] + accptr[4] + accptr[5] + accptr[6] + accptr[7];
+            acc1 = accptr[0] + accptr[1] + accptr[2] + accptr[3] + accptr[4] + accptr[5] + accptr[6] + accptr[7] +
+                   params->bias.int32_data_ptr[j + 1];
             accptr = (int32_t *)&acc2_8x32;
-            acc2 = accptr[0] + accptr[1] + accptr[2] + accptr[3] + accptr[4] + accptr[5] + accptr[6] + accptr[7];
+            acc2 = accptr[0] + accptr[1] + accptr[2] + accptr[3] + accptr[4] + accptr[5] + accptr[6] + accptr[7] +
+                   params->bias.int32_data_ptr[j];
             accptr = (int32_t *)&acc3_8x32;
-            acc3 = accptr[0] + accptr[1] + accptr[2] + accptr[3] + accptr[4] + accptr[5] + accptr[6] + accptr[7];
+            acc3 = accptr[0] + accptr[1] + accptr[2] + accptr[3] + accptr[4] + accptr[5] + accptr[6] + accptr[7] +
+                   params->bias.int32_data_ptr[j + 1];
 
             acc0 = (int32_t)((float)acc0 * effective_scale);
             acc1 = (int32_t)((float)acc1 * effective_scale);
@@ -589,13 +597,17 @@ void MatmulOperator::mat_mul_avx_int8_fast_2x2_omp(const struct matmul_params *p
                                          acc3_8x32);
             }
             int32_t *accptr = (int32_t *)&acc0_8x32;
-            acc0 = accptr[0] + accptr[1] + accptr[2] + accptr[3] + accptr[4] + accptr[5] + accptr[6] + accptr[7];
+            acc0 = accptr[0] + accptr[1] + accptr[2] + accptr[3] + accptr[4] + accptr[5] + accptr[6] + accptr[7] +
+                   params->bias.int32_data_ptr[j];
             accptr = (int32_t *)&acc1_8x32;
-            acc1 = accptr[0] + accptr[1] + accptr[2] + accptr[3] + accptr[4] + accptr[5] + accptr[6] + accptr[7];
+            acc1 = accptr[0] + accptr[1] + accptr[2] + accptr[3] + accptr[4] + accptr[5] + accptr[6] + accptr[7] +
+                   params->bias.int32_data_ptr[j + 1];
             accptr = (int32_t *)&acc2_8x32;
-            acc2 = accptr[0] + accptr[1] + accptr[2] + accptr[3] + accptr[4] + accptr[5] + accptr[6] + accptr[7];
+            acc2 = accptr[0] + accptr[1] + accptr[2] + accptr[3] + accptr[4] + accptr[5] + accptr[6] + accptr[7] +
+                   params->bias.int32_data_ptr[j];
             accptr = (int32_t *)&acc3_8x32;
-            acc3 = accptr[0] + accptr[1] + accptr[2] + accptr[3] + accptr[4] + accptr[5] + accptr[6] + accptr[7];
+            acc3 = accptr[0] + accptr[1] + accptr[2] + accptr[3] + accptr[4] + accptr[5] + accptr[6] + accptr[7] +
+                   params->bias.int32_data_ptr[j + 1];
 
             acc0 = (int32_t)((float)acc0 * effective_scale);
             acc1 = (int32_t)((float)acc1 * effective_scale);

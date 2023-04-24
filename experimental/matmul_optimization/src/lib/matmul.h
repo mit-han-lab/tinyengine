@@ -22,7 +22,7 @@ struct optimization_params {
 };
 
 struct matmul_params {
-    struct matrix A, B, C;
+    struct matrix A, B, C, bias;
     struct optimization_params opt_params;
 };
 
@@ -30,7 +30,6 @@ struct thread_args {
     const struct matrix *A;
     const struct matrix *B;
     const struct matrix *C;
-    const struct matrix *bias;
     const struct matmul_params *params;
     int start_i, end_i, blk_size;
 };
