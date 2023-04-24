@@ -636,7 +636,8 @@ void *mat_mul_avx_int8_thread_func_2x2_32unroll_nobias_ofp32(void *args) {
     int32_t A_zp = A->qparams.zero_point, C_zp = C->qparams.zero_point;
     float A_sc = A->qparams.scale, B_sc = B->qparams.scale, C_sc = C->qparams.scale;
     float effective_scale = A_sc * B_sc / C_sc;
-    int8_t *data_A = A->int8_data_ptr, *data_B = B->int8_data_ptr, *data_C = C->int8_data_ptr;
+    int8_t *data_A = A->int8_data_ptr, *data_B = B->int8_data_ptr;
+    float *data_C = C->data_ptr;
     int start_i = thread_args->start_i, end_i = thread_args->end_i;
     const int8_t q_min = C->qparams.q_min, q_max = C->qparams.q_max;
 
