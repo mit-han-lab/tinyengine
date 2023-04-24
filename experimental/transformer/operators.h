@@ -11,7 +11,6 @@ void LayerNormQ(Matrix3D<float> &x, Matrix3D<float> &weight, Matrix3D<float> &bi
 void W8A8B8O8LinearReLU(Matrix3D<int8_t> &x, Matrix3D<int8_t> &weight, Matrix3D<int32_t> &bias, Matrix3D<int8_t> &output, float alpha);
 
 
-
 template<typename T>
 void linear(Matrix3D<T> &a, Matrix3D<T> &b, Matrix3D<T> &c);
 void linear_fp(Matrix3D<float> &a, Matrix3D<float> &b, Matrix3D<float> &c);

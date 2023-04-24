@@ -1,4 +1,7 @@
 #include "utils.h"
+#include <stdio.h>
+#include <cstdlib>
+#include <iostream>
 
 template<typename T>
 void read_to_array(char* path, T* array, int size){
@@ -21,8 +24,11 @@ template<>
 bool check_two_equal<int8_t>(int8_t* array, int8_t* array2, int size){
     for (int i = 0; i < size; i++){
         int diff = (int)array[i] - (int)array2[i];
-        if (abs(diff) > INT_ERROR_MAX)
+        // std::cout << "@@@@" << std::endl;
+        if (abs(diff) > INT_ERROR_MAX){
+            std::cout << i << ":" << diff << std::endl;
             return false;
+        }
     }
     return true;
 }
