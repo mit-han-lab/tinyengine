@@ -28,7 +28,7 @@ bool check_two_equal<int8_t>(int8_t* array, int8_t* array2, int size){
         int diff = (int)array[i] - (int)array2[i];
         // std::cout << "@@@@" << std::endl;
         if (abs(diff) > INT_ERROR_MAX){
-            std::cout << i << ":" << diff << std::endl;
+            std::cout << i << ":" << diff << "," << (int)array[i] << "," << (int)array2[i] << std::endl;
             return false;
         }
     }

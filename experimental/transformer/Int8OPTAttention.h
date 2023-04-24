@@ -12,4 +12,5 @@ class Int8OPTAttention{
 public:
     Int8OPTAttention(); // TODO: take a decoder
     struct Int8OPTAttention_output forward(const struct Int8OPTAttention_input &input);
+    
 }
