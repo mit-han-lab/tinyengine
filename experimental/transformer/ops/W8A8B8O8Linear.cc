@@ -2,7 +2,13 @@
 
 #include "../operators.h"
 
-void W8A8B8O8Linear(Matrix3D<int8_t> &x, Matrix3D<int8_t> &weight, Matrix3D<int32_t> &bias, Matrix3D<int8_t> &output, float alpha) {
+void W8A8B8O8Linear(struct W8A8B8O8Linear_params &op_params){
+    Matrix3D<int8_t> x = op_params.x;
+    Matrix3D<int8_t> weight = op_params.weight;
+    Matrix3D<int32_t> bias = op_params.bias;
+    Matrix3D<int8_t> output = op_params.output;
+    float alpha = op_params.alpha;
+
     assert(output.m_dim_x == x.m_dim_x);
     assert(output.m_dim_y == x.m_dim_y);
     assert(output.m_dim_z == weight.m_dim_y);

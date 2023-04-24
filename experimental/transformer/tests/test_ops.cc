@@ -1,42 +1,41 @@
 #include "../operators.h"
 #include "../utils.h"
 
-#define MAX_TEST_MEMORY_BUF 1024 * 1024 * 1024 // 1 GB
+#define MAX_TEST_MEMORY_BUF 1024 * 1024 * 1024  // 1 GB
 static char buffer[MAX_TEST_MEMORY_BUF];
 
-class MemoryAllocator{
-public:
-    MemoryAllocator() {
-        this->counter = 0;
-    }
-    float* get_fpbuffer(int size){
+class MemoryAllocator {
+   public:
+    MemoryAllocator() { this->counter = 0; }
+    float* get_fpbuffer(int size) {
         int byte_size = size * sizeof(float);
-        if (this->counter + byte_size > MAX_TEST_MEMORY_BUF){
+        if (this->counter + byte_size > MAX_TEST_MEMORY_BUF) {
             throw("Memory allocation fails! Test case uses too much memory.");
         }
         int cur_counter = counter;
         this->counter += ((byte_size + 3) / 4) * 4;
         return (float*)&buffer[cur_counter];
     }
-    int8_t* get_int8buffer(int size){
+    int8_t* get_int8buffer(int size) {
         int byte_size = size * sizeof(int8_t);
-        if (this->counter + byte_size > MAX_TEST_MEMORY_BUF){
+        if (this->counter + byte_size > MAX_TEST_MEMORY_BUF) {
             throw("Memory allocation fails! Test case uses too much memory.");
         }
         int cur_counter = counter;
         this->counter += ((byte_size + 3) / 4) * 4;
         return (int8_t*)&buffer[cur_counter];
     }
-    int* get_intbuffer(int size){
+    int* get_intbuffer(int size) {
         int byte_size = size * sizeof(int);
-        if (this->counter + byte_size > MAX_TEST_MEMORY_BUF){
+        if (this->counter + byte_size > MAX_TEST_MEMORY_BUF) {
             throw("Memory allocation fails! Test case uses too much memory.");
         }
         int cur_counter = counter;
         this->counter += ((byte_size + 3) / 4) * 4;
         return (int*)&buffer[cur_counter];
     }
-private:
+
+   private:
     int counter;
 };
 
@@ -61,7 +60,9 @@ void test_LayerNormQ() {
     read_to_array((char*)"assets/LayerNormQ_weight.bin", weight_arr, b * n);
     read_to_array((char*)"assets/LayerNormQ_out.bin", GToutput_arr, b * m * n);
 
-    LayerNormQ(input, weight, bias, output);
+    struct LayerNormQ_params op_params = {input, weight, bias, output};
+
+    LayerNormQ(op_params);
 
     assert(check_two_equal(output_arr, GToutput_arr, b * m * n));
 
@@ -96,7 +97,9 @@ void test_W8A8B8O8LinearReLU() {
     }
     read_to_array((char*)"assets/W8A8B8O8LinearReLU_y.bin", GToutput_arr, m * n);
 
-    W8A8B8O8LinearReLU(input, weight, bias, output, alpha);
+    struct W8A8B8O8Linear_params op_params = {input, weight, bias, output, alpha};
+
+    W8A8B8O8LinearReLU(op_params);
 
     assert(check_two_equal(output_arr, GToutput_arr, m * n));
 
@@ -125,7 +128,9 @@ void test_W8A8BFP32OFP32Linear() {
     read_to_array((char*)"assets/W8A8BFP32OFP32Linear_bias.bin", bias_arr, b * n);
     read_to_array((char*)"assets/W8A8BFP32OFP32Linear_y.bin", GToutput_arr, b * m * n);
 
-    W8A8BFP32OFP32Linear(input, weight, bias, output, alpha);
+    struct W8A8BFP32OFP32Linear_params op_params = {input, weight, bias, output, alpha};
+
+    W8A8BFP32OFP32Linear(op_params);
 
     assert(check_two_equal(output_arr, GToutput_arr, b * m * n));
 
@@ -160,7 +165,9 @@ void test_W8A8B8O8Linear() {
     }
     read_to_array((char*)"assets/W8A8B8O8Linear_y.bin", GToutput_arr, b * m * n);
 
-    W8A8B8O8Linear(input, weight, bias, output, alpha);
+    struct W8A8B8O8Linear_params op_params = {input, weight, bias, output, alpha};
+
+    W8A8B8O8Linear(op_params);
 
     assert(check_two_equal(output_arr, GToutput_arr, b * m * n));
 
@@ -186,13 +193,14 @@ void test_BMM_S8T_S8N_F32T() {
     read_to_array((char*)"assets/BMM_S8T_S8N_F32T_weight.bin", weight_arr, b * n * k);
     read_to_array((char*)"assets/BMM_S8T_S8N_F32T_y.bin", GToutput_arr, b * m * n);
 
-    BMM_S8T_S8N_F32T(input, weight, output, alpha);
+    struct BMM_S8T_S8N_F32T_params op_params = {input, weight, output, alpha};
+
+    BMM_S8T_S8N_F32T(op_params);
 
     assert(check_two_equal(output_arr, GToutput_arr, b * m * n));
 
     std::cout << "Test of " << __func__ << ": Passed!" << std::endl;
 }
-
 
 void test_BMM_S8T_S8N_S8T() {
     const int b = 12, m = 512, k = 512, n = 64;
@@ -213,13 +221,14 @@ void test_BMM_S8T_S8N_S8T() {
     read_to_array((char*)"assets/BMM_S8T_S8N_S8T_weight.bin", weight_arr, b * n * k);
     read_to_array((char*)"assets/BMM_S8T_S8N_S8T_y.bin", GToutput_arr, b * m * n);
 
-    BMM_S8T_S8N_S8T(input, weight, output, alpha);
+    struct BMM_S8T_S8N_S8T_params op_params = {input, weight, output, alpha};
+
+    BMM_S8T_S8N_S8T(op_params);
 
     assert(check_two_equal(output_arr, GToutput_arr, b * m * n));
 
     std::cout << "Test of " << __func__ << ": Passed!" << std::endl;
 }
-
 
 int main() {
     test_LayerNormQ();

@@ -2,8 +2,14 @@
 
 #include "../operators.h"
 
-void LayerNormQ(Matrix3D<float> &x, Matrix3D<float> &weight, Matrix3D<float> &bias, Matrix3D<int8_t> &output,
-                int last_dims, float eps) {
+void LayerNormQ(LayerNormQ_params &op_params) {
+    Matrix3D<float> x = op_params.x;
+    Matrix3D<float> weight = op_params.weight;
+    Matrix3D<float> bias = op_params.bias;
+    Matrix3D<int8_t> output = op_params.output;
+    const int last_dims = 2;
+    const float eps = 0.00001;
+    
     assert(last_dims == 2);  // support the last dim for now
     assert(output.m_dim_x == x.m_dim_x);
     assert(output.m_dim_y == x.m_dim_y);
