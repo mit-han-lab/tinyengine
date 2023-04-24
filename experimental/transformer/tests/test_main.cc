@@ -131,35 +131,35 @@ void test_BMM_S8T_S8N_F32T() {
     read_to_array((char*)"assets/BMM_S8T_S8N_F32T_weight.bin", test_BMM_S8T_S8N_F32T_weight, b * n * k);
     read_to_array((char*)"assets/BMM_S8T_S8N_F32T_y.bin", test_BMM_S8T_S8N_F32T_GToutput, b * m * n);
 
-    BMM_S8T_S8N_F32T(input, weight, bias, output, alpha);
+    BMM_S8T_S8N_F32T(input, weight, output, alpha);
 
     assert(check_two_equal(test_BMM_S8T_S8N_F32T_output, test_BMM_S8T_S8N_F32T_GToutput, b * m * n));
 
     std::cout << "Test of " << __func__ << ": Passed!" << std::endl;
 }
 
-int8_t test_BMM_S8T_S8N_F32T_input[12 * 512 * 64];
-int8_t test_BMM_S8T_S8N_F32T_weight[12 * 512 * 64];
-int8_t test_BMM_S8T_S8N_F32T_output[12 * 512 * 512];
-int8_t test_BMM_S8T_S8N_F32T_GToutput[12 * 512 * 512];
-void test_BMM_S8T_S8N_F32T() {
-    const int b = 12, m = 512, k = 64, n = 512;
-    const float alpha = 0.0006456375122070312;
-    Matrix3D<int8_t> input(test_BMM_S8T_S8N_F32T_input, b, m, k);
-    Matrix3D<int8_t> weight(test_BMM_S8T_S8N_F32T_weight, b, n, k);
-    Matrix3D<float> output(test_BMM_S8T_S8N_F32T_output, b, m, n);
-    Matrix3D<float> GToutput(test_BMM_S8T_S8N_F32T_GToutput, b, m, n);
+// int8_t test_BMM_S8T_S8N_F32T_input[12 * 512 * 64];
+// int8_t test_BMM_S8T_S8N_F32T_weight[12 * 512 * 64];
+// float test_BMM_S8T_S8N_F32T_output[12 * 512 * 512];
+// float test_BMM_S8T_S8N_F32T_GToutput[12 * 512 * 512];
+// void test_BMM_S8T_S8N_F32T() {
+//     const int b = 12, m = 512, k = 64, n = 512;
+//     const float alpha = 0.0006456375122070312;
+//     Matrix3D<int8_t> input(test_BMM_S8T_S8N_F32T_input, b, m, k);
+//     Matrix3D<int8_t> weight(test_BMM_S8T_S8N_F32T_weight, b, n, k);
+//     Matrix3D<float> output(test_BMM_S8T_S8N_F32T_output, b, m, n);
+//     Matrix3D<float> GToutput(test_BMM_S8T_S8N_F32T_GToutput, b, m, n);
 
-    read_to_array((char*)"assets/BMM_S8T_S8N_F32T_x.bin", test_BMM_S8T_S8N_F32T_input, b * m * k);
-    read_to_array((char*)"assets/BMM_S8T_S8N_F32T_weight.bin", test_BMM_S8T_S8N_F32T_weight, b * n * k);
-    read_to_array((char*)"assets/BMM_S8T_S8N_F32T_y.bin", test_BMM_S8T_S8N_F32T_GToutput, b * m * n);
+//     read_to_array((char*)"assets/BMM_S8T_S8N_F32T_x.bin", test_BMM_S8T_S8N_F32T_input, b * m * k);
+//     read_to_array((char*)"assets/BMM_S8T_S8N_F32T_weight.bin", test_BMM_S8T_S8N_F32T_weight, b * n * k);
+//     read_to_array((char*)"assets/BMM_S8T_S8N_F32T_y.bin", test_BMM_S8T_S8N_F32T_GToutput, b * m * n);
 
-    BMM_S8T_S8N_F32T(input, weight, bias, output, alpha);
+//     BMM_S8T_S8N_F32T(input, weight, output, alpha);
 
-    assert(check_two_equal(test_BMM_S8T_S8N_F32T_output, test_BMM_S8T_S8N_F32T_GToutput, b * m * n));
+//     assert(check_two_equal(test_BMM_S8T_S8N_F32T_output, test_BMM_S8T_S8N_F32T_GToutput, b * m * n));
 
-    std::cout << "Test of " << __func__ << ": Passed!" << std::endl;
-}
+//     std::cout << "Test of " << __func__ << ": Passed!" << std::endl;
+// }
 
 int main() {
     test_LayerNormQ();
