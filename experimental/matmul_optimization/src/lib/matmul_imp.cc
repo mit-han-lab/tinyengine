@@ -14,7 +14,7 @@
 #include "matmul.h"
 
 #define MAX_TRANSPOSE_BUFFER 2048 * 20480
-#define RUNS 10
+#define RUNS 1
 
 float transpose_tmp[MAX_TRANSPOSE_BUFFER];
 

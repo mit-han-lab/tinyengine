@@ -4,6 +4,7 @@ struct quantization_params {
     float scale;
     bool per_channel = false;
     int32_t zero_point;
+    int8_t q_min = -128, q_max = 127;
 };
 
 struct matrix {
@@ -11,6 +12,7 @@ struct matrix {
     int column;
     float *data_ptr;
     int8_t *int8_data_ptr;
+    int32_t *int32_data_ptr;
     struct quantization_params qparams;
 };
 
@@ -28,6 +30,7 @@ struct thread_args {
     const struct matrix *A;
     const struct matrix *B;
     const struct matrix *C;
+    const struct matrix *bias;
     const struct matmul_params *params;
     int start_i, end_i, blk_size;
 };
