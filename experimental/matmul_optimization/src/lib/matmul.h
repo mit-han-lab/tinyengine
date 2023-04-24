@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include <sys/time.h>
 // Data structures
 struct quantization_params {

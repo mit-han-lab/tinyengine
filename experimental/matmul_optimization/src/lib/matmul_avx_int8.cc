@@ -1,5 +1,6 @@
 #include <immintrin.h>  // AVX instrintics
 
+#include <cassert>
 #include <cstdlib>
 #include <iostream>
 
