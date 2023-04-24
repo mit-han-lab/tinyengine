@@ -74,6 +74,8 @@ class MatmulOperator {
     void mat_mul_avx_int8_fast(const struct matmul_params *params);
     void mat_mul_avx_int8_fast_2x2(const struct matmul_params *params);
     void mat_mul_avx_int8_fast_2x2_32unroll(const struct matmul_params *params);
+    void mat_mul_avx_int8_fast_2x2_32unroll_nobias(const struct matmul_params *params);
+    void mat_mul_avx_int8_fast_2x2_32unroll_nobias_ofp32(const struct matmul_params *params);
     void mat_mul_avx_int8_fast_2x2_32unroll_bfp32_ofp32(const struct matmul_params *params);
     void mat_mul_avx_int8_fast_2x2_omp(const struct matmul_params *params);
     void mat_mul_cuda(const struct matmul_params *params);
