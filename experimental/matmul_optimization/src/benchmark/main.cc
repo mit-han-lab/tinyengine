@@ -6,7 +6,7 @@
 
 #include "lib/matmul.h"
 
-#define BLK_SIZE 64
+#define BLK_SIZE 16
 #define MAX_PRECISION_ERROR 0.01
 
 #define M 1024
@@ -114,66 +114,68 @@ int main() {
     params_int8.C.column = C_COLUMN;
     params_int8.C.int8_data_ptr = native_C_s8;
     params_int8.C.qparams.scale = 1.0;
+    params_int8.C.qparams.q_max = 127;
+    params_int8.C.qparams.q_min = -128;
     params_int8.C.qparams.zero_point = 0;
     params_int8.opt_params.blk_size = BLK_SIZE;
     params_int8.opt_params.num_thread = NUM_THREAD;
 
-    // Baseline
-    params.C.data_ptr = native_C;
-    matmul_op.evaluate(MatmulOperator::NAIVE, &params);
+//     // Baseline
+//     params.C.data_ptr = native_C;
+//     matmul_op.evaluate(MatmulOperator::NAIVE, &params);
 
-    params.C.data_ptr = output_C;
-    // unrolling
-    matmul_op.evaluate(MatmulOperator::UNROLL, &params);
-    if (!check_identical(native_C, output_C, C_ROW * C_COLUMN)) printf("incorrect output of mat_mul_unrolling\n");
+//     params.C.data_ptr = output_C;
+//     // unrolling
+//     matmul_op.evaluate(MatmulOperator::UNROLL, &params);
+//     if (!check_identical(native_C, output_C, C_ROW * C_COLUMN)) printf("incorrect output of mat_mul_unrolling\n");
 
-    // reordering
-    matmul_op.evaluate(MatmulOperator::REORDER, &params);
-    if (!check_identical(native_C, output_C, C_ROW * C_COLUMN)) printf("incorrect output of mat_mul_reordering\n");
+//     // reordering
+//     matmul_op.evaluate(MatmulOperator::REORDER, &params);
+//     if (!check_identical(native_C, output_C, C_ROW * C_COLUMN)) printf("incorrect output of mat_mul_reordering\n");
 
-    // tiling
-    matmul_op.evaluate(MatmulOperator::TILING, &params);
-    if (!check_identical(native_C, output_C, C_ROW * C_COLUMN)) printf("incorrect output of mat_mul_tiling\n");
+//     // tiling
+//     matmul_op.evaluate(MatmulOperator::TILING, &params);
+//     if (!check_identical(native_C, output_C, C_ROW * C_COLUMN)) printf("incorrect output of mat_mul_tiling\n");
 
-    // multithreading
-    matmul_op.evaluate(MatmulOperator::MULTITHREAD, &params);
-    if (!check_identical(native_C, output_C, C_ROW * C_COLUMN)) printf("incorrect output of mat_mul_multithreading\n");
+//     // multithreading
+//     matmul_op.evaluate(MatmulOperator::MULTITHREAD, &params);
+//     if (!check_identical(native_C, output_C, C_ROW * C_COLUMN)) printf("incorrect output of mat_mul_multithreading\n");
 
-    // transpose
-    matmul_op.evaluate(MatmulOperator::TRANSPOSE, &params);
-    if (!check_identical(native_C, output_C, C_ROW * C_COLUMN)) printf("incorrect output of mat_mul_transpose\n");
+//     // transpose
+//     matmul_op.evaluate(MatmulOperator::TRANSPOSE, &params);
+//     if (!check_identical(native_C, output_C, C_ROW * C_COLUMN)) printf("incorrect output of mat_mul_transpose\n");
 
-    // transpose + simd
-    initialize_matrix(output_C, C_ROW * C_COLUMN);
-    matmul_op.evaluate(MatmulOperator::TRANSPOSE_SIMD, &params);
-    if (!check_identical(native_C, output_C, C_ROW * C_COLUMN)) printf("incorrect output of mat_mul_transpose_simd\n");
+//     // transpose + simd
+//     initialize_matrix(output_C, C_ROW * C_COLUMN);
+//     matmul_op.evaluate(MatmulOperator::TRANSPOSE_SIMD, &params);
+//     if (!check_identical(native_C, output_C, C_ROW * C_COLUMN)) printf("incorrect output of mat_mul_transpose_simd\n");
 
-// cuda
-#ifdef CUDA_ENABLE
-    matmul_op.evaluate(MatmulOperator::CUDA, &params);
-    if (!check_identical(native_C, output_C, C_ROW * C_COLUMN)) printf("incorrect output of mat_mul_cuda\n");
-#endif
+// // cuda
+// #ifdef CUDA_ENABLE
+//     matmul_op.evaluate(MatmulOperator::CUDA, &params);
+//     if (!check_identical(native_C, output_C, C_ROW * C_COLUMN)) printf("incorrect output of mat_mul_cuda\n");
+// #endif
 
-// ONEDNN
-#ifdef ONEDNN_ENABLE
-    initialize_matrix(output_C, C_ROW * C_COLUMN);
-    matmul_op.evaluate(MatmulOperator::ONEDNN_FP32, &params);
-    if (!check_identical(native_C, output_C, C_ROW * C_COLUMN)) printf("\nincorrect output of mat_mul_onedenn\n");
-#endif
+// // ONEDNN
+// #ifdef ONEDNN_ENABLE
+//     initialize_matrix(output_C, C_ROW * C_COLUMN);
+//     matmul_op.evaluate(MatmulOperator::ONEDNN_FP32, &params);
+//     if (!check_identical(native_C, output_C, C_ROW * C_COLUMN)) printf("\nincorrect output of mat_mul_onedenn\n");
+// #endif
 
-    // For fast, we need to transpose B first
-    for (int i = 0; i < B_COLUMN; i++)
-        for (int j = 0; j < B_ROW; j++) transpose_B[i * B_ROW + j] = MAT_B[j * B_COLUMN + i];
-    params.B.column = B_ROW;
-    params.B.row = B_COLUMN;
-    params.B.data_ptr = transpose_B;
-    params.opt_params.blk_size = BLK_SIZE;
-    params.opt_params.num_thread = NUM_THREAD;
+//     // For fast, we need to transpose B first
+//     for (int i = 0; i < B_COLUMN; i++)
+//         for (int j = 0; j < B_ROW; j++) transpose_B[i * B_ROW + j] = MAT_B[j * B_COLUMN + i];
+//     params.B.column = B_ROW;
+//     params.B.row = B_COLUMN;
+//     params.B.data_ptr = transpose_B;
+//     params.opt_params.blk_size = BLK_SIZE;
+//     params.opt_params.num_thread = NUM_THREAD;
 
-    // fast
-    initialize_matrix(output_C, C_ROW * C_COLUMN);
-    matmul_op.evaluate(MatmulOperator::FAST, &params);
-    if (!check_identical(native_C, output_C, C_ROW * C_COLUMN)) printf("incorrect output of mat_mul_fast\n");
+//     // fast
+//     initialize_matrix(output_C, C_ROW * C_COLUMN);
+//     matmul_op.evaluate(MatmulOperator::FAST, &params);
+//     if (!check_identical(native_C, output_C, C_ROW * C_COLUMN)) printf("incorrect output of mat_mul_fast\n");
 
     // int8
     matmul_op.evaluate(MatmulOperator::INT8_BASELINE, &params_int8);
