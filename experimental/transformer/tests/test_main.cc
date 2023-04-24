@@ -31,9 +31,9 @@ int8_t test_W8A8B8O8LinearReLU_bias_int8[3072];
 int32_t test_W8A8B8O8LinearReLU_bias[3072];
 int8_t test_W8A8B8O8LinearReLU_output[512*3072];
 int8_t test_W8A8B8O8LinearReLU_GToutput[512*3072];
-const float alpha = 0.0005035400390625, beta = 0.02130126953125;
 void test_W8A8B8O8LinearReLU(){
     const int m = 512, k = 768, n = 3072;
+    const float alpha = 0.0005035400390625, beta = 0.02130126953125;
     Matrix3D<int8_t> input(test_W8A8B8O8LinearReLU_input, 1, m, k);
     Matrix3D<int8_t> weight(test_W8A8B8O8LinearReLU_weight, 1, n, k);
     Matrix3D<int32_t> bias(test_W8A8B8O8LinearReLU_bias, 1, 1, n);
@@ -52,7 +52,33 @@ void test_W8A8B8O8LinearReLU(){
 
     W8A8B8O8LinearReLU(input, weight, bias, output, alpha);
 
-    assert(check_two_equal(test_W8A8B8O8LinearReLU_output, test_W8A8B8O8LinearReLU_GToutput, m*n) == true);
+    assert(check_two_equal(test_W8A8B8O8LinearReLU_output, test_W8A8B8O8LinearReLU_GToutput, m*n));
+
+    std::cout << "Test of " << __func__ << ": Passed!" << std::endl;
+}
+
+int8_t test_W8A8BFP32OFP32Linear_input[512*768];
+int8_t test_W8A8BFP32OFP32Linear_weight[768*768];
+float test_W8A8BFP32OFP32Linear_bias[768];
+float test_W8A8BFP32OFP32Linear_output[512*768];
+float test_W8A8BFP32OFP32Linear_GToutput[512*768];
+void test_W8A8BFP32OFP32Linear(){
+    const int m = 512, k = 768, n = 768;
+    const float alpha = 0.00004565715789794922;
+    Matrix3D<int8_t> input(test_W8A8BFP32OFP32Linear_input, 1, m, k);
+    Matrix3D<int8_t> weight(test_W8A8BFP32OFP32Linear_weight, 1, n, k);
+    Matrix3D<float> bias(test_W8A8BFP32OFP32Linear_bias, 1, 1, n);
+    Matrix3D<float> output(test_W8A8BFP32OFP32Linear_output, 1, m, n);
+    Matrix3D<float> GToutput(test_W8A8BFP32OFP32Linear_GToutput, 1, m, n);
+
+    read_to_array((char*)"assets/W8A8BFP32OFP32Linear_x.bin", test_W8A8BFP32OFP32Linear_input, m*k);
+    read_to_array((char*)"assets/W8A8BFP32OFP32Linear_weight.bin", test_W8A8BFP32OFP32Linear_weight, n*k);
+    read_to_array((char*)"assets/W8A8BFP32OFP32Linear_bias.bin", test_W8A8BFP32OFP32Linear_bias, n);
+    read_to_array((char*)"assets/W8A8BFP32OFP32Linear_y.bin", test_W8A8BFP32OFP32Linear_GToutput, m*n);
+
+    W8A8BFP32OFP32Linear(input, weight, bias, output, alpha);
+
+    assert(check_two_equal(test_W8A8BFP32OFP32Linear_output, test_W8A8BFP32OFP32Linear_GToutput, m*n));
 
     std::cout << "Test of " << __func__ << ": Passed!" << std::endl;
 }
@@ -61,4 +87,5 @@ void test_W8A8B8O8LinearReLU(){
 int main(){
     test_LayerNormQ();
     test_W8A8B8O8LinearReLU();
+    test_W8A8BFP32OFP32Linear();
 }

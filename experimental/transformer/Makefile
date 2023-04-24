@@ -13,7 +13,7 @@ $(info $(LIB_SRC))
 
 SRC = main.cc OPTForCausalLM.cc Int8OPTDecoder.cc utils.cc
 TEST_SRC = tests/test_main.cc OPTForCausalLM.cc Int8OPTDecoder.cc utils.cc
-OPS =  ops/LayerNormQ.cc ops/linear.cc ops/W8A8B8O8LinearReLU.cc
+OPS =  $(wildcard ops/*.cc)
 SRC += $(OPS)
 SRC += $(LIB_SRC)
 TEST_SRC += $(OPS)
