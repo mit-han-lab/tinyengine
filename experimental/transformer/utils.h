@@ -10,7 +10,7 @@
 #define INT_ERROR_MAX 1
 
 template<typename T>
-void read_to_array(char* path, T* array, int size);
+void read_to_array(const char* path, T* array, int size);
 
 template<typename T>
 bool check_two_equal(T* array, T* array2, int size);

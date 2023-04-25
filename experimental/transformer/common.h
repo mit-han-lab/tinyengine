@@ -45,6 +45,10 @@ public:
 
         return true;
     }
+
+    int lenth(){
+        return m_dim_x * m_dim_y * m_dim_z;
+    }
     int m_dim_x, m_dim_y, m_dim_z;
     T* m_data;
 

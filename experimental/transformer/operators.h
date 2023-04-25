@@ -29,6 +29,7 @@ struct W8A8B8O8Linear_params {
     Matrix3D<int32_t> bias;
     Matrix3D<int8_t> output;
     float alpha;
+    float beta;
 };
 
 struct BMM_S8T_S8N_S8T_params {
