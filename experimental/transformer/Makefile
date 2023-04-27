@@ -1,6 +1,6 @@
 # Compiler and flags
 CXX = g++
-CXXFLAGS = -std=c++11 -O3  -mavx2 -mfma -pthread
+CXXFLAGS = -std=c++11 -mavx2 -mfma -pthread -g
 
 # Executable and source files
 TARGET = test_example_eval test_ops test_Int8OPTAttention

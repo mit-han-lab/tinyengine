@@ -34,6 +34,15 @@ bool check_two_equal<int8_t>(int8_t* array, int8_t* array2, int size){
     return true;
 }
 
+
+void print_first_k_elelment(std::string name, const int8_t *arr, int k){
+    std::cout << name << ":";
+    for (int i = 0; i < k; i++){
+        std::cout << static_cast<int>(arr[i]) << ",";
+    }
+    std::cout << std::endl;
+}
+
 // Explicitly instantiate the generic template function for other types (if needed)
 template bool check_two_equal<float>(float* array, float* array2, int size);
 template void read_to_array<float>(const char* path, float* array, int size);

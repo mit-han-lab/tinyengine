@@ -91,6 +91,7 @@ void transpose_1_2idx(Matrix3D<T> input, Matrix3D<T> output){
 #define HEAD 12
 #define MAXSQLEN 512
 float attn_weights_arr[HEAD * MAXSQLEN * MAXSQLEN];
+float attn_probs_arr[HEAD * MAXSQLEN * MAXSQLEN];
 int8_t attn_probs_int8_arr[HEAD * MAXSQLEN * MAXSQLEN];
  // TODO: var allocation method
 struct Int8OPTAttention_output Int8OPTAttention::forward(const struct Int8OPTAttention_input &input) {
@@ -105,6 +106,9 @@ struct Int8OPTAttention_output Int8OPTAttention::forward(const struct Int8OPTAtt
     // opt.py: query_states = self.q_proj(hidden_states)
     W8A8B8O8Linear(this->q_proj); 
     debug_info("W8A8B8O8Linear(this->q_proj);");
+    print_first_k_elelment("this->q_proj.x", this->q_proj.x.m_data, 10);
+    print_first_k_elelment("this->q_proj.weight", this->q_proj.weight.m_data, 10);
+    print_first_k_elelment("query_states_unshape", query_states_unshape.m_data, 10);
 
     // opt.py: key_states = self._shape(self.k_proj(hidden_states), -1, bsz)
     int8_t key_states_unshape_arr[sqlen * this->embed_dim];
@@ -158,7 +162,7 @@ struct Int8OPTAttention_output Int8OPTAttention::forward(const struct Int8OPTAtt
     debug_info("batch_Add(attn_weights, input.attention_mask, attn_weights);");
 
     // opt.py: attn_probs = nn.functional.softmax(attn_weights, dim=-1)
-    float attn_probs_arr[this->num_heads * sqlen * sqlen];
+    // float attn_probs_arr[this->num_heads * sqlen * sqlen];
     Matrix3D<float> attn_probs(attn_weights_arr, this->num_heads, sqlen, sqlen);
     softmax(attn_weights, attn_probs, 2);
     debug_info("softmax(attn_weights, attn_probs, 2);");
