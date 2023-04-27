@@ -12,7 +12,7 @@ struct Int8OPTAttention_input{
     Matrix3D<float> attention_mask;
     Matrix3D<int8_t> *past_key = NULL, *past_value = NULL;
 
-    Int8OPTAttention_input(Matrix3D<int8_t> hidden_states_) : hidden_states(hidden_states_) {}
+    Int8OPTAttention_input(Matrix3D<int8_t> hidden_states_, Matrix3D<float> attention_mask_) : hidden_states(hidden_states_), attention_mask(attention_mask_) {}
 };
 
 void load_BMM_S8T_S8N_F32T(struct BMM_S8T_S8N_F32T_params &param, std::string prefix);

@@ -5,7 +5,7 @@ CXXFLAGS = -std=c++11 -O3  -mavx2 -mfma -pthread
 # Executable and source files
 TARGET = test_example_eval test_ops test_Int8OPTAttention
 
-LIB_DIR = /NFS/home/wmchen/workspace/tinyengine/experimental/matmul_optimization/src
+LIB_DIR = /home/wmchen/workspace/tinyengine/experimental/matmul_optimization/src
 LIB_SRC = $(wildcard $(LIB_DIR)/lib/*.cc)
 INCLUDE_DIRS = -I$(LIB_DIR)
 

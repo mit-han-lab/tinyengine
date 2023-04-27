@@ -47,7 +47,7 @@ void Int8OPTAttention::shpae(Matrix3D<int8_t> unshape, Matrix3D<int8_t> shpaped,
     for (int i = 0; i < this->num_heads; i++){
         for (int j = 0; j < sqlen; j++){
             for (int k = 0; k < this->head_dim; k++){
-                shpaped(i, j, k) = unshape(1, j, i * this->head_dim + k);
+                shpaped(i, j, k) = unshape(0, j, i * this->head_dim + k);
             }
         }
     }
@@ -69,6 +69,10 @@ void transpose_1_2idx(Matrix3D<T> input, Matrix3D<T> output){
     }
 }
 
+#define HEAD 12
+#define MAXSQLEN 512
+float attn_weights_arr[HEAD * MAXSQLEN * MAXSQLEN];
+int8_t attn_probs_int8_arr[HEAD * MAXSQLEN * MAXSQLEN];
  // TODO: var allocation method
 struct Int8OPTAttention_output Int8OPTAttention::forward(const struct Int8OPTAttention_input &input) {
     struct Int8OPTAttention_output output;
@@ -81,6 +85,7 @@ struct Int8OPTAttention_output Int8OPTAttention::forward(const struct Int8OPTAtt
     this->q_proj.output = query_states_unshpae;
     // opt.py: query_states = self.q_proj(hidden_states)
     W8A8B8O8Linear(this->q_proj); 
+    debug_info("W8A8B8O8Linear(this->q_proj);");
 
     // opt.py: key_states = self._shape(self.k_proj(hidden_states), -1, bsz)
     int8_t key_states_unshpae_arr[sqlen * this->embed_dim];
@@ -88,6 +93,7 @@ struct Int8OPTAttention_output Int8OPTAttention::forward(const struct Int8OPTAtt
     this->k_proj.x = input.hidden_states;
     this->k_proj.output = key_states_unshpae;
     W8A8B8O8Linear(this->k_proj); 
+    debug_info(" W8A8B8O8Linear(this->k_proj);");
     int8_t key_states_arr[b * sqlen * this->embed_dim];
     Matrix3D<int8_t> key_states(key_states_arr, this->num_heads, sqlen, this->head_dim);
     this->shpae(key_states_unshpae, key_states, sqlen);
@@ -98,6 +104,7 @@ struct Int8OPTAttention_output Int8OPTAttention::forward(const struct Int8OPTAtt
     this->v_proj.x = input.hidden_states;
     this->v_proj.output = value_states_unshpae;
     W8A8B8O8Linear(this->v_proj); 
+    debug_info(" W8A8B8O8Linear(this->v_proj);");
     int8_t value_states_arr[sqlen * this->embed_dim];
     Matrix3D<int8_t> value_states(value_states_arr, this->num_heads, sqlen, this->head_dim);
     this->shpae(value_states_unshpae, value_states, sqlen);
@@ -110,31 +117,38 @@ struct Int8OPTAttention_output Int8OPTAttention::forward(const struct Int8OPTAtt
 
     // opt.py: query_states = self._shape(query_states, tgt_len, bsz).view(*proj_shape)
     int8_t query_states_arr[sqlen * this->embed_dim];
-    Matrix3D<int8_t> query_states(query_states_arr, b, sqlen, embed_dim);
+    Matrix3D<int8_t> query_states(query_states_arr, this->num_heads, sqlen, this->head_dim);
     this->shpae(query_states_unshpae, query_states, sqlen);
+    debug_info("this->shpae(query_states_unshpae, query_states, sqlen);");
 
     // opt.py: attn_weights = self.qk_bmm(query_states, key_states)
-    float attn_weights_arr[this->num_heads * sqlen * sqlen];
+    // float attn_weights_arr[this->num_heads * sqlen * sqlen];
     // TODO: check src_len and tgt_len in generative mode
     Matrix3D<float> attn_weights(attn_weights_arr, this->num_heads, sqlen, sqlen);
     this->qk_bmm.x = query_states;
     this->qk_bmm.weight = key_states;
     this->qk_bmm.output = attn_weights;
+    // printf("%d, %d, %d\n", query_states.m_dim_x, query_states.m_dim_y, query_states.m_dim_z);
+    // printf("%d, %d, %d\n", key_states.m_dim_x, key_states.m_dim_y, key_states.m_dim_z);
+    // printf("%d, %d, %d\n", attn_weights.m_dim_x, attn_weights.m_dim_y, attn_weights.m_dim_z);
     BMM_S8T_S8N_F32T(this->qk_bmm);
+    debug_info("BMM_S8T_S8N_F32T(this->qk_bmm);");
     
     // opt.py: attn_weights = attn_weights.view(bsz, self.num_heads, tgt_len, src_len) + attention_mask
-    batch_Add(attn_weights, input.attention_mask, attn_weights, 2);
+    batch_Add(attn_weights, input.attention_mask, attn_weights);
+    debug_info("batch_Add(attn_weights, input.attention_mask, attn_weights);");
 
     // opt.py: attn_probs = nn.functional.softmax(attn_weights, dim=-1)
     float attn_probs_arr[this->num_heads * sqlen * sqlen];
     Matrix3D<float> attn_probs(attn_weights_arr, this->num_heads, sqlen, sqlen);
     softmax(attn_weights, attn_probs, 2);
+    debug_info("softmax(attn_weights, attn_probs, 2);");
 
     // TODO: do we need layer_head_mask?
 
     // opt.py: attn_probs.mul_(127).round_()
     // opt.py: attn_probs = attn_probs.to(torch.int8)
-    int8_t attn_probs_int8_arr[this->num_heads * sqlen * sqlen];
+    // int8_t attn_probs_int8_arr[this->num_heads * sqlen * sqlen];
     Matrix3D<int8_t> attn_probs_int8(attn_probs_int8_arr, this->num_heads, sqlen, sqlen);
     int len = attn_probs.lenth();
     for (int i = 0; i < len; i++)
@@ -144,6 +158,7 @@ struct Int8OPTAttention_output Int8OPTAttention::forward(const struct Int8OPTAtt
     int8_t value_states_transpose_arr[this->num_heads * this->head_dim * sqlen];
     Matrix3D<int8_t> value_states_transpose(value_states_transpose_arr, this->num_heads, this->head_dim, sqlen);
     transpose_1_2idx(value_states, value_states_transpose);
+    debug_info("transpose_1_2idx(value_states, value_states_transpose);");
 
     // opt.py: attn_output = self.pv_bmm(attn_probs, value_states)
     int8_t attn_output_arr[this->num_heads * sqlen * this->head_dim]; // TODO: check if tgt_len or sqlen
@@ -152,6 +167,7 @@ struct Int8OPTAttention_output Int8OPTAttention::forward(const struct Int8OPTAtt
     this->pv_bmm.weight = value_states_transpose;
     this->pv_bmm.output = attn_output;
     BMM_S8T_S8N_S8T(this->pv_bmm);
+    debug_info("BMM_S8T_S8N_S8T(this->pv_bmm);");
 
 
     return output;

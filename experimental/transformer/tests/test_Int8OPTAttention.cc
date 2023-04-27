@@ -69,8 +69,12 @@ void test_Int8OPTAttention() {
     Int8OPTAttention attn = Int8OPTAttention(embed_dim, num_heads, qk_bmm, pv_bmm, k_proj, v_proj, q_proj, out_proj);
 
     Matrix3D<int8_t> hidden_states(mem_buf.get_int8buffer(embed_dim * sqlen), b, sqlen, embed_dim);
-    read_to_array(, hidden_states.m_data, b * sqlen * embed_dim)
-    struct Int8OPTAttention_input input(hidden_state);
+    read_to_array("assets/Int8OPTAttention_hidden_states.bin", hidden_states.m_data, b * sqlen * embed_dim);
+    Matrix3D<float> attention_mask(mem_buf.get_fpbuffer(sqlen * sqlen), 1, sqlen, sqlen);
+    read_to_array("assets/Int8OPTAttention_attention_mask.bin", hidden_states.m_data, b * sqlen * embed_dim);
+    struct Int8OPTAttention_input input(hidden_states, attention_mask);
+
+
 
     attn.forward(input);
 
