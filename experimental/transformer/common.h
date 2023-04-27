@@ -4,7 +4,7 @@
 #include <cstdlib>
 #include <stdexcept>
 
-#define DEBUG
+// #define DEBUG
 
 template<typename T>
 class Matrix3D {
@@ -58,7 +58,7 @@ public:
     Matrix3D() {m_data = NULL;}
 };
 
-static void debug_info(std::string s){
+static inline void debug_info(std::string s){
     #ifdef DEBUG
     std::cout << s << std::endl;
     #endif

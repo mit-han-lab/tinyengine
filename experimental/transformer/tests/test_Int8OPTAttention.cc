@@ -74,11 +74,22 @@ void test_Int8OPTAttention() {
     read_to_array("assets/Int8OPTAttention_attention_mask.bin", hidden_states.m_data, b * sqlen * embed_dim);
     struct Int8OPTAttention_input input(hidden_states, attention_mask);
 
+    struct Int8OPTAttention_output output = attn.forward(input);
 
+    Matrix3D<float> attn_outputGT(mem_buf.get_fpbuffer(b* sqlen * embed_dim), b, sqlen, embed_dim);
+    read_to_array("assets/Int8OPTAttention_attn_output.bin", attn_outputGT.m_data, b * sqlen * embed_dim);
+    Matrix3D<int8_t> key_statesGT(mem_buf.get_int8buffer(sqlen * embed_dim), num_heads, sqlen, embed_dim/num_heads);
+    read_to_array("assets/Int8OPTAttention_key_states.bin", key_statesGT.m_data, b * sqlen * embed_dim);
+    Matrix3D<int8_t> value_statesGT(mem_buf.get_int8buffer(sqlen * embed_dim), num_heads, sqlen, embed_dim/num_heads);
+    read_to_array("assets/Int8OPTAttention_value_states.bin", value_statesGT.m_data, b * sqlen * embed_dim);
 
-    attn.forward(input);
-
-    std::cout << "Test of " << __func__ << ": Passed!" << std::endl;
+    bool sucess = check_two_equal(value_statesGT.m_data, output.past_key_value.second.m_data, b * sqlen * embed_dim);
+    sucess &= check_two_equal(key_statesGT.m_data, output.past_key_value.first.m_data, b * sqlen * embed_dim);
+    sucess &= check_two_equal(attn_outputGT.m_data, output.attn_output.m_data, b * sqlen * embed_dim);
+    if (!sucess)
+        std::cout << "Test of " << __func__ << ": Fail!" << std::endl;
+    else
+        std::cout << "Test of " << __func__ << ": Passed!" << std::endl;
 }
 
 int main() {

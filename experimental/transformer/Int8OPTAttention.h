@@ -3,7 +3,7 @@
 #include <utility>
 
 struct Int8OPTAttention_output{
-    Matrix3D<int8_t> attn_output;
+    Matrix3D<float> attn_output;
     Matrix3D<int8_t> attn_probs_reshaped;
     std::pair<Matrix3D<int8_t>, Matrix3D<int8_t>> past_key_value;
 };
@@ -30,7 +30,8 @@ public:
     );
     struct Int8OPTAttention_output forward(const struct Int8OPTAttention_input &input);
 private:
-    void shpae(Matrix3D<int8_t> unshape, Matrix3D<int8_t> shpaped, int sqlen);
+    void unshape(Matrix3D<int8_t> shaped, Matrix3D<int8_t> unshape, int sqlen);
+    void shpae(Matrix3D<int8_t> unshape, Matrix3D<int8_t> shaped, int sqlen);
     int embed_dim, num_heads, head_dim;
     struct BMM_S8T_S8N_F32T_params qk_bmm;
     struct BMM_S8T_S8N_S8T_params pv_bmm;
