@@ -41,7 +41,7 @@ class MemoryAllocator {
 };
 
 void test_Int8OPTAttention() {
-    const int num_heads = 12, embed_dim = 768;
+    const int num_heads = 12, embed_dim = 768, sqlen = 512, b = 1;
     MemoryAllocator mem_buf;
 
     struct BMM_S8T_S8N_F32T_params qk_bmm;
@@ -65,6 +65,14 @@ void test_Int8OPTAttention() {
     Matrix3D<float> out_proj_bias(mem_buf.get_fpbuffer(embed_dim), 1, 1, embed_dim);
     out_proj.weight = out_proj_weight; out_proj.bias = out_proj_bias;
     load_W8A8BFP32OFP32Linear_params(out_proj, "assets/decoder_layer0_attn_out_proj_W8A8BFP32OFP32Linear");
+
+    Int8OPTAttention attn = Int8OPTAttention(embed_dim, num_heads, qk_bmm, pv_bmm, k_proj, v_proj, q_proj, out_proj);
+
+    Matrix3D<int8_t> hidden_states(mem_buf.get_int8buffer(embed_dim * sqlen), b, sqlen, embed_dim);
+    read_to_array(, hidden_states.m_data, b * sqlen * embed_dim)
+    struct Int8OPTAttention_input input(hidden_state);
+
+    attn.forward(input);
 
     std::cout << "Test of " << __func__ << ": Passed!" << std::endl;
 }

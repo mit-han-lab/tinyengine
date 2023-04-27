@@ -8,6 +8,8 @@
 #define BLK_SIZE 16
 #define NUM_THREAD 4
 
+#define MAX_SQLLEN 512
+
 struct LayerNormQ_params {
     Matrix3D<float> x;
     Matrix3D<float> weight;
@@ -52,6 +54,8 @@ void W8A8B8O8Linear(struct W8A8B8O8Linear_params &op_params);
 void W8A8BFP32OFP32Linear(struct W8A8BFP32OFP32Linear_params &op_params);
 void BMM_S8T_S8N_F32T(struct BMM_S8T_S8N_F32T_params &op_params);
 void BMM_S8T_S8N_S8T(struct BMM_S8T_S8N_S8T_params &op_params);
+void softmax(const Matrix3D<float> &input, Matrix3D<float> &output, int dim);
+void batch_Add(const Matrix3D<float> &input, const Matrix3D<float> &input2,Matrix3D<float> &output);
 
 template <typename T>
 void linear(Matrix3D<T> &a, Matrix3D<T> &b, Matrix3D<T> &c);
