@@ -105,11 +105,11 @@ struct Int8OPTAttention_output Int8OPTAttention::forward(const struct Int8OPTAtt
     this->q_proj.output = query_states_unshape;
     // opt.py: query_states = self.q_proj(hidden_states)
     W8A8B8O8Linear(this->q_proj); 
-    debug_info("W8A8B8O8Linear(this->q_proj);");
-    print_first_k_elelment("this->q_proj.x", this->q_proj.x.m_data, 10);
-    print_first_k_elelment("this->q_proj.weight", this->q_proj.weight.m_data, 10);
-    print_first_k_elelment("this->q_proj.bias", this->q_proj.bias.m_data, 64);
-    print_first_k_elelment("this->q_proj.output", this->q_proj.output.m_data, 74, 64);
+    // debug_info("W8A8B8O8Linear(this->q_proj);");
+    // print_first_k_elelment("this->q_proj.x", this->q_proj.x.m_data, 10);
+    // print_first_k_elelment("this->q_proj.weight", this->q_proj.weight.m_data, 10);
+    // print_first_k_elelment("this->q_proj.bias", this->q_proj.bias.m_data, 64);
+    // print_first_k_elelment("this->q_proj.output", this->q_proj.output.m_data, 74, 64);
 
     // opt.py: key_states = self._shape(self.k_proj(hidden_states), -1, bsz)
     int8_t key_states_unshape_arr[sqlen * this->embed_dim];
@@ -120,6 +120,10 @@ struct Int8OPTAttention_output Int8OPTAttention::forward(const struct Int8OPTAtt
     debug_info("W8A8B8O8Linear(this->k_proj);");
     int8_t key_states_arr[b * sqlen * this->embed_dim];
     Matrix3D<int8_t> key_states(key_states_arr, this->num_heads, sqlen, this->head_dim);
+    // print_first_k_elelment("this->k_proj.x", this->k_proj.x.m_data, 10);
+    // print_first_k_elelment("this->k_proj.weight", this->k_proj.weight.m_data, 10);
+    // print_first_k_elelment("this->k_proj.bias", this->k_proj.bias.m_data, 64);
+    // print_first_k_elelment("this->k_proj.output", this->k_proj.output.m_data, 74, 64);
     this->shpae(key_states_unshape, key_states, sqlen);
 
     // opt.py: value_states = self._shape(self.v_proj(hidden_states), -1, bsz)
@@ -152,10 +156,8 @@ struct Int8OPTAttention_output Int8OPTAttention::forward(const struct Int8OPTAtt
     this->qk_bmm.x = query_states;
     this->qk_bmm.weight = key_states;
     this->qk_bmm.output = attn_weights;
-    // printf("%d, %d, %d\n", query_states.m_dim_x, query_states.m_dim_y, query_states.m_dim_z);
-    // printf("%d, %d, %d\n", key_states.m_dim_x, key_states.m_dim_y, key_states.m_dim_z);
-    // printf("%d, %d, %d\n", attn_weights.m_dim_x, attn_weights.m_dim_y, attn_weights.m_dim_z);
     BMM_S8T_S8N_F32T(this->qk_bmm);
+    print_first_k_elelment("qk_bmm.output", qk_bmm.output.m_data, 10);
     debug_info("BMM_S8T_S8N_F32T(this->qk_bmm);");
     
     // opt.py: attn_weights = attn_weights.view(bsz, self.num_heads, tgt_len, src_len) + attention_mask
@@ -182,6 +184,8 @@ struct Int8OPTAttention_output Int8OPTAttention::forward(const struct Int8OPTAtt
     int8_t value_states_transpose_arr[this->num_heads * this->head_dim * sqlen];
     Matrix3D<int8_t> value_states_transpose(value_states_transpose_arr, this->num_heads, this->head_dim, sqlen);
     transpose_1_2idx(value_states, value_states_transpose);
+    print_first_k_elelment("value_states", value_states.m_data, 10);
+    print_first_k_elelment("value_states_transpose.output", value_states_transpose.m_data, 10);
     debug_info("transpose_1_2idx(value_states, value_states_transpose);");
 
     // opt.py: attn_output = self.pv_bmm(attn_probs, value_states)
@@ -191,6 +195,9 @@ struct Int8OPTAttention_output Int8OPTAttention::forward(const struct Int8OPTAtt
     this->pv_bmm.weight = value_states_transpose;
     this->pv_bmm.output = attn_output;
     BMM_S8T_S8N_S8T(this->pv_bmm);
+    print_first_k_elelment("this->pv_bmm.x", this->pv_bmm.x.m_data, 10);
+    print_first_k_elelment("this->pv_bmm.weight", this->pv_bmm.weight.m_data, 10);
+    print_first_k_elelment("this->pv_bmm.output", this->pv_bmm.output.m_data, 10);
     debug_info("BMM_S8T_S8N_S8T(this->pv_bmm);");
 
     // opt.py: attn_output = attn_output.transpose(1, 2)
@@ -207,7 +214,7 @@ struct Int8OPTAttention_output Int8OPTAttention::forward(const struct Int8OPTAtt
 
     // output assignment
     output.attn_output = attn_output_fp;
-    output.past_key_value = {key_states_unshape, value_states_unshape};
+    output.past_key_value = {key_states, value_states};
 
     return output;
 }

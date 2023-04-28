@@ -51,6 +51,16 @@ void print_first_k_elelment(std::string name, const int32_t *arr, int k, int sta
     std::cout << std::endl;
 }
 
+
+void print_first_k_elelment(std::string name, const float *arr, int k, int start_idx){
+    std::cout << name << ":";
+    for (int i = start_idx; i < k; i++){
+        std::cout << static_cast<float>(arr[i]) << ",";
+    }
+    std::cout << std::endl;
+}
+
+
 // Explicitly instantiate the generic template function for other types (if needed)
 template bool check_two_equal<float>(float* array, float* array2, int size);
 template void read_to_array<float>(const char* path, float* array, int size);
