@@ -1,6 +1,7 @@
 #include <immintrin.h>  // AVX instrintics
 
 #include <cassert>
+#include <cmath>
 #include <cstdlib>
 #include <iostream>
 
@@ -343,7 +344,7 @@ void *mat_mul_avx_int8_thread_func(void *args) {
             }
             int32_t *accptr = (int32_t *)&acc0_8x32;
             acc = accptr[0] + accptr[1] + accptr[2] + accptr[3] + accptr[4] + accptr[5] + accptr[6] + accptr[7];
-            acc = (int32_t)((float)acc * effective_scale);
+            acc = (int32_t)std::round((float)acc * effective_scale);
             acc -= C_zp;
             acc = MAX(acc, q_min);
             acc = MIN(acc, q_max);
@@ -422,10 +423,10 @@ void *mat_mul_avx_int8_thread_func_2x2(void *args) {
             acc3 = accptr[0] + accptr[1] + accptr[2] + accptr[3] + accptr[4] + accptr[5] + accptr[6] + accptr[7] +
                    params->bias.int32_data_ptr[j + 1];
 
-            acc0 = (int32_t)((float)acc0 * effective_scale);
-            acc1 = (int32_t)((float)acc1 * effective_scale);
-            acc2 = (int32_t)((float)acc2 * effective_scale);
-            acc3 = (int32_t)((float)acc3 * effective_scale);
+            acc0 = (int32_t)std::round((float)acc0 * effective_scale);
+            acc1 = (int32_t)std::round((float)acc1 * effective_scale);
+            acc2 = (int32_t)std::round((float)acc2 * effective_scale);
+            acc3 = (int32_t)std::round((float)acc3 * effective_scale);
 
             acc0 -= C_zp;
             acc1 -= C_zp;
@@ -491,10 +492,10 @@ void *mat_mul_avx_int8_thread_func_2x2_32unroll(void *args) {
             acc3 = accptr[0] + accptr[1] + accptr[2] + accptr[3] + accptr[4] + accptr[5] + accptr[6] + accptr[7];
             acc3 += params->bias.int32_data_ptr[j + 1];
 
-            acc0 = (int32_t)((float)acc0 * effective_scale);
-            acc1 = (int32_t)((float)acc1 * effective_scale);
-            acc2 = (int32_t)((float)acc2 * effective_scale);
-            acc3 = (int32_t)((float)acc3 * effective_scale);
+            acc0 = (int32_t)std::round((float)acc0 * effective_scale);
+            acc1 = (int32_t)std::round((float)acc1 * effective_scale);
+            acc2 = (int32_t)std::round((float)acc2 * effective_scale);
+            acc3 = (int32_t)std::round((float)acc3 * effective_scale);
 
             acc0 -= C_zp;
             acc1 -= C_zp;
@@ -579,10 +580,10 @@ void *mat_mul_avx_int8_thread_func_2x2_32unroll_nobias(void *args) {
             accptr = (int32_t *)&acc3_8x32;
             acc3 = accptr[0] + accptr[1] + accptr[2] + accptr[3] + accptr[4] + accptr[5] + accptr[6] + accptr[7];
 
-            acc0 = (int32_t)((float)acc0 * effective_scale);
-            acc1 = (int32_t)((float)acc1 * effective_scale);
-            acc2 = (int32_t)((float)acc2 * effective_scale);
-            acc3 = (int32_t)((float)acc3 * effective_scale);
+            acc0 = (int32_t)std::round((float)acc0 * effective_scale);
+            acc1 = (int32_t)std::round((float)acc1 * effective_scale);
+            acc2 = (int32_t)std::round((float)acc2 * effective_scale);
+            acc3 = (int32_t)std::round((float)acc3 * effective_scale);
 
             acc0 -= C_zp;
             acc1 -= C_zp;
@@ -667,10 +668,10 @@ void *mat_mul_avx_int8_thread_func_2x2_32unroll_nobias_ofp32(void *args) {
             accptr = (int32_t *)&acc3_8x32;
             acc3 = accptr[0] + accptr[1] + accptr[2] + accptr[3] + accptr[4] + accptr[5] + accptr[6] + accptr[7];
 
-            data_C[i * C->column + j] = ((float)acc0 * effective_scale);
-            data_C[i * C->column + j + 1] = ((float)acc1 * effective_scale);
-            data_C[(i + 1) * C->column + j] = ((float)acc2 * effective_scale);
-            data_C[(i + 1) * C->column + j + 1] = ((float)acc3 * effective_scale);
+            data_C[i * C->column + j] = std::round((float)acc0 * effective_scale);
+            data_C[i * C->column + j + 1] = std::round((float)acc1 * effective_scale);
+            data_C[(i + 1) * C->column + j] = std::round((float)acc2 * effective_scale);
+            data_C[(i + 1) * C->column + j + 1] = std::round((float)acc3 * effective_scale);
         }
     return NULL;
 }
@@ -737,10 +738,11 @@ void *mat_mul_avx_int8_thread_func_2x2_32unroll_bfp32_ofp32(void *args) {
             accptr = (int32_t *)&acc3_8x32;
             acc3 = accptr[0] + accptr[1] + accptr[2] + accptr[3] + accptr[4] + accptr[5] + accptr[6] + accptr[7];
 
-            data_C[i * C->column + j] = ((float)acc0 * effective_scale) + params->bias.data_ptr[j];
-            data_C[i * C->column + j + 1] = ((float)acc1 * effective_scale) + params->bias.data_ptr[j + 1];
-            data_C[(i + 1) * C->column + j] = ((float)acc2 * effective_scale) + params->bias.data_ptr[j];
-            data_C[(i + 1) * C->column + j + 1] = ((float)acc3 * effective_scale) + params->bias.data_ptr[j + 1];
+            data_C[i * C->column + j] = std::round((float)acc0 * effective_scale) + params->bias.data_ptr[j];
+            data_C[i * C->column + j + 1] = std::round((float)acc1 * effective_scale) + params->bias.data_ptr[j + 1];
+            data_C[(i + 1) * C->column + j] = std::round((float)acc2 * effective_scale) + params->bias.data_ptr[j];
+            data_C[(i + 1) * C->column + j + 1] =
+                std::round((float)acc3 * effective_scale) + params->bias.data_ptr[j + 1];
         }
     return NULL;
 }
@@ -838,10 +840,10 @@ void MatmulOperator::mat_mul_avx_int8_fast_2x2_omp(const struct matmul_params *p
             acc3 = accptr[0] + accptr[1] + accptr[2] + accptr[3] + accptr[4] + accptr[5] + accptr[6] + accptr[7];
             acc3 += params->bias.int32_data_ptr[j + 1];
 
-            acc0 = (int32_t)((float)acc0 * effective_scale);
-            acc1 = (int32_t)((float)acc1 * effective_scale);
-            acc2 = (int32_t)((float)acc2 * effective_scale);
-            acc3 = (int32_t)((float)acc3 * effective_scale);
+            acc0 = (int32_t)std::round((float)acc0 * effective_scale);
+            acc1 = (int32_t)std::round((float)acc1 * effective_scale);
+            acc2 = (int32_t)std::round((float)acc2 * effective_scale);
+            acc3 = (int32_t)std::round((float)acc3 * effective_scale);
 
             acc0 -= C_zp;
             acc1 -= C_zp;
