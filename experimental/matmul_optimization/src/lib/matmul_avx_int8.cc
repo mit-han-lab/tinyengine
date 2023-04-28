@@ -309,7 +309,7 @@ void MatmulOperator::mat_mul_avx_int8(const struct matmul_params *params) {
             }
             int32_t *accptr = (int32_t *)&acc0_8x32;
             acc = accptr[0] + accptr[1] + accptr[2] + accptr[3] + accptr[4] + accptr[5] + accptr[6] + accptr[7];
-            acc = (int32_t)((float)acc * effective_scale);
+            acc = (int32_t)std::round((float)acc * effective_scale);
             acc -= C_zp;
             acc = MAX(acc, q_min);
             acc = MIN(acc, q_max);

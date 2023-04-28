@@ -18,6 +18,7 @@ bool check_two_equal(T* array, T* array2, int size);
 template<>
 bool check_two_equal(int8_t* array, int8_t* array2, int size);
 
-void print_first_k_elelment(std::string name, const int8_t * arr, int k);
+void print_first_k_elelment(std::string name, const int8_t * arr, int k, int start_idx = 0);
+void print_first_k_elelment(std::string name, const int32_t * arr, int k, int start_idx = 0);
 
 #endif

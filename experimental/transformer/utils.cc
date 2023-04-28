@@ -35,9 +35,17 @@ bool check_two_equal<int8_t>(int8_t* array, int8_t* array2, int size){
 }
 
 
-void print_first_k_elelment(std::string name, const int8_t *arr, int k){
+void print_first_k_elelment(std::string name, const int8_t *arr, int k, int start_idx){
     std::cout << name << ":";
-    for (int i = 0; i < k; i++){
+    for (int i = start_idx; i < k; i++){
+        std::cout << static_cast<int>(arr[i]) << ",";
+    }
+    std::cout << std::endl;
+}
+
+void print_first_k_elelment(std::string name, const int32_t *arr, int k, int start_idx){
+    std::cout << name << ":";
+    for (int i = start_idx; i < k; i++){
         std::cout << static_cast<int>(arr[i]) << ",";
     }
     std::cout << std::endl;

@@ -108,7 +108,8 @@ struct Int8OPTAttention_output Int8OPTAttention::forward(const struct Int8OPTAtt
     debug_info("W8A8B8O8Linear(this->q_proj);");
     print_first_k_elelment("this->q_proj.x", this->q_proj.x.m_data, 10);
     print_first_k_elelment("this->q_proj.weight", this->q_proj.weight.m_data, 10);
-    print_first_k_elelment("query_states_unshape", query_states_unshape.m_data, 10);
+    print_first_k_elelment("this->q_proj.bias", this->q_proj.bias.m_data, 64);
+    print_first_k_elelment("this->q_proj.output", this->q_proj.output.m_data, 74, 64);
 
     // opt.py: key_states = self._shape(self.k_proj(hidden_states), -1, bsz)
     int8_t key_states_unshape_arr[sqlen * this->embed_dim];
@@ -116,7 +117,7 @@ struct Int8OPTAttention_output Int8OPTAttention::forward(const struct Int8OPTAtt
     this->k_proj.x = input.hidden_states;
     this->k_proj.output = key_states_unshape;
     W8A8B8O8Linear(this->k_proj); 
-    debug_info(" W8A8B8O8Linear(this->k_proj);");
+    debug_info("W8A8B8O8Linear(this->k_proj);");
     int8_t key_states_arr[b * sqlen * this->embed_dim];
     Matrix3D<int8_t> key_states(key_states_arr, this->num_heads, sqlen, this->head_dim);
     this->shpae(key_states_unshape, key_states, sqlen);
@@ -127,7 +128,7 @@ struct Int8OPTAttention_output Int8OPTAttention::forward(const struct Int8OPTAtt
     this->v_proj.x = input.hidden_states;
     this->v_proj.output = value_states_unshape;
     W8A8B8O8Linear(this->v_proj); 
-    debug_info(" W8A8B8O8Linear(this->v_proj);");
+    debug_info("W8A8B8O8Linear(this->v_proj);");
     int8_t value_states_arr[sqlen * this->embed_dim];
     Matrix3D<int8_t> value_states(value_states_arr, this->num_heads, sqlen, this->head_dim);
     this->shpae(value_states_unshape, value_states, sqlen);
