@@ -36,52 +36,49 @@ void load_W8A8BFP32OFP32Linear_params(struct W8A8BFP32OFP32Linear_params &param,
     read_to_array((prefix + "_alpha.bin").c_str(), &param.alpha, 1);
 }
 
-void Int8OPTAttention::shpae(Matrix3D<int8_t> unshape, Matrix3D<int8_t> shaped, int sqlen){
-    assert(unshape.m_dim_x == 1); // bsz == 1
+void Int8OPTAttention::shpae(Matrix3D<int8_t> unshape, Matrix3D<int8_t> shaped, int sqlen) {
+    assert(unshape.m_dim_x == 1);  // bsz == 1
     assert(unshape.m_dim_y == sqlen);
     assert(unshape.m_dim_z == this->num_heads * this->head_dim);
     assert(shaped.m_dim_x == this->num_heads);
     assert(shaped.m_dim_y == sqlen);
     assert(shaped.m_dim_z == this->head_dim);
 
-    for (int i = 0; i < this->num_heads; i++){
-        for (int j = 0; j < sqlen; j++){
-            for (int k = 0; k < this->head_dim; k++){
+    for (int i = 0; i < this->num_heads; i++) {
+        for (int j = 0; j < sqlen; j++) {
+            for (int k = 0; k < this->head_dim; k++) {
                 shaped(i, j, k) = unshape(0, j, i * this->head_dim + k);
             }
         }
     }
-
 }
 
-void Int8OPTAttention::unshape(Matrix3D<int8_t> shaped, Matrix3D<int8_t> unshape, int sqlen){
-    assert(unshape.m_dim_x == 1); // bsz == 1
+void Int8OPTAttention::unshape(Matrix3D<int8_t> shaped, Matrix3D<int8_t> unshape, int sqlen) {
+    assert(unshape.m_dim_x == 1);  // bsz == 1
     assert(unshape.m_dim_y == sqlen);
     assert(unshape.m_dim_z == this->num_heads * this->head_dim);
     assert(shaped.m_dim_x == this->num_heads);
     assert(shaped.m_dim_y == sqlen);
     assert(shaped.m_dim_z == this->head_dim);
 
-    for (int i = 0; i < this->num_heads; i++){
-        for (int j = 0; j < sqlen; j++){
-            for (int k = 0; k < this->head_dim; k++){
+    for (int i = 0; i < this->num_heads; i++) {
+        for (int j = 0; j < sqlen; j++) {
+            for (int k = 0; k < this->head_dim; k++) {
                 unshape(0, j, i * this->head_dim + k) = shaped(i, j, k);
             }
         }
     }
-
 }
 
-
-template<typename T>
-void transpose_1_2idx(Matrix3D<T> input, Matrix3D<T> output){
+template <typename T>
+void transpose_1_2idx(Matrix3D<T> input, Matrix3D<T> output) {
     assert(input.m_dim_x == output.m_dim_x);
     assert(input.m_dim_y == output.m_dim_z);
     assert(input.m_dim_z == output.m_dim_y);
 
-    for (int i = 0; i < input.m_dim_x; i++){
-        for (int j = 0; j < input.m_dim_y; j++){
-            for (int k = 0; k < input.m_dim_z; k++){
+    for (int i = 0; i < input.m_dim_x; i++) {
+        for (int j = 0; j < input.m_dim_y; j++) {
+            for (int k = 0; k < input.m_dim_z; k++) {
                 output(i, k, j) = input(i, j, k);
             }
         }
@@ -94,7 +91,7 @@ float attn_weights_arr[HEAD * MAXSQLEN * MAXSQLEN];
 float attn_weightsGT_arr[HEAD * MAXSQLEN * MAXSQLEN];
 float attn_probs_arr[HEAD * MAXSQLEN * MAXSQLEN];
 int8_t attn_probs_int8_arr[HEAD * MAXSQLEN * MAXSQLEN];
- // TODO: var allocation method
+// TODO: var allocation method
 struct Int8OPTAttention_output Int8OPTAttention::forward(const struct Int8OPTAttention_input &input) {
     struct Int8OPTAttention_output output;
     const int sqlen = input.hidden_states.m_dim_y, b = input.hidden_states.m_dim_x;
@@ -105,15 +102,14 @@ struct Int8OPTAttention_output Int8OPTAttention::forward(const struct Int8OPTAtt
     this->q_proj.x = input.hidden_states;
     this->q_proj.output = query_states_unshape;
     // opt.py: query_states = self.q_proj(hidden_states)
-    W8A8B8O8Linear(this->q_proj); 
+    W8A8B8O8Linear(this->q_proj);
 
     // opt.py: key_states = self._shape(self.k_proj(hidden_states), -1, bsz)
     int8_t key_states_unshape_arr[sqlen * this->embed_dim];
     Matrix3D<int8_t> key_states_unshape(key_states_unshape_arr, b, sqlen, embed_dim);
     this->k_proj.x = input.hidden_states;
     this->k_proj.output = key_states_unshape;
-    W8A8B8O8Linear(this->k_proj); 
-    debug_info("W8A8B8O8Linear(this->k_proj);");
+    W8A8B8O8Linear(this->k_proj);
     int8_t key_states_arr[b * sqlen * this->embed_dim];
     Matrix3D<int8_t> key_states(key_states_arr, this->num_heads, sqlen, this->head_dim);
     this->shpae(key_states_unshape, key_states, sqlen);
@@ -123,13 +119,13 @@ struct Int8OPTAttention_output Int8OPTAttention::forward(const struct Int8OPTAtt
     Matrix3D<int8_t> value_states_unshape(value_states_unshape_arr, b, sqlen, embed_dim);
     this->v_proj.x = input.hidden_states;
     this->v_proj.output = value_states_unshape;
-    W8A8B8O8Linear(this->v_proj); 
+    W8A8B8O8Linear(this->v_proj);
     debug_info("W8A8B8O8Linear(this->v_proj);");
     int8_t value_states_arr[sqlen * this->embed_dim];
     Matrix3D<int8_t> value_states(value_states_arr, this->num_heads, sqlen, this->head_dim);
     this->shpae(value_states_unshape, value_states, sqlen);
 
-    if (input.past_key != NULL && input.past_value != NULL){
+    if (input.past_key != NULL && input.past_value != NULL) {
         // # reuse k, v, self_attention
         // key_states = torch.cat([past_key_value[0], key_states], dim=2)
         // value_states = torch.cat([past_key_value[1], value_states], dim=2)
@@ -164,16 +160,15 @@ struct Int8OPTAttention_output Int8OPTAttention::forward(const struct Int8OPTAtt
     // int8_t attn_probs_int8_arr[this->num_heads * sqlen * sqlen];
     Matrix3D<int8_t> attn_probs_int8(attn_probs_int8_arr, this->num_heads, sqlen, sqlen);
     int len = attn_probs.length();
-    for (int i = 0; i < len; i++)
-        attn_probs_int8_arr[i] = static_cast<int8_t>(std::round(attn_probs.m_data[i] * 127));
-    
+    for (int i = 0; i < len; i++) attn_probs_int8_arr[i] = static_cast<int8_t>(std::round(attn_probs.m_data[i] * 127));
+
     // opt.py: value_states = value_states.transpose(1, 2).contiguous()
     int8_t value_states_transpose_arr[this->num_heads * this->head_dim * sqlen];
     Matrix3D<int8_t> value_states_transpose(value_states_transpose_arr, this->num_heads, this->head_dim, sqlen);
     transpose_1_2idx(value_states, value_states_transpose);
 
     // opt.py: attn_output = self.pv_bmm(attn_probs, value_states)
-    int8_t attn_output_arr[this->num_heads * sqlen * this->head_dim]; // TODO: check if tgt_len or sqlen
+    int8_t attn_output_arr[this->num_heads * sqlen * this->head_dim];  // TODO: check if tgt_len or sqlen
     Matrix3D<int8_t> attn_output(attn_output_arr, this->num_heads, sqlen, this->head_dim);
     this->pv_bmm.x = attn_probs_int8;
     this->pv_bmm.weight = value_states_transpose;
@@ -182,11 +177,11 @@ struct Int8OPTAttention_output Int8OPTAttention::forward(const struct Int8OPTAtt
 
     // opt.py: attn_output = attn_output.transpose(1, 2)
     // opt.py: attn_output = attn_output.reshape(bsz, tgt_len, self.embed_dim).contiguous()
-    int8_t attn_output_transpose_arr[this->num_heads * sqlen * this->head_dim]; // TODO: check if tgt_len or sqlen
+    int8_t attn_output_transpose_arr[this->num_heads * sqlen * this->head_dim];  // TODO: check if tgt_len or sqlen
     Matrix3D<int8_t> attn_output_transpose(attn_output_transpose_arr, 1, sqlen, this->num_heads * this->head_dim);
     this->unshape(attn_output, attn_output_transpose, sqlen);
 
-    float attn_output_fp_arr[this->num_heads * sqlen * this->head_dim]; // TODO: check if tgt_len or sqlen
+    float attn_output_fp_arr[this->num_heads * sqlen * this->head_dim];  // TODO: check if tgt_len or sqlen
     Matrix3D<float> attn_output_fp(attn_output_fp_arr, 1, sqlen, this->num_heads * this->head_dim);
     this->out_proj.x = attn_output_transpose;
     this->out_proj.output = attn_output_fp;
