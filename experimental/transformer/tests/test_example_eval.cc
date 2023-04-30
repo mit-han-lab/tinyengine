@@ -34,7 +34,7 @@ int main() {
     read_to_array((char*)"last_token_logits.bin", gt_last_token_logits_array, 50272);
     bool sucess = check_two_equal(gt_last_token_logits_array, last_token_logits_array, 50272);
     if (!sucess)
-        printf("End result incorrect!\n");
+        std::cout << "Test of " << __func__ << ": Fail!" << std::endl;
     else
-        printf("End result correct!\n");
+        std::cout << "Test of " << __func__ << ": Passed!" << std::endl;
 }

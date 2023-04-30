@@ -48,7 +48,7 @@ public:
         return true;
     }
 
-    int lenth() const {
+    int length() const {
         return m_dim_x * m_dim_y * m_dim_z;
     }
     int m_dim_x, m_dim_y, m_dim_z;

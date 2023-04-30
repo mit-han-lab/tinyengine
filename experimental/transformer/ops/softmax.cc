@@ -2,7 +2,7 @@
 #include "../operators.h"
 
 void softmax(const Matrix3D<float> &input, Matrix3D<float> &output, const int dim) {
-    int len = input.lenth();
+    int len = input.length();
 
     if (dim == 2) {
         // Find the maximum value in the input array

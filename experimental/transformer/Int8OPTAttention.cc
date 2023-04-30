@@ -25,14 +25,14 @@ void load_BMM_S8T_S8N_S8T(struct BMM_S8T_S8N_S8T_params &param, std::string pref
     read_to_array((prefix + "_alpha.bin").c_str(), &param.alpha, 1);
 }
 void load_W8A8B8O8Linear_params(struct W8A8B8O8Linear_params &param, std::string prefix) {
-    read_to_array((prefix + "_weight.bin").c_str(), param.weight.m_data, param.weight.lenth());
-    read_to_array((prefix + "_bias.bin").c_str(), param.bias.m_data, param.bias.lenth());
+    read_to_array((prefix + "_weight.bin").c_str(), param.weight.m_data, param.weight.length());
+    read_to_array((prefix + "_bias.bin").c_str(), param.bias.m_data, param.bias.length());
     read_to_array((prefix + "_alpha.bin").c_str(), &param.alpha, 1);
     read_to_array((prefix + "_beta.bin").c_str(), &param.beta, 1);
 }
 void load_W8A8BFP32OFP32Linear_params(struct W8A8BFP32OFP32Linear_params &param, std::string prefix) {
-    read_to_array((prefix + "_weight.bin").c_str(), param.weight.m_data, param.weight.lenth());
-    read_to_array((prefix + "_bias.bin").c_str(), param.bias.m_data, param.bias.lenth());
+    read_to_array((prefix + "_weight.bin").c_str(), param.weight.m_data, param.weight.length());
+    read_to_array((prefix + "_bias.bin").c_str(), param.bias.m_data, param.bias.length());
     read_to_array((prefix + "_alpha.bin").c_str(), &param.alpha, 1);
 }
 
@@ -91,6 +91,7 @@ void transpose_1_2idx(Matrix3D<T> input, Matrix3D<T> output){
 #define HEAD 12
 #define MAXSQLEN 512
 float attn_weights_arr[HEAD * MAXSQLEN * MAXSQLEN];
+float attn_weightsGT_arr[HEAD * MAXSQLEN * MAXSQLEN];
 float attn_probs_arr[HEAD * MAXSQLEN * MAXSQLEN];
 int8_t attn_probs_int8_arr[HEAD * MAXSQLEN * MAXSQLEN];
  // TODO: var allocation method
@@ -105,11 +106,6 @@ struct Int8OPTAttention_output Int8OPTAttention::forward(const struct Int8OPTAtt
     this->q_proj.output = query_states_unshape;
     // opt.py: query_states = self.q_proj(hidden_states)
     W8A8B8O8Linear(this->q_proj); 
-    // debug_info("W8A8B8O8Linear(this->q_proj);");
-    // print_first_k_elelment("this->q_proj.x", this->q_proj.x.m_data, 10);
-    // print_first_k_elelment("this->q_proj.weight", this->q_proj.weight.m_data, 10);
-    // print_first_k_elelment("this->q_proj.bias", this->q_proj.bias.m_data, 64);
-    // print_first_k_elelment("this->q_proj.output", this->q_proj.output.m_data, 74, 64);
 
     // opt.py: key_states = self._shape(self.k_proj(hidden_states), -1, bsz)
     int8_t key_states_unshape_arr[sqlen * this->embed_dim];
@@ -120,10 +116,6 @@ struct Int8OPTAttention_output Int8OPTAttention::forward(const struct Int8OPTAtt
     debug_info("W8A8B8O8Linear(this->k_proj);");
     int8_t key_states_arr[b * sqlen * this->embed_dim];
     Matrix3D<int8_t> key_states(key_states_arr, this->num_heads, sqlen, this->head_dim);
-    // print_first_k_elelment("this->k_proj.x", this->k_proj.x.m_data, 10);
-    // print_first_k_elelment("this->k_proj.weight", this->k_proj.weight.m_data, 10);
-    // print_first_k_elelment("this->k_proj.bias", this->k_proj.bias.m_data, 64);
-    // print_first_k_elelment("this->k_proj.output", this->k_proj.output.m_data, 74, 64);
     this->shpae(key_states_unshape, key_states, sqlen);
 
     // opt.py: value_states = self._shape(self.v_proj(hidden_states), -1, bsz)
@@ -147,7 +139,6 @@ struct Int8OPTAttention_output Int8OPTAttention::forward(const struct Int8OPTAtt
     int8_t query_states_arr[sqlen * this->embed_dim];
     Matrix3D<int8_t> query_states(query_states_arr, this->num_heads, sqlen, this->head_dim);
     this->shpae(query_states_unshape, query_states, sqlen);
-    debug_info("this->shpae(query_states_unshape, query_states, sqlen);");
 
     // opt.py: attn_weights = self.qk_bmm(query_states, key_states)
     // float attn_weights_arr[this->num_heads * sqlen * sqlen];
@@ -157,18 +148,14 @@ struct Int8OPTAttention_output Int8OPTAttention::forward(const struct Int8OPTAtt
     this->qk_bmm.weight = key_states;
     this->qk_bmm.output = attn_weights;
     BMM_S8T_S8N_F32T(this->qk_bmm);
-    print_first_k_elelment("qk_bmm.output", qk_bmm.output.m_data, 10);
-    debug_info("BMM_S8T_S8N_F32T(this->qk_bmm);");
-    
+
     // opt.py: attn_weights = attn_weights.view(bsz, self.num_heads, tgt_len, src_len) + attention_mask
     batch_Add(attn_weights, input.attention_mask, attn_weights);
-    debug_info("batch_Add(attn_weights, input.attention_mask, attn_weights);");
 
     // opt.py: attn_probs = nn.functional.softmax(attn_weights, dim=-1)
     // float attn_probs_arr[this->num_heads * sqlen * sqlen];
     Matrix3D<float> attn_probs(attn_weights_arr, this->num_heads, sqlen, sqlen);
     softmax(attn_weights, attn_probs, 2);
-    debug_info("softmax(attn_weights, attn_probs, 2);");
 
     // TODO: do we need layer_head_mask?
 
@@ -176,7 +163,7 @@ struct Int8OPTAttention_output Int8OPTAttention::forward(const struct Int8OPTAtt
     // opt.py: attn_probs = attn_probs.to(torch.int8)
     // int8_t attn_probs_int8_arr[this->num_heads * sqlen * sqlen];
     Matrix3D<int8_t> attn_probs_int8(attn_probs_int8_arr, this->num_heads, sqlen, sqlen);
-    int len = attn_probs.lenth();
+    int len = attn_probs.length();
     for (int i = 0; i < len; i++)
         attn_probs_int8_arr[i] = static_cast<int8_t>(std::round(attn_probs.m_data[i] * 127));
     
@@ -184,9 +171,6 @@ struct Int8OPTAttention_output Int8OPTAttention::forward(const struct Int8OPTAtt
     int8_t value_states_transpose_arr[this->num_heads * this->head_dim * sqlen];
     Matrix3D<int8_t> value_states_transpose(value_states_transpose_arr, this->num_heads, this->head_dim, sqlen);
     transpose_1_2idx(value_states, value_states_transpose);
-    print_first_k_elelment("value_states", value_states.m_data, 10);
-    print_first_k_elelment("value_states_transpose.output", value_states_transpose.m_data, 10);
-    debug_info("transpose_1_2idx(value_states, value_states_transpose);");
 
     // opt.py: attn_output = self.pv_bmm(attn_probs, value_states)
     int8_t attn_output_arr[this->num_heads * sqlen * this->head_dim]; // TODO: check if tgt_len or sqlen
@@ -195,10 +179,6 @@ struct Int8OPTAttention_output Int8OPTAttention::forward(const struct Int8OPTAtt
     this->pv_bmm.weight = value_states_transpose;
     this->pv_bmm.output = attn_output;
     BMM_S8T_S8N_S8T(this->pv_bmm);
-    print_first_k_elelment("this->pv_bmm.x", this->pv_bmm.x.m_data, 10);
-    print_first_k_elelment("this->pv_bmm.weight", this->pv_bmm.weight.m_data, 10);
-    print_first_k_elelment("this->pv_bmm.output", this->pv_bmm.output.m_data, 10);
-    debug_info("BMM_S8T_S8N_S8T(this->pv_bmm);");
 
     // opt.py: attn_output = attn_output.transpose(1, 2)
     // opt.py: attn_output = attn_output.reshape(bsz, tgt_len, self.embed_dim).contiguous()
@@ -210,8 +190,7 @@ struct Int8OPTAttention_output Int8OPTAttention::forward(const struct Int8OPTAtt
     Matrix3D<float> attn_output_fp(attn_output_fp_arr, 1, sqlen, this->num_heads * this->head_dim);
     this->out_proj.x = attn_output_transpose;
     this->out_proj.output = attn_output_fp;
-    W8A8BFP32OFP32Linear_params(this->out_proj);
-
+    W8A8BFP32OFP32Linear(this->out_proj);
     // output assignment
     output.attn_output = attn_output_fp;
     output.past_key_value = {key_states, value_states};
