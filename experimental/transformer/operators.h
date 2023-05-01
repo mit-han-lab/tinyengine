@@ -9,6 +9,7 @@
 #define NUM_THREAD 4
 
 #define MAX_SQLLEN 512
+#define EMBED_DIM 768
 
 struct LayerNormQ_params {
     Matrix3D<float> x;
@@ -47,6 +48,12 @@ struct BMM_S8T_S8N_F32T_params {
     Matrix3D<float> output;
     float alpha;
 };
+
+void load_LayerNormQ(struct LayerNormQ_params &param, std::string prefix);
+void load_BMM_S8T_S8N_F32T(struct BMM_S8T_S8N_F32T_params &param, std::string prefix);
+void load_BMM_S8T_S8N_S8T(struct BMM_S8T_S8N_S8T_params &param, std::string prefix);
+void load_W8A8B8O8Linear_params(struct W8A8B8O8Linear_params &param, std::string prefix);
+void load_W8A8BFP32OFP32Linear_params(struct W8A8BFP32OFP32Linear_params &param, std::string prefix);
 
 void LayerNormQ(LayerNormQ_params &op_params);
 void W8A8B8O8LinearReLU(struct W8A8B8O8Linear_params &op_params);

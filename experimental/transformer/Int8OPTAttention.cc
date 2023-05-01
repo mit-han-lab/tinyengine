@@ -3,6 +3,7 @@
 #include "operators.h"
 #include "utils.h"
 
+
 Int8OPTAttention::Int8OPTAttention(int embed_dim, int num_heads, struct BMM_S8T_S8N_F32T_params &qk_bmm,
                                    struct BMM_S8T_S8N_S8T_params &pv_bmm, struct W8A8B8O8Linear_params &k_proj,
                                    struct W8A8B8O8Linear_params &v_proj, struct W8A8B8O8Linear_params &q_proj,
@@ -18,22 +19,26 @@ Int8OPTAttention::Int8OPTAttention(int embed_dim, int num_heads, struct BMM_S8T_
     this->out_proj = out_proj;
 }
 
-void load_BMM_S8T_S8N_F32T(struct BMM_S8T_S8N_F32T_params &param, std::string prefix) {
-    read_to_array((prefix + "_alpha.bin").c_str(), &param.alpha, 1);
-}
-void load_BMM_S8T_S8N_S8T(struct BMM_S8T_S8N_S8T_params &param, std::string prefix) {
-    read_to_array((prefix + "_alpha.bin").c_str(), &param.alpha, 1);
-}
-void load_W8A8B8O8Linear_params(struct W8A8B8O8Linear_params &param, std::string prefix) {
-    read_to_array((prefix + "_weight.bin").c_str(), param.weight.m_data, param.weight.length());
-    read_to_array((prefix + "_bias.bin").c_str(), param.bias.m_data, param.bias.length());
-    read_to_array((prefix + "_alpha.bin").c_str(), &param.alpha, 1);
-    read_to_array((prefix + "_beta.bin").c_str(), &param.beta, 1);
-}
-void load_W8A8BFP32OFP32Linear_params(struct W8A8BFP32OFP32Linear_params &param, std::string prefix) {
-    read_to_array((prefix + "_weight.bin").c_str(), param.weight.m_data, param.weight.length());
-    read_to_array((prefix + "_bias.bin").c_str(), param.bias.m_data, param.bias.length());
-    read_to_array((prefix + "_alpha.bin").c_str(), &param.alpha, 1);
+Int8OPTAttention::Int8OPTAttention(std::string param_path, int embed_dim, int num_heads,
+                                   struct BMM_S8T_S8N_F32T_params &qk_bmm, struct BMM_S8T_S8N_S8T_params &pv_bmm,
+                                   struct W8A8B8O8Linear_params &k_proj, struct W8A8B8O8Linear_params &v_proj,
+                                   struct W8A8B8O8Linear_params &q_proj, struct W8A8BFP32OFP32Linear_params &out_proj) {
+    load_BMM_S8T_S8N_F32T(qk_bmm, param_path + "/qk_bmm");
+    load_BMM_S8T_S8N_S8T(pv_bmm, param_path + "/pv_bmm");
+    load_W8A8B8O8Linear_params(k_proj, param_path + "/k_proj");
+    load_W8A8B8O8Linear_params(v_proj, param_path + "/v_proj");
+    load_W8A8B8O8Linear_params(q_proj, param_path + "/q_proj");
+    load_W8A8BFP32OFP32Linear_params(out_proj, param_path + "/out_proj");
+
+    this->embed_dim = embed_dim;
+    this->num_heads = num_heads;
+    this->head_dim = embed_dim / num_heads;
+    this->qk_bmm = qk_bmm;
+    this->pv_bmm = pv_bmm;
+    this->k_proj = k_proj;
+    this->v_proj = v_proj;
+    this->q_proj = q_proj;
+    this->out_proj = out_proj;
 }
 
 void Int8OPTAttention::shpae(Matrix3D<int8_t> unshape, Matrix3D<int8_t> shaped, int sqlen) {
@@ -120,7 +125,6 @@ struct Int8OPTAttention_output Int8OPTAttention::forward(const struct Int8OPTAtt
     this->v_proj.x = input.hidden_states;
     this->v_proj.output = value_states_unshape;
     W8A8B8O8Linear(this->v_proj);
-    debug_info("W8A8B8O8Linear(this->v_proj);");
     int8_t value_states_arr[sqlen * this->embed_dim];
     Matrix3D<int8_t> value_states(value_states_arr, this->num_heads, sqlen, this->head_dim);
     this->shpae(value_states_unshape, value_states, sqlen);

@@ -2,10 +2,12 @@
 #include <stdio.h>
 #include <cstdlib>
 #include <iostream>
+#include <cassert>
 
 template<typename T>
 void read_to_array(const char* path, T* array, int size){
     std::ifstream infile(path, std::ios::binary | std::ios::in);
+    assert(infile);
     infile.read(reinterpret_cast<char*>(array), size * sizeof(T));
     infile.close();
 }

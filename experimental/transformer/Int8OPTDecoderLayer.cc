@@ -1,9 +1,101 @@
 #include "Int8OPTDecoderLayer.h"
+#include "utils.h"
 
+template <typename T>
+void add(Matrix3D<T> a, Matrix3D<T> b, Matrix3D<T> c) {
+    assert(c.length() == a.length() && a.length() == b.length());
 
-struct Int8OPTDecoderLayer_output OPTForCausalLM::forward(const struct Int8OPTDecoderLayer_input &input){
-    struct Int8OPTDecoderLayer_output output;
+    for (int i = 0; i < a.length(); i++) {
+        c.m_data[i] = a.m_data[i] + b.m_data[i];
+    }
+}
 
+float hidden_states_float_arr[MAX_SQLLEN * EMBED_DIM];
+float hidden_states_floatGT_arr[MAX_SQLLEN * EMBED_DIM];
+int8_t final_layer_norm_arr[MAX_SQLLEN * EMBED_DIM];
+int8_t final_layer_normGT_arr[MAX_SQLLEN * EMBED_DIM];
+int8_t fc_1_arr[MAX_SQLLEN * EMBED_DIM];
+int8_t fc_1_arrGT[MAX_SQLLEN * EMBED_DIM];
+float fc_2_arr[MAX_SQLLEN * EMBED_DIM];
+struct Int8OPTDecoderLayer_output Int8OPTDecoderLayer::forward(const struct Int8OPTDecoderLayer_input &input) {
+    this->self_attn_layer_norm.x = input.hidden_states;
+    int8_t hidden_states_int8_arr[input.hidden_states.length()];
+    int8_t hidden_states_int8GT_arr[input.hidden_states.length()];
+    Matrix3D<int8_t> hidden_states_int8(hidden_states_int8_arr, input.hidden_states.m_dim_x,
+                                        input.hidden_states.m_dim_y, input.hidden_states.m_dim_z);
+    this->self_attn_layer_norm.output = hidden_states_int8;
+    
+    LayerNormQ(this->self_attn_layer_norm);
+    read_to_array("assets/self_attn_layer_norm.bin", hidden_states_int8GT_arr, hidden_states_int8.length());
+    assert(check_two_equal(hidden_states_int8GT_arr, hidden_states_int8_arr, hidden_states_int8.length()));
 
+    struct Int8OPTAttention_input attn_param(hidden_states_int8, input.attention_mask);
+    struct Int8OPTAttention_output attn_output = this->attn.forward(attn_param);
+
+    // opt.py: residual.add_(hidden_states.to(residual.dtype))
+    // float hidden_states_float_arr[input.hidden_states.length()];
+    Matrix3D<float> residual_add(hidden_states_float_arr, input.hidden_states.m_dim_x, input.hidden_states.m_dim_y,
+                                 input.hidden_states.m_dim_z);
+    add(input.hidden_states, attn_output.attn_output, residual_add);
+
+    // opt.py: hidden_states = self.final_layer_norm(residual)
+    Matrix3D<int8_t> final_layer_norm(final_layer_norm_arr, input.hidden_states.m_dim_x, input.hidden_states.m_dim_y,
+                                      input.hidden_states.m_dim_z);
+    this->final_layer_norm.x = residual_add;
+    this->final_layer_norm.output = final_layer_norm;
+    LayerNormQ(this->final_layer_norm);
+    read_to_array("assets/final_layer_norm.bin", final_layer_norm.m_data, final_layer_norm.length());
+    assert(check_two_equal(final_layer_normGT_arr, final_layer_norm.m_data, final_layer_norm.length()));
+
+    // opt.py: hidden_states = self.fc1(hidden_states)
+    Matrix3D<int8_t> fc1_out(fc_1_arr, input.hidden_states.m_dim_x, input.hidden_states.m_dim_y,
+                             this->hidden_dim);
+    this->fc1.x = final_layer_norm;
+    this->fc1.output = fc1_out;
+    W8A8B8O8LinearReLU(this->fc1);
+    read_to_array("assets/fc1_output.bin", fc_1_arrGT, fc1_out.length());
+    assert(check_two_equal(fc_1_arr, fc_1_arrGT, fc1_out.length()));
+
+    // opt.py: hidden_states = self.fc2(hidden_states)
+    Matrix3D<float> fc2_out(fc_2_arr, input.hidden_states.m_dim_x, input.hidden_states.m_dim_y,
+                            input.hidden_states.m_dim_z);
+    this->fc2.x = fc1_out;
+    this->fc2.output = fc2_out;
+    W8A8BFP32OFP32Linear(this->fc2);
+    // print_first_k_elelment("fc2_x", this->fc2.x.m_data, 100);
+    // print_first_k_elelment("fc2_weight", this->fc2.weight.m_data, 100);
+    // print_first_k_elelment("fc2_bias", this->fc2.bias.m_data, 100);
+    // print_first_k_elelment("fc2_out", this->fc2.output.m_data, 100);
+
+    // opt.py: residual.add_(hidden_states.to(residual.dtype))
+    add(residual_add, fc2_out, residual_add);
+    print_first_k_elelment("residual_add", residual_add.m_data, 10);
+
+    struct Int8OPTDecoderLayer_output output(residual_add, attn_output.attn_probs_reshaped, attn_output.past_key_value);
     return output;
+}
+
+Int8OPTDecoderLayer::Int8OPTDecoderLayer(std::string param_path, int embed_dim, int num_heads, int hidden_dim,
+                                         struct LayerNormQ_params &self_attn_layer_norm,
+                                         struct LayerNormQ_params &final_layer_norm, struct W8A8B8O8Linear_params &fc1,
+                                         struct W8A8BFP32OFP32Linear_params &fc2,
+                                         struct BMM_S8T_S8N_F32T_params &qk_bmm, struct BMM_S8T_S8N_S8T_params &pv_bmm,
+                                         struct W8A8B8O8Linear_params &k_proj, struct W8A8B8O8Linear_params &v_proj,
+                                         struct W8A8B8O8Linear_params &q_proj,
+                                         struct W8A8BFP32OFP32Linear_params &out_proj) {
+    load_LayerNormQ(self_attn_layer_norm, param_path + "/self_attn_layer_norm");
+    load_W8A8B8O8Linear_params(fc1, param_path + "/fc1");
+    load_W8A8BFP32OFP32Linear_params(fc2, param_path + "/fc2");
+    load_LayerNormQ(final_layer_norm, param_path + "/final_layer_norm");
+
+    this->embed_dim = embed_dim;
+    this->num_attention_heads = num_heads;
+    this->hidden_dim = hidden_dim;
+    this->self_attn_layer_norm = self_attn_layer_norm;
+    this->fc1 = fc1;
+    this->fc2 = fc2;
+    this->final_layer_norm = final_layer_norm;
+
+    this->attn = Int8OPTAttention(param_path + "/self_attn", embed_dim, num_heads, qk_bmm, pv_bmm, k_proj, v_proj,
+                                  q_proj, out_proj);
 }
