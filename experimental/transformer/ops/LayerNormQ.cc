@@ -2,11 +2,9 @@
 
 #include "../operators.h"
 
-void LayerNormQ(LayerNormQ_params &op_params) {
-    Matrix3D<float> x = op_params.x;
-    Matrix3D<float> weight = op_params.weight;
-    Matrix3D<float> bias = op_params.bias;
-    Matrix3D<int8_t> output = op_params.output;
+void LayerNormQ::forward(const Matrix3D<float> &x, Matrix3D<int8_t> &output) {
+    Matrix3D<float> weight = params.weight;
+    Matrix3D<float> bias = params.bias;
     const int last_dims = 2;
     const float eps = 0.00001;
     

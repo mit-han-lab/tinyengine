@@ -14,10 +14,8 @@
 #define HIDDEN_DIM 3072
 
 struct LayerNormQ_params {
-    Matrix3D<float> x;
     Matrix3D<float> weight;
     Matrix3D<float> bias;
-    Matrix3D<int8_t> output;
 };
 
 struct W8A8BFP32OFP32Linear_params {
@@ -29,10 +27,8 @@ struct W8A8BFP32OFP32Linear_params {
 };
 
 struct W8A8B8O8Linear_params {
-    Matrix3D<int8_t> x;
     Matrix3D<int8_t> weight;
     Matrix3D<int32_t> bias;
-    Matrix3D<int8_t> output;
     float alpha;
     float beta;
 };
@@ -51,15 +47,44 @@ struct BMM_S8T_S8N_F32T_params {
     float alpha;
 };
 
-void load_LayerNormQ(struct LayerNormQ_params &param, std::string prefix);
+class LayerNormQ {
+public:
+    LayerNormQ(LayerNormQ_params &params_): params(params_) {};
+    LayerNormQ(){};
+    void forward(const Matrix3D<float> &x, Matrix3D<int8_t> &output);
+    struct LayerNormQ_params params;
+};
+
+class W8A8B8O8LinearReLU{
+public:
+    W8A8B8O8LinearReLU(W8A8B8O8Linear_params &params_);
+    W8A8B8O8LinearReLU(){};
+    void forward(const Matrix3D<int8_t> &x, Matrix3D<int8_t> &output);
+    struct matmul_params params;
+    float alpha;
+    float beta;
+};
+
+class W8A8B8O8Linear{
+public:
+    W8A8B8O8Linear(W8A8B8O8Linear_params &params_);
+    W8A8B8O8Linear(){};
+    void forward(const Matrix3D<int8_t> &x, Matrix3D<int8_t> &output);
+    struct matmul_params params;
+    float alpha;
+    float beta;
+};
+
+
+void load_LayerNormQ(LayerNormQ &op, std::string prefix);
 void load_BMM_S8T_S8N_F32T(struct BMM_S8T_S8N_F32T_params &param, std::string prefix);
 void load_BMM_S8T_S8N_S8T(struct BMM_S8T_S8N_S8T_params &param, std::string prefix);
-void load_W8A8B8O8Linear_params(struct W8A8B8O8Linear_params &param, std::string prefix);
+void load_W8A8B8O8Linear_params(W8A8B8O8Linear &op, std::string prefix);
+void load_W8A8B8O8LinearReLU_params(W8A8B8O8LinearReLU &op, std::string prefix);
 void load_W8A8BFP32OFP32Linear_params(struct W8A8BFP32OFP32Linear_params &param, std::string prefix);
 
-void LayerNormQ(LayerNormQ_params &op_params);
-void W8A8B8O8LinearReLU(struct W8A8B8O8Linear_params &op_params);
-void W8A8B8O8Linear(struct W8A8B8O8Linear_params &op_params);
+// void W8A8B8O8LinearReLU(struct W8A8B8O8Linear_params &op_params);
+// void W8A8B8O8Linear(struct W8A8B8O8Linear_params &op_params);
 void W8A8BFP32OFP32Linear(struct W8A8BFP32OFP32Linear_params &op_params);
 void BMM_S8T_S8N_F32T(struct BMM_S8T_S8N_F32T_params &op_params);
 void BMM_S8T_S8N_S8T(struct BMM_S8T_S8N_S8T_params &op_params);

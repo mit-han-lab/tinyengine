@@ -15,6 +15,9 @@ struct matrix {
     int8_t *int8_data_ptr;
     int32_t *int32_data_ptr;
     struct quantization_params qparams;
+    int length(){
+        return row * column;
+    }
 };
 
 struct optimization_params {
@@ -26,6 +29,7 @@ struct matmul_params {
     struct matrix A, B, C, bias;
     struct optimization_params opt_params;
 };
+
 
 struct thread_args {
     const struct matrix *A;

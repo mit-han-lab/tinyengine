@@ -60,9 +60,11 @@ void test_LayerNormQ() {
     read_to_array((char*)"assets/LayerNormQ_weight.bin", weight_arr, b * n);
     read_to_array((char*)"assets/LayerNormQ_out.bin", GToutput_arr, b * m * n);
 
-    struct LayerNormQ_params op_params = {input, weight, bias, output};
+    struct LayerNormQ_params op_params = {weight, bias};
 
-    LayerNormQ(op_params);
+    LayerNormQ test_op = LayerNormQ(op_params);
+
+    test_op.forward(input, output);
 
     assert(check_two_equal(output_arr, GToutput_arr, b * m * n));
 
@@ -97,9 +99,11 @@ void test_W8A8B8O8LinearReLU() {
     }
     read_to_array((char*)"assets/W8A8B8O8LinearReLU_y.bin", GToutput_arr, m * n);
 
-    struct W8A8B8O8Linear_params op_params = {input, weight, bias, output, alpha};
+    struct W8A8B8O8Linear_params op_params = {weight, bias, alpha, beta};
 
-    W8A8B8O8LinearReLU(op_params);
+    W8A8B8O8LinearReLU test_op = W8A8B8O8LinearReLU(op_params);
+
+    test_op.forward(input, output);
 
     assert(check_two_equal(output_arr, GToutput_arr, m * n));
 
@@ -165,9 +169,11 @@ void test_W8A8B8O8Linear() {
     }
     read_to_array((char*)"assets/W8A8B8O8Linear_y.bin", GToutput_arr, b * m * n);
 
-    struct W8A8B8O8Linear_params op_params = {input, weight, bias, output, alpha};
+    struct W8A8B8O8Linear_params op_params = {weight, bias, alpha};
 
-    W8A8B8O8Linear(op_params);
+    W8A8B8O8Linear test_op = W8A8B8O8Linear(op_params);
+
+    test_op.forward(input, output);
 
     assert(check_two_equal(output_arr, GToutput_arr, b * m * n));
 

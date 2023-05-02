@@ -50,16 +50,19 @@ void test_Int8OPTAttention() {
     Matrix3D<int8_t> k_proj_weight(mem_buf.get_int8buffer(embed_dim * embed_dim), 1, embed_dim, embed_dim);
     Matrix3D<int32_t> k_proj_bias(mem_buf.get_intbuffer(embed_dim), 1, 1, embed_dim);
     k_proj.weight = k_proj_weight; k_proj.bias = k_proj_bias;
+    auto k_proj_op = W8A8B8O8Linear(k_proj);
     // print_first_k_elelment("k_proj.weight", k_proj.weight.m_data, 10);
 
     Matrix3D<int8_t> v_proj_weight(mem_buf.get_int8buffer(embed_dim * embed_dim), 1, embed_dim, embed_dim);
     Matrix3D<int32_t> v_proj_bias(mem_buf.get_intbuffer(embed_dim), 1, 1, embed_dim);
     v_proj.weight = v_proj_weight; v_proj.bias = v_proj_bias;
+    auto v_proj_op = W8A8B8O8Linear(v_proj);
     // print_first_k_elelment("v_proj.weight", v_proj.weight.m_data, 10);
 
     Matrix3D<int8_t> q_proj_weight(mem_buf.get_int8buffer(embed_dim * embed_dim), 1, embed_dim, embed_dim);
     Matrix3D<int32_t> q_proj_bias(mem_buf.get_intbuffer(embed_dim), 1, 1, embed_dim);
     q_proj.weight = q_proj_weight; q_proj.bias = q_proj_bias;
+    auto q_proj_op = W8A8B8O8Linear(q_proj);
     // print_first_k_elelment("q_proj.weight", q_proj.weight.m_data, 10);
 
     struct W8A8BFP32OFP32Linear_params out_proj;
@@ -68,7 +71,7 @@ void test_Int8OPTAttention() {
     out_proj.weight = out_proj_weight; out_proj.bias = out_proj_bias;
     // print_first_k_elelment("out_proj.weight", out_proj.weight.m_data, 10);
 
-    Int8OPTAttention attn = Int8OPTAttention("./assets/weights/layer0/self_attn", embed_dim, num_heads, qk_bmm, pv_bmm, k_proj, v_proj, q_proj, out_proj);
+    Int8OPTAttention attn = Int8OPTAttention("./assets/weights/layer0/self_attn", embed_dim, num_heads, qk_bmm, pv_bmm, k_proj_op, v_proj_op, q_proj_op, out_proj);
 
     Matrix3D<int8_t> hidden_states(mem_buf.get_int8buffer(embed_dim * sqlen), b, sqlen, embed_dim);
     read_to_array("assets/Int8OPTAttention_hidden_states.bin", hidden_states.m_data, b * sqlen * embed_dim);

@@ -1,4 +1,5 @@
 #include "Int8OPTDecoderLayer.h"
+
 #include "utils.h"
 
 template <typename T>
@@ -26,9 +27,7 @@ int8_t hidden_states_int8_arr[MAX_SQLLEN * EMBED_DIM];
 struct Int8OPTDecoderLayer_output Int8OPTDecoderLayer::forward(const struct Int8OPTDecoderLayer_input &input) {
     Matrix3D<int8_t> hidden_states_int8(hidden_states_int8_arr, input.hidden_states.m_dim_x,
                                         input.hidden_states.m_dim_y, input.hidden_states.m_dim_z);
-    this->self_attn_layer_norm.x = input.hidden_states;
-    this->self_attn_layer_norm.output = hidden_states_int8;
-    LayerNormQ(this->self_attn_layer_norm);
+    this->self_attn_layer_norm.forward(input.hidden_states, hidden_states_int8);
 
     struct Int8OPTAttention_input attn_param(hidden_states_int8, input.attention_mask);
     struct Int8OPTAttention_output attn_output = this->attn.forward(attn_param);
@@ -41,16 +40,14 @@ struct Int8OPTDecoderLayer_output Int8OPTDecoderLayer::forward(const struct Int8
     // opt.py: hidden_states = self.final_layer_norm(residual)
     Matrix3D<int8_t> final_layer_norm(final_layer_norm_arr, input.hidden_states.m_dim_x, input.hidden_states.m_dim_y,
                                       input.hidden_states.m_dim_z);
-    this->final_layer_norm.x = residual_add;
-    this->final_layer_norm.output = final_layer_norm;
-    LayerNormQ(this->final_layer_norm);
+    this->final_layer_norm.forward(residual_add, final_layer_norm);
 
     // opt.py: hidden_states = self.fc1(hidden_states)
-    Matrix3D<int8_t> fc1_out(fc_1_arr, input.hidden_states.m_dim_x, input.hidden_states.m_dim_y,
-                             this->hidden_dim);
-    this->fc1.x = final_layer_norm;
-    this->fc1.output = fc1_out;
-    W8A8B8O8LinearReLU(this->fc1);
+    Matrix3D<int8_t> fc1_out(fc_1_arr, input.hidden_states.m_dim_x, input.hidden_states.m_dim_y, this->hidden_dim);
+    // this->fc1.x = final_layer_norm;
+    // this->fc1.output = fc1_out;
+    this->fc1.forward(final_layer_norm, fc1_out);
+    // W8A8B8O8LinearReLU(this->fc1);
 
     // opt.py: hidden_states = self.fc2(hidden_states)
     Matrix3D<float> fc2_out(fc_2_arr, input.hidden_states.m_dim_x, input.hidden_states.m_dim_y,
@@ -67,15 +64,13 @@ struct Int8OPTDecoderLayer_output Int8OPTDecoderLayer::forward(const struct Int8
 }
 
 Int8OPTDecoderLayer::Int8OPTDecoderLayer(std::string param_path, int embed_dim, int num_heads, int hidden_dim,
-                                         struct LayerNormQ_params &self_attn_layer_norm,
-                                         struct LayerNormQ_params &final_layer_norm, struct W8A8B8O8Linear_params &fc1,
-                                         struct W8A8BFP32OFP32Linear_params &fc2,
+                                         LayerNormQ &self_attn_layer_norm, LayerNormQ &final_layer_norm,
+                                         W8A8B8O8LinearReLU &fc1, struct W8A8BFP32OFP32Linear_params &fc2,
                                          struct BMM_S8T_S8N_F32T_params &qk_bmm, struct BMM_S8T_S8N_S8T_params &pv_bmm,
-                                         struct W8A8B8O8Linear_params &k_proj, struct W8A8B8O8Linear_params &v_proj,
-                                         struct W8A8B8O8Linear_params &q_proj,
+                                         W8A8B8O8Linear &k_proj, W8A8B8O8Linear &v_proj, W8A8B8O8Linear &q_proj,
                                          struct W8A8BFP32OFP32Linear_params &out_proj) {
     load_LayerNormQ(self_attn_layer_norm, param_path + "/self_attn_layer_norm");
-    load_W8A8B8O8Linear_params(fc1, param_path + "/fc1");
+    load_W8A8B8O8LinearReLU_params(fc1, param_path + "/fc1");
     load_W8A8BFP32OFP32Linear_params(fc2, param_path + "/fc2");
     load_LayerNormQ(final_layer_norm, param_path + "/final_layer_norm");
 
