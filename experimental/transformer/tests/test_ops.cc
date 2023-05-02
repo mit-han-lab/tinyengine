@@ -132,9 +132,10 @@ void test_W8A8BFP32OFP32Linear() {
     read_to_array((char*)"assets/W8A8BFP32OFP32Linear_bias.bin", bias_arr, b * n);
     read_to_array((char*)"assets/W8A8BFP32OFP32Linear_y.bin", GToutput_arr, b * m * n);
 
-    struct W8A8BFP32OFP32Linear_params op_params = {input, weight, bias, output, alpha};
+    struct W8A8BFP32OFP32Linear_params op_params = {weight, bias, alpha};
 
-    W8A8BFP32OFP32Linear(op_params);
+    auto test_op = W8A8BFP32OFP32Linear(op_params);
+    test_op.forward(input, output);
 
     assert(check_two_equal(output_arr, GToutput_arr, b * m * n));
 

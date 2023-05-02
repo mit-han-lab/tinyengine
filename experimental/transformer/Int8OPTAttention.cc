@@ -6,7 +6,7 @@
 Int8OPTAttention::Int8OPTAttention(int embed_dim, int num_heads, struct BMM_S8T_S8N_F32T_params &qk_bmm,
                                    struct BMM_S8T_S8N_S8T_params &pv_bmm, W8A8B8O8Linear &k_proj,
                                    W8A8B8O8Linear &v_proj, W8A8B8O8Linear &q_proj,
-                                   struct W8A8BFP32OFP32Linear_params &out_proj) {
+                                   W8A8BFP32OFP32Linear &out_proj) {
     this->embed_dim = embed_dim;
     this->num_heads = num_heads;
     this->head_dim = embed_dim / num_heads;
@@ -21,7 +21,7 @@ Int8OPTAttention::Int8OPTAttention(int embed_dim, int num_heads, struct BMM_S8T_
 Int8OPTAttention::Int8OPTAttention(std::string param_path, int embed_dim, int num_heads,
                                    struct BMM_S8T_S8N_F32T_params &qk_bmm, struct BMM_S8T_S8N_S8T_params &pv_bmm,
                                    W8A8B8O8Linear &k_proj, W8A8B8O8Linear &v_proj, W8A8B8O8Linear &q_proj,
-                                   struct W8A8BFP32OFP32Linear_params &out_proj) {
+                                   W8A8BFP32OFP32Linear &out_proj) {
     load_BMM_S8T_S8N_F32T(qk_bmm, param_path + "/qk_bmm");
     load_BMM_S8T_S8N_S8T(pv_bmm, param_path + "/pv_bmm");
     load_W8A8B8O8Linear_params(k_proj, param_path + "/k_proj");
@@ -180,9 +180,7 @@ struct Int8OPTAttention_output Int8OPTAttention::forward(const struct Int8OPTAtt
 
     float attn_output_fp_arr[this->num_heads * sqlen * this->head_dim];  // TODO: check if tgt_len or sqlen
     Matrix3D<float> attn_output_fp(attn_output_fp_arr, 1, sqlen, this->num_heads * this->head_dim);
-    this->out_proj.x = attn_output_transpose;
-    this->out_proj.output = attn_output_fp;
-    W8A8BFP32OFP32Linear(this->out_proj);
+    this->out_proj.forward(attn_output_transpose,attn_output_fp);
     // output assignment
     output.attn_output = attn_output_fp;
     output.past_key_value = {key_states, value_states};

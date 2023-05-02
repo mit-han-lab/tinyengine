@@ -69,9 +69,10 @@ void test_Int8OPTAttention() {
     Matrix3D<int8_t> out_proj_weight(mem_buf.get_int8buffer(embed_dim * embed_dim), 1, embed_dim, embed_dim);
     Matrix3D<float> out_proj_bias(mem_buf.get_fpbuffer(embed_dim), 1, 1, embed_dim);
     out_proj.weight = out_proj_weight; out_proj.bias = out_proj_bias;
+    auto out_proj_op = W8A8BFP32OFP32Linear(out_proj);
     // print_first_k_elelment("out_proj.weight", out_proj.weight.m_data, 10);
 
-    Int8OPTAttention attn = Int8OPTAttention("./assets/weights/layer0/self_attn", embed_dim, num_heads, qk_bmm, pv_bmm, k_proj_op, v_proj_op, q_proj_op, out_proj);
+    Int8OPTAttention attn = Int8OPTAttention("./assets/weights/layer0/self_attn", embed_dim, num_heads, qk_bmm, pv_bmm, k_proj_op, v_proj_op, q_proj_op, out_proj_op);
 
     Matrix3D<int8_t> hidden_states(mem_buf.get_int8buffer(embed_dim * sqlen), b, sqlen, embed_dim);
     read_to_array("assets/Int8OPTAttention_hidden_states.bin", hidden_states.m_data, b * sqlen * embed_dim);

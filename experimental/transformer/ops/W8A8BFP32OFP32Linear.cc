@@ -2,28 +2,12 @@
 
 #include "../operators.h"
 
-// void W8A8BFP32OFP32Linear(Matrix3D<int8_t> &x, Matrix3D<int8_t> &weight, Matrix3D<float> &bias, Matrix3D<float> &output, float alpha) 
-
-void W8A8BFP32OFP32Linear(struct W8A8BFP32OFP32Linear_params &op_params){
-    Matrix3D<int8_t> x = op_params.x;
+W8A8BFP32OFP32Linear::W8A8BFP32OFP32Linear(struct W8A8BFP32OFP32Linear_params &op_params){
     Matrix3D<int8_t> weight = op_params.weight;
     Matrix3D<float> bias = op_params.bias;
-    Matrix3D<float> output = op_params.output;
-    float alpha = op_params.alpha;
-    
-    assert(output.m_dim_x == x.m_dim_x);
-    assert(output.m_dim_y == x.m_dim_y);
-    assert(output.m_dim_z == weight.m_dim_y);
-    assert(x.m_dim_z == weight.m_dim_z);
-    assert(output.m_dim_z == bias.m_dim_z);
+    alpha = op_params.alpha;
 
-    const int m = x.m_dim_y, k = x.m_dim_z, n = weight.m_dim_y;
-
-    struct matmul_params params;
-
-    params.A.row = m;
-    params.A.column = k;
-    params.A.int8_data_ptr = x.m_data;
+    int k = weight.m_dim_z, n = weight.m_dim_y;
     params.A.qparams.scale = alpha; // effective_scale = a * B / C
     params.B.qparams.scale = 1.0;
     params.C.qparams.scale = 1.0;
@@ -32,15 +16,33 @@ void W8A8BFP32OFP32Linear(struct W8A8BFP32OFP32Linear_params &op_params){
     params.B.column = n;
     params.B.int8_data_ptr = weight.m_data;
     params.B.qparams.zero_point = 0;
-    params.C.row = m;
     params.C.column = n;
-    params.C.data_ptr = output.m_data;
     params.C.qparams.zero_point = 0;
     params.opt_params.blk_size = BLK_SIZE;
     params.opt_params.num_thread = NUM_THREAD;
     params.bias.data_ptr = bias.m_data;
     params.bias.row = 1;
     params.bias.column = bias.m_dim_z;
+}
+
+
+void W8A8BFP32OFP32Linear::forward(const Matrix3D<int8_t> &x, Matrix3D<float> &output) {
+    assert(output.m_dim_x == x.m_dim_x);
+    assert(output.m_dim_y == x.m_dim_y);
+    assert(output.m_dim_z == params.B.column);
+    assert(x.m_dim_z == params.B.row);
+    assert(output.m_dim_z == params.bias.column);
+
+    const int m = x.m_dim_y, k = x.m_dim_z, n = params.B.column;
+
+    params.A.row = m;
+    params.A.column = k;
+    params.A.int8_data_ptr = x.m_data;
+    params.A.qparams.scale = alpha; // effective_scale = a * B / C
+    params.C.row = m;
+    params.C.column = n;
+    params.C.data_ptr = output.m_data;
+    params.C.qparams.zero_point = 0;
 
     matmul::MatmulOperator matmul_op = matmul::MatmulOperator();
 

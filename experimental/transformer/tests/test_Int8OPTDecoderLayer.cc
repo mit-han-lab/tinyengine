@@ -68,6 +68,7 @@ void test_DecoderLayer() {
     Matrix3D<float> out_proj_bias(mem_buf.get_fpbuffer(embed_dim), 1, 1, embed_dim);
     out_proj.weight = out_proj_weight;
     out_proj.bias = out_proj_bias;
+    auto out_proj_op = W8A8BFP32OFP32Linear(out_proj);
 
     struct LayerNormQ_params self_attn_layer_norm, final_layer_norm;
     Matrix3D<float> self_attn_layer_norm_weight(mem_buf.get_fpbuffer(embed_dim), 1, 1, embed_dim);
@@ -94,10 +95,11 @@ void test_DecoderLayer() {
     Matrix3D<float> fc2_bias(mem_buf.get_fpbuffer(embed_dim), 1, 1, embed_dim);
     fc2.weight = fc2_weight;
     fc2.bias = fc2_bias;
+    auto fc2_op = W8A8BFP32OFP32Linear(fc2);
 
     Int8OPTDecoderLayer layer =
         Int8OPTDecoderLayer("assets/weights/layer0", embed_dim, num_heads, hidden_dim, self_attn_layer_norm_op,
-                            final_layer_norm_op, fc1_op, fc2, qk_bmm, pv_bmm, k_proj_op, v_proj_op, q_proj_op, out_proj);
+                            final_layer_norm_op, fc1_op, fc2_op, qk_bmm, pv_bmm, k_proj_op, v_proj_op, q_proj_op, out_proj_op);
 
     Matrix3D<float> hidden_states(mem_buf.get_fpbuffer(b * sqlen * embed_dim), b, sqlen, embed_dim);
     read_to_array("assets/Decoder_layer_hidden_states.bin", hidden_states.m_data, b * sqlen * embed_dim);

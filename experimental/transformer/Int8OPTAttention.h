@@ -21,10 +21,10 @@ class Int8OPTAttention {
    public:
     Int8OPTAttention(int embed_dim, int num_heads, struct BMM_S8T_S8N_F32T_params &qk_bmm,
                      struct BMM_S8T_S8N_S8T_params &pv_bmm, W8A8B8O8Linear &k_proj, W8A8B8O8Linear &v_proj,
-                     W8A8B8O8Linear &q_proj, struct W8A8BFP32OFP32Linear_params &out_proj);
+                     W8A8B8O8Linear &q_proj, W8A8BFP32OFP32Linear &out_proj);
     Int8OPTAttention(std::string param_path, int embed_dim, int num_heads, struct BMM_S8T_S8N_F32T_params &qk_bmm,
                      struct BMM_S8T_S8N_S8T_params &pv_bmm, W8A8B8O8Linear &k_proj, W8A8B8O8Linear &v_proj,
-                     W8A8B8O8Linear &q_proj, struct W8A8BFP32OFP32Linear_params &out_proj);
+                     W8A8B8O8Linear &q_proj, W8A8BFP32OFP32Linear &out_proj);
     Int8OPTAttention() {}
     struct Int8OPTAttention_output forward(const struct Int8OPTAttention_input &input);
 
@@ -35,5 +35,5 @@ class Int8OPTAttention {
     struct BMM_S8T_S8N_F32T_params qk_bmm;
     struct BMM_S8T_S8N_S8T_params pv_bmm;
     W8A8B8O8Linear k_proj, v_proj, q_proj;
-    struct W8A8BFP32OFP32Linear_params out_proj;
+    W8A8BFP32OFP32Linear out_proj;
 };
