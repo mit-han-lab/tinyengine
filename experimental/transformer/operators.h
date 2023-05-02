@@ -8,8 +8,10 @@
 #define BLK_SIZE 16
 #define NUM_THREAD 4
 
+// TODO: assign these based on models
 #define MAX_SQLLEN 512
 #define EMBED_DIM 768
+#define HIDDEN_DIM 3072
 
 struct LayerNormQ_params {
     Matrix3D<float> x;
