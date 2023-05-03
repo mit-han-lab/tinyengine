@@ -2,12 +2,13 @@
 
 #include "../operators.h"
 
-void BMM_S8T_S8N_F32T(struct BMM_S8T_S8N_F32T_params &op_params) {
-    Matrix3D<int8_t> x = op_params.x;
-    Matrix3D<int8_t> weight = op_params.weight;
-    Matrix3D<float> output = op_params.output;
-    float alpha = op_params.alpha;
 
+BMM_S8T_S8N_F32T::BMM_S8T_S8N_F32T(struct BMM_S8T_S8N_F32T_params &op_params){
+    alpha = op_params.alpha;
+}
+
+
+void BMM_S8T_S8N_F32T::forward(const Matrix3D<int8_t> &x, const Matrix3D<int8_t> &weight, Matrix3D<float> &output) {
     assert(output.m_dim_x == x.m_dim_x);
     assert(output.m_dim_y == x.m_dim_y);
     assert(output.m_dim_z == weight.m_dim_y);

@@ -18,20 +18,6 @@ struct LayerNormQ_params {
     Matrix3D<float> bias;
 };
 
-struct BMM_S8T_S8N_S8T_params {
-    Matrix3D<int8_t> x;
-    Matrix3D<int8_t> weight;
-    Matrix3D<int8_t> output;
-    float alpha;
-};
-
-struct BMM_S8T_S8N_F32T_params {
-    Matrix3D<int8_t> x;
-    Matrix3D<int8_t> weight;
-    Matrix3D<float> output;
-    float alpha;
-};
-
 class LayerNormQ {
 public:
     LayerNormQ(LayerNormQ_params &params_): params(params_) {};
@@ -85,17 +71,40 @@ public:
     float alpha;
 };
 
+struct BMM_S8T_S8N_S8T_params {
+    float alpha;
+};
+
+class BMM_S8T_S8N_S8T{
+public:
+    BMM_S8T_S8N_S8T(BMM_S8T_S8N_S8T_params &params_);
+    BMM_S8T_S8N_S8T(){};
+    void forward(const Matrix3D<int8_t> &x, const Matrix3D<int8_t> &weight, Matrix3D<int8_t> &output);
+    struct matmul_params params;
+    float alpha;
+};
+
+struct BMM_S8T_S8N_F32T_params {
+    float alpha;
+};
+
+class BMM_S8T_S8N_F32T{
+public:
+    BMM_S8T_S8N_F32T(BMM_S8T_S8N_F32T_params &params_);
+    BMM_S8T_S8N_F32T(){};
+    void forward(const Matrix3D<int8_t> &x, const Matrix3D<int8_t> &weight, Matrix3D<float> &output);
+    struct matmul_params params;
+    float alpha;
+};
+
 
 void load_LayerNormQ(LayerNormQ &op, std::string prefix);
-void load_BMM_S8T_S8N_F32T(struct BMM_S8T_S8N_F32T_params &param, std::string prefix);
-void load_BMM_S8T_S8N_S8T(struct BMM_S8T_S8N_S8T_params &param, std::string prefix);
+void load_BMM_S8T_S8N_F32T(BMM_S8T_S8N_F32T &op, std::string prefix);
+void load_BMM_S8T_S8N_S8T(BMM_S8T_S8N_S8T &op, std::string prefix);
 void load_W8A8B8O8Linear_params(W8A8B8O8Linear &op, std::string prefix);
 void load_W8A8B8O8LinearReLU_params(W8A8B8O8LinearReLU &op, std::string prefix);
 void load_W8A8BFP32OFP32Linear_params(W8A8BFP32OFP32Linear &op, std::string prefix);
 
-// void W8A8BFP32OFP32Linear(struct W8A8BFP32OFP32Linear_params &op_params);
-void BMM_S8T_S8N_F32T(struct BMM_S8T_S8N_F32T_params &op_params);
-void BMM_S8T_S8N_S8T(struct BMM_S8T_S8N_S8T_params &op_params);
 void softmax(const Matrix3D<float> &input, Matrix3D<float> &output, int dim);
 void batch_Add(const Matrix3D<float> &input, const Matrix3D<float> &input2, Matrix3D<float> &output);
 

@@ -64,7 +64,7 @@ struct Int8OPTDecoderLayer_output Int8OPTDecoderLayer::forward(const struct Int8
 Int8OPTDecoderLayer::Int8OPTDecoderLayer(std::string param_path, int embed_dim, int num_heads, int hidden_dim,
                                          LayerNormQ &self_attn_layer_norm, LayerNormQ &final_layer_norm,
                                          W8A8B8O8LinearReLU &fc1, W8A8BFP32OFP32Linear &fc2,
-                                         struct BMM_S8T_S8N_F32T_params &qk_bmm, struct BMM_S8T_S8N_S8T_params &pv_bmm,
+                                         BMM_S8T_S8N_F32T &qk_bmm, BMM_S8T_S8N_S8T &pv_bmm,
                                          W8A8B8O8Linear &k_proj, W8A8B8O8Linear &v_proj, W8A8B8O8Linear &q_proj,
                                          W8A8BFP32OFP32Linear &out_proj) {
     load_LayerNormQ(self_attn_layer_norm, param_path + "/self_attn_layer_norm");

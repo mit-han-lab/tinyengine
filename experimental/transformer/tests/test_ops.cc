@@ -200,9 +200,10 @@ void test_BMM_S8T_S8N_F32T() {
     read_to_array((char*)"assets/BMM_S8T_S8N_F32T_weight.bin", weight_arr, b * n * k);
     read_to_array((char*)"assets/BMM_S8T_S8N_F32T_y.bin", GToutput_arr, b * m * n);
 
-    struct BMM_S8T_S8N_F32T_params op_params = {input, weight, output, alpha};
+    struct BMM_S8T_S8N_F32T_params op_params = {alpha};
 
-    BMM_S8T_S8N_F32T(op_params);
+    auto test_op = BMM_S8T_S8N_F32T(op_params);
+    test_op.forward(input, weight, output);
 
     assert(check_two_equal(output_arr, GToutput_arr, b * m * n));
 
@@ -228,9 +229,10 @@ void test_BMM_S8T_S8N_S8T() {
     read_to_array((char*)"assets/BMM_S8T_S8N_S8T_weight.bin", weight_arr, b * n * k);
     read_to_array((char*)"assets/BMM_S8T_S8N_S8T_y.bin", GToutput_arr, b * m * n);
 
-    struct BMM_S8T_S8N_S8T_params op_params = {input, weight, output, alpha};
+    struct BMM_S8T_S8N_S8T_params op_params = {alpha};
 
-    BMM_S8T_S8N_S8T(op_params);
+    auto test_op = BMM_S8T_S8N_S8T(op_params);
+    test_op.forward(input, weight, output);
 
     assert(check_two_equal(output_arr, GToutput_arr, b * m * n));
 

@@ -97,9 +97,12 @@ void test_DecoderLayer() {
     fc2.bias = fc2_bias;
     auto fc2_op = W8A8BFP32OFP32Linear(fc2);
 
+    auto qk_bmm_op = BMM_S8T_S8N_F32T(qk_bmm);
+    auto pv_bmm_op = BMM_S8T_S8N_S8T(pv_bmm);
+
     Int8OPTDecoderLayer layer =
         Int8OPTDecoderLayer("assets/weights/layer0", embed_dim, num_heads, hidden_dim, self_attn_layer_norm_op,
-                            final_layer_norm_op, fc1_op, fc2_op, qk_bmm, pv_bmm, k_proj_op, v_proj_op, q_proj_op, out_proj_op);
+                            final_layer_norm_op, fc1_op, fc2_op, qk_bmm_op, pv_bmm_op, k_proj_op, v_proj_op, q_proj_op, out_proj_op);
 
     Matrix3D<float> hidden_states(mem_buf.get_fpbuffer(b * sqlen * embed_dim), b, sqlen, embed_dim);
     read_to_array("assets/Decoder_layer_hidden_states.bin", hidden_states.m_data, b * sqlen * embed_dim);
