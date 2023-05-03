@@ -1,6 +1,6 @@
-#include "../OPTForCausalLM.h"
+#include "OPTForCausalLM.h"
 #include "../input_input_ids.h"
-#include "../utils.h"
+#include "utils.h"
 #include <vector>
 #include <cstdlib>
 

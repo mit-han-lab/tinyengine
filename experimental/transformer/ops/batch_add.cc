@@ -1,4 +1,4 @@
-#include "../operators.h"
+#include "operators.h"
 
 void batch_Add(const Matrix3D<float> &input, const Matrix3D<float> &input2,Matrix3D<float> &output) {
     assert(input.m_dim_y == input2.m_dim_y);

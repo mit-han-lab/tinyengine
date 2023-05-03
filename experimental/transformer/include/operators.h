@@ -107,7 +107,6 @@ void load_W8A8BFP32OFP32Linear_params(W8A8BFP32OFP32Linear &op, std::string pref
 
 void softmax(const Matrix3D<float> &input, Matrix3D<float> &output, int dim);
 void batch_Add(const Matrix3D<float> &input, const Matrix3D<float> &input2, Matrix3D<float> &output);
-
 template <typename T>
 void linear(Matrix3D<T> &a, Matrix3D<T> &b, Matrix3D<T> &c);
 void linear_fp(Matrix3D<float> &a, Matrix3D<float> &b, Matrix3D<float> &c);

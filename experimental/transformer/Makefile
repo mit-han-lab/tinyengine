@@ -7,7 +7,7 @@ TARGET = test_example_eval test_ops test_Int8OPTAttention test_Int8OPTDecoderLay
 
 LIB_DIR = /home/wmchen/workspace/tinyengine/experimental/matmul_optimization/src
 LIB_SRC = $(wildcard $(LIB_DIR)/lib/*.cc)
-INCLUDE_DIRS = -I$(LIB_DIR)
+INCLUDE_DIRS = -I$(LIB_DIR) -I./include
 
 $(info $(LIB_SRC))
 

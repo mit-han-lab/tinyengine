@@ -1,4 +1,4 @@
-#include "../operators.h"
+#include "operators.h"
 #include <cassert>
 
 template<typename T>

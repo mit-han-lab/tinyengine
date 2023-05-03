@@ -1,5 +1,5 @@
-#include "../operators.h"
-#include "../utils.h"
+#include "operators.h"
+#include "utils.h"
 
 #define MAX_TEST_MEMORY_BUF 1024 * 1024 * 1024  // 1 GB
 static char buffer[MAX_TEST_MEMORY_BUF];

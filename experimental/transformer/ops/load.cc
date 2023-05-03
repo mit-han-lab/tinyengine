@@ -1,5 +1,5 @@
-#include "../operators.h"
-#include "../utils.h"
+#include "operators.h"
+#include "utils.h"
 
 void load_LayerNormQ(LayerNormQ &op, std::string prefix) {
     read_to_array((prefix + "/weight.bin").c_str(), op.params.weight.m_data, op.params.weight.length());

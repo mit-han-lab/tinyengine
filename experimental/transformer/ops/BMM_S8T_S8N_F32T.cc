@@ -1,6 +1,6 @@
 #include <cmath>
 
-#include "../operators.h"
+#include "operators.h"
 
 
 BMM_S8T_S8N_F32T::BMM_S8T_S8N_F32T(struct BMM_S8T_S8N_F32T_params &op_params){

@@ -1,6 +1,6 @@
 #include <cmath>
 
-#include "../operators.h"
+#include "operators.h"
 
 W8A8BFP32OFP32Linear::W8A8BFP32OFP32Linear(struct W8A8BFP32OFP32Linear_params &op_params){
     Matrix3D<int8_t> weight = op_params.weight;

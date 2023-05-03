@@ -1,6 +1,6 @@
 #include <cmath>
 
-#include "../operators.h"
+#include "operators.h"
 
 void LayerNormQ::forward(const Matrix3D<float> &x, Matrix3D<int8_t> &output) {
     Matrix3D<float> weight = params.weight;
