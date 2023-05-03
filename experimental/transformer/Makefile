@@ -11,8 +11,9 @@ INCLUDE_DIRS = -I$(LIB_DIR) -I./include
 
 $(info $(LIB_SRC))
 
-SRC = OPTForCausalLM.cc Int8OPTDecoder.cc Int8OPTAttention.cc utils.cc Int8OPTDecoderLayer.cc
-OPS =  $(wildcard ops/*.cc)
+SRC_DIR = src
+SRC = $(wildcard src/*.cc)
+OPS =  $(wildcard src/ops/*.cc)
 SRC += $(OPS)
 SRC += $(LIB_SRC)
 
