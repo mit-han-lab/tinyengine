@@ -239,6 +239,28 @@ void test_BMM_S8T_S8N_S8T() {
     std::cout << "Test of " << __func__ << ": Passed!" << std::endl;
 }
 
+void test_Embedding(){
+    const int voc_size = 50272, embed_dim = 768, sqlen = 512, padding_idx = 1;
+    MemoryAllocator mem_buf;
+
+    Matrix3D<int> input(mem_buf.get_intbuffer(sqlen), 1, 1, sqlen);
+    Matrix3D<float> weight(mem_buf.get_fpbuffer(voc_size*embed_dim), 1, voc_size, embed_dim);
+    Matrix3D<float> output(mem_buf.get_fpbuffer(sqlen*embed_dim), 1, sqlen, embed_dim);
+    Matrix3D<float> outputGT(mem_buf.get_fpbuffer(sqlen*embed_dim), 1, sqlen, embed_dim);
+
+    read_to_array((char*)"assets/input_ids.bin", input.m_data, sqlen);
+    read_to_array((char*)"assets/inputs_embeds.bin", outputGT.m_data, sqlen * embed_dim);
+
+    auto embed_tokens = Embedding(embed_dim, voc_size, padding_idx, weight);
+    load_Embedding_params(embed_tokens, "assets/decoder/embed_tokens");
+
+    embed_tokens.forward(input, output);
+    assert(check_two_equal(output.m_data, outputGT.m_data, sqlen * embed_dim));
+
+    std::cout << "Test of " << __func__ << ": Passed!" << std::endl;
+}
+
+
 int main() {
     test_LayerNormQ();
     test_W8A8B8O8LinearReLU();
@@ -246,4 +268,5 @@ int main() {
     test_W8A8B8O8Linear();
     test_BMM_S8T_S8N_F32T();
     test_BMM_S8T_S8N_S8T();
+    test_Embedding();
 }

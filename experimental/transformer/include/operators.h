@@ -20,6 +20,7 @@
 #include "ops/W8A8B8O8Linear.h"
 #include "ops/W8A8B8O8LinearReLU.h"
 #include "ops/W8A8BFP32OFP32Linear.h"
+#include "ops/Embedding.h"
 
 void softmax(const Matrix3D<float> &input, Matrix3D<float> &output, int dim);
 void batch_Add(const Matrix3D<float> &input, const Matrix3D<float> &input2, Matrix3D<float> &output);

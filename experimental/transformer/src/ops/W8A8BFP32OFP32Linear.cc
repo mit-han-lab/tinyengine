@@ -1,6 +1,13 @@
 #include <cmath>
 
 #include "operators.h"
+#include "utils.h"
+
+void load_W8A8BFP32OFP32Linear_params(W8A8BFP32OFP32Linear &op, std::string prefix) {
+    read_to_array((prefix + "/weight.bin").c_str(), op.params.B.int8_data_ptr, op.params.B.length());
+    read_to_array((prefix + "/bias.bin").c_str(), op.params.bias.data_ptr, op.params.bias.length());
+    read_to_array((prefix + "/alpha.bin").c_str(), &op.alpha, 1);
+}
 
 W8A8BFP32OFP32Linear::W8A8BFP32OFP32Linear(struct W8A8BFP32OFP32Linear_params &op_params){
     Matrix3D<int8_t> weight = op_params.weight;

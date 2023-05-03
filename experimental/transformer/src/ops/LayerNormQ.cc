@@ -1,6 +1,12 @@
 #include <cmath>
 
 #include "operators.h"
+#include "utils.h"
+
+void load_LayerNormQ(LayerNormQ &op, std::string prefix) {
+    read_to_array((prefix + "/weight.bin").c_str(), op.params.weight.m_data, op.params.weight.length());
+    read_to_array((prefix + "/bias.bin").c_str(), op.params.bias.m_data, op.params.bias.length());
+}
 
 void LayerNormQ::forward(const Matrix3D<float> &x, Matrix3D<int8_t> &output) {
     Matrix3D<float> weight = params.weight;

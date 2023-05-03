@@ -30,10 +30,6 @@ template<>
 bool check_two_equal<int8_t>(int8_t* array, int8_t* array2, int size){
     float sq_diff = 0;
     for (int i = 0; i < size; i++){
-        // if (array[i] != array2[i]){
-        //     printf("i: %d, (%d, %d)\n", i, array[i], array2[i]);
-        //     assert(0);
-        // }
         float diff = (float)array[i] - (float)array2[i];
         sq_diff += diff * diff;
     }

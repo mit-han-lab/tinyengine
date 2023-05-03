@@ -1,18 +1,21 @@
 #include "operators.h"
-#include <cassert>
+#include "utils.h"
+#include <cstring>
 
-class embedding {
-   public:
-    embedding(int embed_dim_, int voc_size_, int padding_idx_, Matrix3D<float> lookup_)
-        : embed_dim(embed_dim_), voc_size(voc_size_), padding_idx(padding_idx_), lookup(lookup_) {
-            assert(lookup_.m_dim_y == voc_size_);
-            assert(lookup_.m_dim_z == embed_dim_);
-        }
-    void forward(Matrix3D<int> input_id, Matrix3D<float> output){
+void load_Embedding_params(Embedding &op, std::string prefix){
+    read_to_array((prefix + "/weight.bin").c_str(), op.lookup.m_data, op.lookup.length());
+}
 
+void Embedding::forward(Matrix3D<int> input_id, Matrix3D<float> output){
+    assert(input_id.m_dim_x == 1);
+    assert(input_id.m_dim_y == 1);
+    assert(input_id.m_dim_z == output.m_dim_y);
+    assert(output.m_dim_z == this->embed_dim);
+
+    for (int i = 0; i < input_id.m_dim_z; i++){
+        int token_id = input_id(0, 0, i);
+        float* output_sample_ptr = &output.m_data[i * this->embed_dim];
+        float* target_embed = &this->lookup.m_data[token_id * this->embed_dim];
+        memcpy(output_sample_ptr, target_embed, sizeof(float) * this->embed_dim);
     }
-
-   private:
-    int embed_dim, voc_size, padding_idx;
-    Matrix3D<float> lookup;
-};
+}

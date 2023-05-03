@@ -1,12 +1,15 @@
 #include <cmath>
 
 #include "operators.h"
+#include "utils.h"
 
+void load_BMM_S8T_S8N_F32T(BMM_S8T_S8N_F32T &op, std::string prefix) {
+    read_to_array((prefix + "/alpha.bin").c_str(), &op.alpha, 1);
+}
 
 BMM_S8T_S8N_F32T::BMM_S8T_S8N_F32T(struct BMM_S8T_S8N_F32T_params &op_params){
     alpha = op_params.alpha;
 }
-
 
 void BMM_S8T_S8N_F32T::forward(const Matrix3D<int8_t> &x, const Matrix3D<int8_t> &weight, Matrix3D<float> &output) {
     assert(output.m_dim_x == x.m_dim_x);

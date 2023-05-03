@@ -1,6 +1,11 @@
 #include <cmath>
 
 #include "operators.h"
+#include "utils.h"
+
+void load_BMM_S8T_S8N_S8T(BMM_S8T_S8N_S8T &op, std::string prefix) {
+    read_to_array((prefix + "/alpha.bin").c_str(), &op.alpha, 1);
+}
 
 BMM_S8T_S8N_S8T::BMM_S8T_S8N_S8T(struct BMM_S8T_S8N_S8T_params &op_params){
     alpha = op_params.alpha;
