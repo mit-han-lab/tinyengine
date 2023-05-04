@@ -3,7 +3,7 @@ CXX = g++
 CXXFLAGS = -std=c++11 -mavx2 -mfma -pthread -g
 
 # Executable and source files
-TARGET = test_example_eval test_ops test_Int8OPTAttention test_Int8OPTDecoderLayer test_Int8OPTDecoderLayer_generate test_Int8OPTDecoderLayer_generate_cache
+TARGET = test_example_eval test_ops test_Int8OPTAttention test_Int8OPTDecoderLayer
 
 LIB_DIR = /home/wmchen/workspace/tinyengine/experimental/matmul_optimization/src
 LIB_SRC = $(wildcard $(LIB_DIR)/lib/*.cc)
@@ -32,12 +32,6 @@ test_Int8OPTAttention: $(TEST_SRC)
 
 test_Int8OPTDecoderLayer: $(TEST_SRC)
 	$(CXX) $(CXXFLAGS) $(INCLUDE_DIRS) -o test_Int8OPTDecoderLayer tests/test_Int8OPTDecoderLayer.cc $(SRC)
-
-test_Int8OPTDecoderLayer_generate: $(TEST_SRC)
-	$(CXX) $(CXXFLAGS) $(INCLUDE_DIRS) -o test_Int8OPTDecoderLayer_generate tests/test_Int8OPTDecoderLayer_generate.cc $(SRC)
-
-test_Int8OPTDecoderLayer_generate_cache: $(TEST_SRC)
-	$(CXX) $(CXXFLAGS) $(INCLUDE_DIRS) -o test_Int8OPTDecoderLayer_generate_cache tests/test_Int8OPTDecoderLayer_generate_cache.cc $(SRC)
 
 # Clean up
 clean:

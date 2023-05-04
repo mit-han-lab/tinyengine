@@ -633,6 +633,9 @@ void MatmulOperator::mat_mul_avx_int8_fast_2x2_32unroll(const struct matmul_para
     pthread_t thread_pool[num_thread];
     struct thread_args threads_args[num_thread];
 
+    if (num_thread > params->C.row)
+        num_thread = params->C.row;
+
     // Thread creation
     for (j = 0; j < num_thread; j++) {
         threads_args[j].start_i = j * (params->C.row / num_thread);
@@ -679,7 +682,7 @@ void *mat_mul_avx_int8_thread_func_2x2_32unroll_nobias(void *args) {
                     acc += data_A[i * A->column + (start_k + r)] * data_B[j * B->row + (start_k + r)];
                 }
                 int32_t *accptr = (int32_t *)&acc0_8x32;
-                acc = accptr[0] + accptr[1] + accptr[2] + accptr[3] + accptr[4] + accptr[5] + accptr[6] + accptr[7];
+                acc += (accptr[0] + accptr[1] + accptr[2] + accptr[3] + accptr[4] + accptr[5] + accptr[6] + accptr[7]);
                 acc = (int32_t)std::round((float)acc * effective_scale);
                 acc -= C_zp;
                 acc = MAX(acc, q_min);
@@ -688,6 +691,7 @@ void *mat_mul_avx_int8_thread_func_2x2_32unroll_nobias(void *args) {
             }
         }
         else{
+            assert(j % 2 == 0);
             for (j = 0; j < C->column; j += 2) {
                 // (i, j), (i, j+1), (i+1, j), (i+1, j+1)
                 int acc0 = 0, acc1 = 0, acc2 = 0, acc3 = 0;
@@ -757,6 +761,9 @@ void MatmulOperator::mat_mul_avx_int8_fast_2x2_32unroll_nobias(const struct matm
 
     pthread_t thread_pool[num_thread];
     struct thread_args threads_args[num_thread];
+
+    if (num_thread > params->C.row)
+        num_thread = params->C.row;
 
     // Thread creation
     for (j = 0; j < num_thread; j++) {
@@ -864,6 +871,9 @@ void MatmulOperator::mat_mul_avx_int8_fast_2x2_32unroll_nobias_ofp32(const struc
     pthread_t thread_pool[num_thread];
     struct thread_args threads_args[num_thread];
 
+    if (num_thread > params->C.row)
+        num_thread = params->C.row;
+
     // Thread creation
     for (j = 0; j < num_thread; j++) {
         threads_args[j].start_i = j * (params->C.row / num_thread);
@@ -904,7 +914,7 @@ void *mat_mul_avx_int8_thread_func_2x2_32unroll_bfp32_ofp32(void *args) {
                 }
                 int32_t *accptr = (int32_t *)&acc0_8x32;
                 acc = accptr[0] + accptr[1] + accptr[2] + accptr[3] + accptr[4] + accptr[5] + accptr[6] + accptr[7];
-                data_C[i * C->column + j] = ((float)acc * effective_scale);
+                data_C[i * C->column + j] = ((float)acc * effective_scale) + params->bias.data_ptr[j];
             }
         }
         else{
@@ -949,6 +959,9 @@ void MatmulOperator::mat_mul_avx_int8_fast_2x2_32unroll_bfp32_ofp32(const struct
     pthread_t thread_pool[num_thread];
     struct thread_args threads_args[num_thread];
 
+    if (num_thread > params->C.row)
+        num_thread = params->C.row;
+
     // Thread creation
     for (j = 0; j < num_thread; j++) {
         threads_args[j].start_i = j * (params->C.row / num_thread);
@@ -971,6 +984,9 @@ void MatmulOperator::mat_mul_avx_int8_fast_2x2(const struct matmul_params *param
 
     pthread_t thread_pool[num_thread];
     struct thread_args threads_args[num_thread];
+
+    if (num_thread > params->C.row)
+        num_thread = params->C.row;
 
     // Thread creation
     for (j = 0; j < num_thread; j++) {
