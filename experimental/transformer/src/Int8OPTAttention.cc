@@ -88,16 +88,15 @@ void transpose_1_2idx(Matrix3D<T> input, Matrix3D<T> output) {
     }
 }
 
-#define HEAD 12
-#define MAXSQLEN 512
-float attn_weights_arr[HEAD * MAXSQLEN * MAXSQLEN];
-float attn_weightsGT_arr[HEAD * MAXSQLEN * MAXSQLEN];
-float attn_probs_arr[HEAD * MAXSQLEN * MAXSQLEN];
-int8_t attn_probs_int8_arr[HEAD * MAXSQLEN * MAXSQLEN];
-int8_t key_states_arr_cache[2][BATCH * MAXSQLEN * EMBED_DIM];
-int8_t value_states_arr_cache[2][BATCH * MAXSQLEN * EMBED_DIM];
-float attn_output_fp_arr[BATCH * MAXSQLEN * EMBED_DIM];
-static int cache_num = 0;
+// vars shared acorss layers
+static float attn_weights_arr[HEAD * MAXSQLEN * MAXSQLEN];
+static float attn_weightsGT_arr[HEAD * MAXSQLEN * MAXSQLEN];
+static float attn_probs_arr[HEAD * MAXSQLEN * MAXSQLEN];
+static int8_t attn_probs_int8_arr[HEAD * MAXSQLEN * MAXSQLEN];
+static int8_t key_states_arr_cache[LAYERS][2][BATCH * MAXSQLEN * EMBED_DIM];
+static int8_t value_states_arr_cache[LAYERS][2][BATCH * MAXSQLEN * EMBED_DIM];
+static float attn_output_fp_arr[BATCH * MAXSQLEN * EMBED_DIM];
+static int cache_num[LAYERS] = {0};
 // TODO: var allocation method
 struct Int8OPTAttention_output Int8OPTAttention::forward(const struct Int8OPTAttention_input &input) {
     struct Int8OPTAttention_output output;
@@ -110,15 +109,15 @@ struct Int8OPTAttention_output Int8OPTAttention::forward(const struct Int8OPTAtt
     this->q_proj.forward(input.hidden_states, query_states_unshape);
 
     int8_t *ret_value_states, *ret_key_states;
-    if(cache_num == 1){
-        ret_value_states = value_states_arr_cache[1];
-        ret_key_states = key_states_arr_cache[1];
-        cache_num = 0;
+    if(cache_num[input.layer_idx] == 1){
+        ret_value_states = value_states_arr_cache[input.layer_idx] [1];
+        ret_key_states = key_states_arr_cache[input.layer_idx] [1];
+        cache_num[input.layer_idx]  = 0;
     }
     else {
-        ret_value_states = value_states_arr_cache[0];
-        ret_key_states = key_states_arr_cache[0];
-        cache_num = 1;
+        ret_value_states = value_states_arr_cache[input.layer_idx] [0];
+        ret_key_states = key_states_arr_cache[input.layer_idx] [0];
+        cache_num[input.layer_idx]  = 1;
     }
 
     // opt.py: key_states = self._shape(self.k_proj(hidden_states), -1, bsz)

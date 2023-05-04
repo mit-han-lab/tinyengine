@@ -100,8 +100,9 @@ void test_DecoderLayer() {
     auto qk_bmm_op = BMM_S8T_S8N_F32T(qk_bmm);
     auto pv_bmm_op = BMM_S8T_S8N_S8T(pv_bmm);
 
+    int layer_idx = 0;
     Int8OPTDecoderLayer layer =
-        Int8OPTDecoderLayer("assets/weights/layer0", embed_dim, num_heads, hidden_dim, self_attn_layer_norm_op,
+        Int8OPTDecoderLayer("assets/weights/layer0", embed_dim, num_heads, hidden_dim, layer_idx, self_attn_layer_norm_op,
                             final_layer_norm_op, fc1_op, fc2_op, qk_bmm_op, pv_bmm_op, k_proj_op, v_proj_op, q_proj_op, out_proj_op);
 
     Matrix3D<float> hidden_states(mem_buf.get_fpbuffer(b * sqlen * embed_dim), b, sqlen, embed_dim);
