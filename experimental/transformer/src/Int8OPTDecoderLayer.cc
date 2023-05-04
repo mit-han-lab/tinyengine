@@ -12,24 +12,25 @@ void add(Matrix3D<T> a, Matrix3D<T> b, Matrix3D<T> c) {
 }
 
 // TODO: allocate memory for these!
-float hidden_states_float_arr[MAX_SQLLEN * EMBED_DIM];
-float hidden_states_floatGT_arr[MAX_SQLLEN * EMBED_DIM];
-int8_t final_layer_norm_arr[MAX_SQLLEN * EMBED_DIM];
-int8_t final_layer_normGT_arr[MAX_SQLLEN * EMBED_DIM];
-int8_t fc_1_x_arr[MAX_SQLLEN * EMBED_DIM];
-int8_t fc_1_arr[MAX_SQLLEN * HIDDEN_DIM];
+float hidden_states_float_arr[MAXSQLEN * EMBED_DIM];
+float hidden_states_floatGT_arr[MAXSQLEN * EMBED_DIM];
+int8_t final_layer_norm_arr[MAXSQLEN * EMBED_DIM];
+int8_t final_layer_normGT_arr[MAXSQLEN * EMBED_DIM];
+int8_t fc_1_x_arr[MAXSQLEN * EMBED_DIM];
+int8_t fc_1_arr[MAXSQLEN * HIDDEN_DIM];
 int8_t fc_1_weight_arr[HIDDEN_DIM * EMBED_DIM];
 int32_t fc_1_bias_arr[HIDDEN_DIM];
-int8_t fc_1_arrGT[MAX_SQLLEN * HIDDEN_DIM];
-float fc_2_arr[MAX_SQLLEN * EMBED_DIM];
-float temp[MAX_SQLLEN * EMBED_DIM];
-int8_t hidden_states_int8_arr[MAX_SQLLEN * EMBED_DIM];
+int8_t fc_1_arrGT[MAXSQLEN * HIDDEN_DIM];
+float fc_2_arr[MAXSQLEN * EMBED_DIM];
+float temp[MAXSQLEN * EMBED_DIM];
+int8_t hidden_states_int8_arr[MAXSQLEN * EMBED_DIM];
 struct Int8OPTDecoderLayer_output Int8OPTDecoderLayer::forward(const struct Int8OPTDecoderLayer_input &input) {
     Matrix3D<int8_t> hidden_states_int8(hidden_states_int8_arr, input.hidden_states.m_dim_x,
                                         input.hidden_states.m_dim_y, input.hidden_states.m_dim_z);
     this->self_attn_layer_norm.forward(input.hidden_states, hidden_states_int8);
 
-    struct Int8OPTAttention_input attn_param(hidden_states_int8, input.attention_mask);
+    struct Int8OPTAttention_input attn_param(hidden_states_int8, input.attention_mask, input.past_key, input.past_value,
+                                             input.has_past_key_value);
     struct Int8OPTAttention_output attn_output = this->attn.forward(attn_param);
 
     // opt.py: residual.add_(hidden_states.to(residual.dtype))
@@ -63,10 +64,9 @@ struct Int8OPTDecoderLayer_output Int8OPTDecoderLayer::forward(const struct Int8
 
 Int8OPTDecoderLayer::Int8OPTDecoderLayer(std::string param_path, int embed_dim, int num_heads, int hidden_dim,
                                          LayerNormQ &self_attn_layer_norm, LayerNormQ &final_layer_norm,
-                                         W8A8B8O8LinearReLU &fc1, W8A8BFP32OFP32Linear &fc2,
-                                         BMM_S8T_S8N_F32T &qk_bmm, BMM_S8T_S8N_S8T &pv_bmm,
-                                         W8A8B8O8Linear &k_proj, W8A8B8O8Linear &v_proj, W8A8B8O8Linear &q_proj,
-                                         W8A8BFP32OFP32Linear &out_proj) {
+                                         W8A8B8O8LinearReLU &fc1, W8A8BFP32OFP32Linear &fc2, BMM_S8T_S8N_F32T &qk_bmm,
+                                         BMM_S8T_S8N_S8T &pv_bmm, W8A8B8O8Linear &k_proj, W8A8B8O8Linear &v_proj,
+                                         W8A8B8O8Linear &q_proj, W8A8BFP32OFP32Linear &out_proj) {
     load_LayerNormQ(self_attn_layer_norm, param_path + "/self_attn_layer_norm");
     load_W8A8B8O8LinearReLU_params(fc1, param_path + "/fc1");
     load_W8A8BFP32OFP32Linear_params(fc2, param_path + "/fc2");

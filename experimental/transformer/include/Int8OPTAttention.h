@@ -11,20 +11,29 @@ struct Int8OPTAttention_output {
 struct Int8OPTAttention_input {
     Matrix3D<int8_t> hidden_states;
     Matrix3D<float> attention_mask;
-    Matrix3D<int8_t> *past_key = NULL, *past_value = NULL;
+    Matrix3D<int8_t> past_key, past_value;
+    bool has_past_key_value = false;
 
     Int8OPTAttention_input(Matrix3D<int8_t> hidden_states_, Matrix3D<float> attention_mask_)
         : hidden_states(hidden_states_), attention_mask(attention_mask_) {}
+
+    Int8OPTAttention_input(Matrix3D<int8_t> hidden_states_, Matrix3D<float> attention_mask_,
+                           Matrix3D<int8_t> past_key_, Matrix3D<int8_t> past_value_, bool has_past_key_value_)
+        : hidden_states(hidden_states_),
+          attention_mask(attention_mask_),
+          past_key(past_key_),
+          past_value(past_value_),
+          has_past_key_value(has_past_key_value_) {}
 };
 
 class Int8OPTAttention {
    public:
-    Int8OPTAttention(int embed_dim, int num_heads, BMM_S8T_S8N_F32T &qk_bmm,
-                     BMM_S8T_S8N_S8T &pv_bmm, W8A8B8O8Linear &k_proj, W8A8B8O8Linear &v_proj,
-                     W8A8B8O8Linear &q_proj, W8A8BFP32OFP32Linear &out_proj);
+    Int8OPTAttention(int embed_dim, int num_heads, BMM_S8T_S8N_F32T &qk_bmm, BMM_S8T_S8N_S8T &pv_bmm,
+                     W8A8B8O8Linear &k_proj, W8A8B8O8Linear &v_proj, W8A8B8O8Linear &q_proj,
+                     W8A8BFP32OFP32Linear &out_proj);
     Int8OPTAttention(std::string param_path, int embed_dim, int num_heads, BMM_S8T_S8N_F32T &qk_bmm,
-                     BMM_S8T_S8N_S8T &pv_bmm, W8A8B8O8Linear &k_proj, W8A8B8O8Linear &v_proj,
-                     W8A8B8O8Linear &q_proj, W8A8BFP32OFP32Linear &out_proj);
+                     BMM_S8T_S8N_S8T &pv_bmm, W8A8B8O8Linear &k_proj, W8A8B8O8Linear &v_proj, W8A8B8O8Linear &q_proj,
+                     W8A8BFP32OFP32Linear &out_proj);
     Int8OPTAttention() {}
     struct Int8OPTAttention_output forward(const struct Int8OPTAttention_input &input);
 

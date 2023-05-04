@@ -9,7 +9,9 @@
 #define NUM_THREAD 4
 
 // TODO: assign these based on models
-#define MAX_SQLLEN 512
+#define BATCH 1
+#define HEAD 12
+#define MAXSQLEN 512
 #define EMBED_DIM 768
 #define HIDDEN_DIM 3072
 

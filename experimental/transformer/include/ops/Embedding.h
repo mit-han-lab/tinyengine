@@ -10,6 +10,7 @@ class Embedding {
             assert(lookup_.m_dim_y == voc_size_);
             assert(lookup_.m_dim_z == embed_dim_);
         }
+    Embedding(){};
     void forward(Matrix3D<int> input_id, Matrix3D<float> output);
     int embed_dim, voc_size, padding_idx;
     Matrix3D<float> lookup;
