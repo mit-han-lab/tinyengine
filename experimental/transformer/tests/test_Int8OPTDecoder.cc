@@ -40,7 +40,7 @@ class MemoryAllocator {
     int counter;
 };
 
-void test_Decoder() {
+void test_Decoder_layers() {
     const int num_heads = 12, embed_dim = 768, sqlen = 108, b = 1, hidden_dim = 3072, voc_size = 50272, padding_idx = 1, num_layers = 12;
     MemoryAllocator mem_buf;
 
@@ -73,4 +73,4 @@ void test_Decoder() {
         std::cout << "Test of " << __func__ << ": Passed!" << std::endl;
 }
 
-int main() { test_Decoder(); }
+int main() { test_Decoder_layers(); }
