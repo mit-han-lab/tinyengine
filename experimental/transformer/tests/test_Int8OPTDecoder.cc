@@ -73,4 +73,30 @@ void test_Decoder_layers() {
         std::cout << "Test of " << __func__ << ": Passed!" << std::endl;
 }
 
-int main() { test_Decoder_layers(); }
+
+void test_prepare_decoder_attention_mask() {
+    const int num_heads = 12, embed_dim = 768, sqlen = 108, b = 1, hidden_dim = 3072, voc_size = 50272, padding_idx = 1, num_layers = 12;
+    MemoryAllocator mem_buf;
+
+    Int8OPTDecoder decoder = Int8OPTDecoder("assets/decoder", voc_size, embed_dim, hidden_dim, num_heads,
+                   padding_idx, num_layers);
+
+    // reasoning phase
+    Matrix3D<float> causal_attention_mask = decoder.prepare_decoder_attention_mask(sqlen, 0);
+    Matrix3D<float> causal_attention_maskGT(mem_buf.get_fpbuffer(b * sqlen * sqlen), b, sqlen, sqlen);
+    read_to_array("assets/tests/decoder/generate_causal_attention_reason.bin", causal_attention_maskGT.m_data, b * sqlen * sqlen);
+    bool sucess = check_two_equal(causal_attention_maskGT.m_data, causal_attention_mask.m_data, b * sqlen * sqlen);
+
+    // generating phase
+    Matrix3D<float> causal_attention_mask_g = decoder.prepare_decoder_attention_mask(sqlen+1, sqlen);
+    Matrix3D<float> causal_attention_mask_gGT(mem_buf.get_fpbuffer(b * sqlen * sqlen), b, sqlen + 1, sqlen);
+    read_to_array("assets/tests/decoder/generate_causal_attention_generate.bin", causal_attention_mask_gGT.m_data, b * 1 * (sqlen+1));
+    sucess &= check_two_equal(causal_attention_mask_g.m_data, causal_attention_mask_gGT.m_data, b * 1 * (sqlen+1));
+
+    if (!sucess)
+        std::cout << "Test of " << __func__ << ": Fail!" << std::endl;
+    else
+        std::cout << "Test of " << __func__ << ": Passed!" << std::endl;
+}
+
+int main() { test_Decoder_layers(); test_prepare_decoder_attention_mask();}

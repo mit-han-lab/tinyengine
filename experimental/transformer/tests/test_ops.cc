@@ -71,6 +71,38 @@ void test_LayerNormQ() {
     std::cout << "-------- Test of " << __func__ << ": Passed! -------- "<< std::endl;
 }
 
+void test_LayerNorm() {
+    const int b = 1, m = 108, n = 768;
+    MemoryAllocator mem_buf;
+
+    float* intput_arr = mem_buf.get_fpbuffer(b * m * n);
+    float* weight_arr = mem_buf.get_fpbuffer(b * n);
+    float* bias_arr = mem_buf.get_fpbuffer(b * n);
+    float* output_arr = mem_buf.get_fpbuffer(b * m * n);
+    float* GToutput_arr = mem_buf.get_fpbuffer(b * m * n);
+
+    Matrix3D<float> input(intput_arr, b, m, n);
+    Matrix3D<float> weight(weight_arr, b, 1, n);
+    Matrix3D<float> bias(bias_arr, b, 1, n);
+    Matrix3D<float> output(output_arr, b, m, n);
+    Matrix3D<float> GToutput(GToutput_arr, b, m, n);
+
+    read_to_array((char*)"assets/decoder/final_layer_norm/bias.bin", bias_arr, b * n);
+    read_to_array((char*)"assets/tests/decoder/final_layer_norm_hidden_states.bin", intput_arr, b * m * n);
+    read_to_array((char*)"assets/decoder/final_layer_norm/weight.bin", weight_arr, b * n);
+    read_to_array((char*)"assets/tests/decoder/final_layer_norm_output.bin", GToutput_arr, b * m * n);
+
+    struct LayerNorm_params op_params = {weight, bias};
+
+    LayerNorm test_op = LayerNorm(op_params);
+
+    test_op.forward(input, output);
+
+    assert(check_two_equal(output_arr, GToutput_arr, b * m * n));
+
+    std::cout << "-------- Test of " << __func__ << ": Passed! -------- "<< std::endl;
+}
+
 void test_W8A8B8O8LinearReLU() {
     const int b = 1, m = 512, k = 768, n = 3072;
     const float alpha = 0.0005035400390625, beta = 0.02130126953125;
@@ -263,6 +295,7 @@ void test_Embedding(){
 
 int main() {
     test_LayerNormQ();
+    test_LayerNorm();
     test_W8A8B8O8LinearReLU();
     test_W8A8BFP32OFP32Linear();
     test_W8A8B8O8Linear();

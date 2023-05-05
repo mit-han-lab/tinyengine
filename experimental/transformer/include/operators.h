@@ -20,6 +20,7 @@
 #include "ops/BMM_S8T_S8N_F32T.h"
 #include "ops/BMM_S8T_S8N_S8T.h"
 #include "ops/LayerNormQ.h"
+#include "ops/LayerNorm.h"
 #include "ops/W8A8B8O8Linear.h"
 #include "ops/W8A8B8O8LinearReLU.h"
 #include "ops/W8A8BFP32OFP32Linear.h"

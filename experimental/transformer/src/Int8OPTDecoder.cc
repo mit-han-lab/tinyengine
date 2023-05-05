@@ -3,6 +3,26 @@
 
 #include "OPTDecoder.h"
 
+float attention_mask_buf[MAXSQLEN * MAXSQLEN];
+
+Matrix3D<float> Int8OPTDecoder::prepare_decoder_attention_mask(int length, int past_length){
+    assert(length - past_length > 0);
+    Matrix3D<float> causal_attention_mask(attention_mask_buf, 1, length - past_length, length);
+    for (int i = 0; i < length - past_length; i++){
+        for (int j = 0; j < length; j++){
+            if (i + past_length < j){
+                causal_attention_mask(0, i, j) = -65504;
+            }
+            else{
+                causal_attention_mask(0, i, j) = 0;
+            }
+        }
+    }
+
+    return causal_attention_mask;
+}
+
+
 Int8OPTDecoder::Int8OPTDecoder(std::string param_path, int voc_size_, int embed_dim_, int hidden_dim_, int num_heads_,
                                int padding_idx_, int num_layers) {
     this->voc_size = voc_size_;
