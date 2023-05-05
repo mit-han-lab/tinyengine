@@ -18,8 +18,9 @@ class Int8OPTDecoder {
     Int8OPTDecoder(std::string param_path, int voc_size_, int embed_dim_, int hidden_dim_, int num_heads_,
                    int padding_idx_, int num_layers);
     Matrix3D<float> prepare_decoder_attention_mask(int length, int past_length);
+    Matrix3D<float> get_position_embed(int sql_length, int past_length);
     struct Int8OPTDecoder_output forward(const struct Int8OPTDecoder_input &input);
-    Embedding embed_tokens;
+    Embedding embed_tokens, embed_positions;
     int voc_size, embed_dim, padding_idx, hidden_dim, num_heads;
     std::vector<Int8OPTDecoderLayer> layers;
 };

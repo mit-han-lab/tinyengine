@@ -89,7 +89,7 @@ void test_prepare_decoder_attention_mask() {
 
     // generating phase
     Matrix3D<float> causal_attention_mask_g = decoder.prepare_decoder_attention_mask(sqlen+1, sqlen);
-    Matrix3D<float> causal_attention_mask_gGT(mem_buf.get_fpbuffer(b * sqlen * sqlen), b, sqlen + 1, sqlen);
+    Matrix3D<float> causal_attention_mask_gGT(mem_buf.get_fpbuffer(b * 1 * (sqlen + 1)), b, 1, sqlen + 1);
     read_to_array("assets/tests/decoder/generate_causal_attention_generate.bin", causal_attention_mask_gGT.m_data, b * 1 * (sqlen+1));
     sucess &= check_two_equal(causal_attention_mask_g.m_data, causal_attention_mask_gGT.m_data, b * 1 * (sqlen+1));
 
@@ -99,4 +99,32 @@ void test_prepare_decoder_attention_mask() {
         std::cout << "Test of " << __func__ << ": Passed!" << std::endl;
 }
 
-int main() { test_Decoder_layers(); test_prepare_decoder_attention_mask();}
+void test_get_position_embed() {
+    const int num_heads = 12, embed_dim = 768, sqlen = 108, b = 1, hidden_dim = 3072, voc_size = 50272, padding_idx = 1, num_layers = 12;
+    MemoryAllocator mem_buf;
+
+    Int8OPTDecoder decoder = Int8OPTDecoder("assets/decoder", voc_size, embed_dim, hidden_dim, num_heads,
+                   padding_idx, num_layers);
+
+    // reasoning phase
+    Matrix3D<float> pos_embed = decoder.get_position_embed(sqlen, 0);
+    assert(pos_embed.m_dim_y == sqlen);
+    assert(pos_embed.m_dim_z == embed_dim);
+    Matrix3D<float> pos_embedGT(mem_buf.get_fpbuffer(b * sqlen * embed_dim), b, sqlen, embed_dim);
+    read_to_array("assets/tests/decoder/pos_embed_reasoning.bin", pos_embedGT.m_data, b * sqlen * embed_dim);
+    bool sucess = check_two_equal(pos_embed.m_data, pos_embedGT.m_data, b * sqlen * embed_dim);
+
+    // generating phase
+    Matrix3D<float> pos_embed_g = decoder.get_position_embed(1, sqlen);
+    Matrix3D<float> pos_embed_gGT(mem_buf.get_fpbuffer(b * 1 * embed_dim), b, 1, embed_dim);
+    read_to_array("assets/tests/decoder/pos_embed_generate.bin", pos_embed_gGT.m_data, b * 1 * embed_dim);
+    sucess &= check_two_equal(pos_embed_g.m_data, pos_embed_gGT.m_data, b * 1 * embed_dim);
+
+    if (!sucess)
+        std::cout << "Test of " << __func__ << ": Fail!" << std::endl;
+    else
+        std::cout << "Test of " << __func__ << ": Passed!" << std::endl;
+}
+
+
+int main() { test_Decoder_layers(); test_prepare_decoder_attention_mask(); test_get_position_embed();}

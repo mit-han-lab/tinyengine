@@ -1,9 +1,11 @@
 #include <iostream>
+#include <cstring>
 #include "Int8OPTDecoder.h"
 
 #include "OPTDecoder.h"
 
 float attention_mask_buf[MAXSQLEN * MAXSQLEN];
+float pos_embeds_buf[MAXSQLEN * MAXSQLEN];
 
 Matrix3D<float> Int8OPTDecoder::prepare_decoder_attention_mask(int length, int past_length){
     assert(length - past_length > 0);
@@ -22,6 +24,17 @@ Matrix3D<float> Int8OPTDecoder::prepare_decoder_attention_mask(int length, int p
     return causal_attention_mask;
 }
 
+Matrix3D<float> Int8OPTDecoder::get_position_embed(int sql_length, int past_length){
+    const int offset = 2; // This is specific for OPT model
+    Matrix3D<float> pos_embeds(attention_mask_buf, 1, sql_length, this->embed_dim);
+
+    int start_idx = past_length + offset, end_idx = past_length + sql_length + offset;
+    assert(end_idx < this->embed_positions.lookup.m_dim_y);
+
+    memcpy(pos_embeds.m_data, &this->embed_positions.lookup.m_data[start_idx*this->embed_dim], sql_length * this->embed_dim * sizeof(float));
+
+    return pos_embeds;
+}
 
 Int8OPTDecoder::Int8OPTDecoder(std::string param_path, int voc_size_, int embed_dim_, int hidden_dim_, int num_heads_,
                                int padding_idx_, int num_layers) {
@@ -35,6 +48,9 @@ Int8OPTDecoder::Int8OPTDecoder(std::string param_path, int voc_size_, int embed_
     Matrix3D<float> embweight(new float[voc_size*embed_dim], 1, voc_size, embed_dim);
     this->embed_tokens = Embedding(embed_dim, voc_size, padding_idx, embweight);
     load_Embedding_params(this->embed_tokens, param_path + "/embed_tokens");
+    Matrix3D<float> posweight(new float[2048*embed_dim], 1, 2048, embed_dim);
+    this->embed_positions = Embedding(embed_dim, 2048, padding_idx, posweight);
+    load_Embedding_params(this->embed_positions, param_path + "/embed_positions");
 
     // Load all the decoder layers
     for (int layer_idx = 0; layer_idx < num_layers; layer_idx++) {
