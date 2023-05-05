@@ -104,7 +104,7 @@ void test_Int8OPTAttention() {
     if (!sucess)
         std::cout << "Test of " << __func__ << ": Fail!" << std::endl;
     else
-        std::cout << "Test of " << __func__ << ": Passed!" << std::endl;
+        std::cout << "-------- Test of " << __func__ << ": Passed! -------- "<< std::endl;
 }
 
 int main() { test_Int8OPTAttention(); }

@@ -68,7 +68,7 @@ void test_LayerNormQ() {
 
     assert(check_two_equal(output_arr, GToutput_arr, b * m * n));
 
-    std::cout << "Test of " << __func__ << ": Passed!" << std::endl;
+    std::cout << "-------- Test of " << __func__ << ": Passed! -------- "<< std::endl;
 }
 
 void test_W8A8B8O8LinearReLU() {
@@ -107,7 +107,7 @@ void test_W8A8B8O8LinearReLU() {
 
     assert(check_two_equal(output_arr, GToutput_arr, m * n));
 
-    std::cout << "Test of " << __func__ << ": Passed!" << std::endl;
+    std::cout << "-------- Test of " << __func__ << ": Passed! -------- "<< std::endl;
 }
 
 void test_W8A8BFP32OFP32Linear() {
@@ -139,7 +139,7 @@ void test_W8A8BFP32OFP32Linear() {
 
     assert(check_two_equal(output_arr, GToutput_arr, b * m * n));
 
-    std::cout << "Test of " << __func__ << ": Passed!" << std::endl;
+    std::cout << "-------- Test of " << __func__ << ": Passed! -------- "<< std::endl;
 }
 
 void test_W8A8B8O8Linear() {
@@ -178,7 +178,7 @@ void test_W8A8B8O8Linear() {
 
     assert(check_two_equal(output_arr, GToutput_arr, b * m * n));
 
-    std::cout << "Test of " << __func__ << ": Passed!" << std::endl;
+    std::cout << "-------- Test of " << __func__ << ": Passed! -------- "<< std::endl;
 }
 
 void test_BMM_S8T_S8N_F32T() {
@@ -207,7 +207,7 @@ void test_BMM_S8T_S8N_F32T() {
 
     assert(check_two_equal(output_arr, GToutput_arr, b * m * n));
 
-    std::cout << "Test of " << __func__ << ": Passed!" << std::endl;
+    std::cout << "-------- Test of " << __func__ << ": Passed! -------- "<< std::endl;
 }
 
 void test_BMM_S8T_S8N_S8T() {
@@ -236,7 +236,7 @@ void test_BMM_S8T_S8N_S8T() {
 
     assert(check_two_equal(output_arr, GToutput_arr, b * m * n));
 
-    std::cout << "Test of " << __func__ << ": Passed!" << std::endl;
+    std::cout << "-------- Test of " << __func__ << ": Passed! -------- "<< std::endl;
 }
 
 void test_Embedding(){
@@ -257,7 +257,7 @@ void test_Embedding(){
     embed_tokens.forward(input, output);
     assert(check_two_equal(output.m_data, outputGT.m_data, sqlen * embed_dim));
 
-    std::cout << "Test of " << __func__ << ": Passed!" << std::endl;
+    std::cout << "-------- Test of " << __func__ << ": Passed! -------- "<< std::endl;
 }
 
 

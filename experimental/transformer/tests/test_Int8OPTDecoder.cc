@@ -1,4 +1,4 @@
-#include "Int8OPTDecoderLayer.h"
+#include "Int8OPTDecoder.h"
 #include "operators.h"
 #include "utils.h"
 
@@ -40,71 +40,37 @@ class MemoryAllocator {
     int counter;
 };
 
-void test_DecoderLayer() {
-    const int num_heads = 12, embed_dim = 768, sqlen = 512, b = 1, hidden_dim = 3072;
+void test_Decoder() {
+    const int num_heads = 12, embed_dim = 768, sqlen = 108, b = 1, hidden_dim = 3072, voc_size = 50272, padding_idx = 1, num_layers = 12;
     MemoryAllocator mem_buf;
 
-    struct BMM_S8T_S8N_F32T_params qk_bmm;
-    struct BMM_S8T_S8N_S8T_params pv_bmm;
-    struct W8A8B8O8Linear_params k_proj, v_proj, q_proj;
-    Matrix3D<int8_t> k_proj_weight(mem_buf.get_int8buffer(embed_dim * embed_dim), 1, embed_dim, embed_dim);
-    Matrix3D<int32_t> k_proj_bias(mem_buf.get_intbuffer(embed_dim), 1, 1, embed_dim);
-    k_proj.weight = k_proj_weight;
-    k_proj.bias = k_proj_bias;
-    Matrix3D<int8_t> v_proj_weight(mem_buf.get_int8buffer(embed_dim * embed_dim), 1, embed_dim, embed_dim);
-    Matrix3D<int32_t> v_proj_bias(mem_buf.get_intbuffer(embed_dim), 1, 1, embed_dim);
-    v_proj.weight = v_proj_weight;
-    v_proj.bias = v_proj_bias;
-    Matrix3D<int8_t> q_proj_weight(mem_buf.get_int8buffer(embed_dim * embed_dim), 1, embed_dim, embed_dim);
-    Matrix3D<int32_t> q_proj_bias(mem_buf.get_intbuffer(embed_dim), 1, 1, embed_dim);
-    q_proj.weight = q_proj_weight;
-    q_proj.bias = q_proj_bias;
+    Int8OPTDecoder decoder = Int8OPTDecoder("assets/decoder", voc_size, embed_dim, hidden_dim, num_heads,
+                   padding_idx, num_layers);
 
-    struct W8A8BFP32OFP32Linear_params out_proj;
-    Matrix3D<int8_t> out_proj_weight(mem_buf.get_int8buffer(embed_dim * embed_dim), 1, embed_dim, embed_dim);
-    Matrix3D<float> out_proj_bias(mem_buf.get_fpbuffer(embed_dim), 1, 1, embed_dim);
-    out_proj.weight = out_proj_weight;
-    out_proj.bias = out_proj_bias;
-
-    struct LayerNormQ_params self_attn_layer_norm, final_layer_norm;
-    Matrix3D<float> self_attn_layer_norm_weight(mem_buf.get_fpbuffer(embed_dim), 1, 1, embed_dim);
-    Matrix3D<float> self_attn_layer_norm_bias(mem_buf.get_fpbuffer(embed_dim), 1, 1, embed_dim);
-    self_attn_layer_norm.weight = self_attn_layer_norm_weight;
-    self_attn_layer_norm.bias = self_attn_layer_norm_bias;
-    Matrix3D<float> final_layer_norm_weight(mem_buf.get_fpbuffer(embed_dim), 1, 1, embed_dim);
-    Matrix3D<float> final_layer_norm_bias(mem_buf.get_fpbuffer(embed_dim), 1, 1, embed_dim);
-    final_layer_norm.weight = final_layer_norm_weight;
-    final_layer_norm.bias = final_layer_norm_bias;
-    struct W8A8B8O8Linear_params fc1;
-    Matrix3D<int8_t> fc1_weight(mem_buf.get_int8buffer(embed_dim * hidden_dim), 1, hidden_dim, embed_dim);
-    Matrix3D<int32_t> fc1_bias(mem_buf.get_intbuffer(hidden_dim), 1, 1, hidden_dim);
-    fc1.weight = fc1_weight;
-    fc1.bias = fc1_bias;
-    struct W8A8BFP32OFP32Linear_params fc2;
-    Matrix3D<int8_t> fc2_weight(mem_buf.get_int8buffer(embed_dim * hidden_dim), 1, embed_dim, hidden_dim);
-    Matrix3D<float> fc2_bias(mem_buf.get_fpbuffer(embed_dim), 1, 1, embed_dim);
-    fc2.weight = fc2_weight;
-    fc2.bias = fc2_bias;
-
-    Int8OPTDecoderLayer layer =
-        Int8OPTDecoderLayer("assets/weights/layer0", embed_dim, num_heads, hidden_dim, self_attn_layer_norm,
-                            final_layer_norm, fc1, fc2_op, qk_bmm, pv_bmm, k_proj, v_proj, q_proj, out_proj);
-
-    Matrix3D<float> hidden_states(mem_buf.get_fpbuffer(b * sqlen * embed_dim), b, sqlen, embed_dim);
-    read_to_array("assets/Decoder_layer_hidden_states.bin", hidden_states.m_data, b * sqlen * embed_dim);
+    float* input_buf = mem_buf.get_fpbuffer(b * sqlen * embed_dim);
+    Matrix3D<float> hidden_states(input_buf, b, sqlen, embed_dim);
+    read_to_array("assets/tests/decoder/hidden_states.bin", hidden_states.m_data, b * sqlen * embed_dim);
     Matrix3D<float> attention_mask(mem_buf.get_fpbuffer(b * sqlen * sqlen), b, sqlen, sqlen);
-    read_to_array("assets/Decoder_attention_mask.bin", attention_mask.m_data, b * sqlen * sqlen);
-    struct Int8OPTDecoderLayer_input input = {hidden_states, attention_mask};
-
-    struct Int8OPTDecoderLayer_output output = layer.forward(input);
+    read_to_array("assets/tests/decoder/causal_attention_mask.bin", attention_mask.m_data, b * sqlen * sqlen);
+    // print_first_k_elelment("hidden_states.m_data", hidden_states.m_data, 10);
+    // print_first_k_elelment("attention_mask.m_data", attention_mask.m_data, 10);
+    
+    for (int i = 0; i < num_layers; i++){
+        struct Int8OPTDecoderLayer_input input = {hidden_states, attention_mask};
+        struct Int8OPTDecoderLayer_output output = decoder.layers[i].forward(input);
+        // struct Int8OPTDecoderLayer_output output = layer.forward(input);
+        hidden_states = output.hidden_states;
+    }
 
     Matrix3D<float> residualGT(mem_buf.get_fpbuffer(b * sqlen * embed_dim), b, sqlen, embed_dim);
-    read_to_array("assets/Decoder_residual.bin", residualGT.m_data, b * sqlen * embed_dim);
-    bool sucess = check_two_equal(residualGT.m_data, output.hidden_states.m_data, b * sqlen * embed_dim);
+    read_to_array("assets/tests/decoder/output_hidden_states.bin", residualGT.m_data, b * sqlen * embed_dim);
+    // print_first_k_elelment("O", hidden_states.m_data, 20);
+    // print_first_k_elelment("G", residualGT.m_data, 20);
+    bool sucess = check_two_equal(residualGT.m_data, hidden_states.m_data, b * sqlen * embed_dim, 0.0025);
     if (!sucess)
         std::cout << "Test of " << __func__ << ": Fail!" << std::endl;
     else
         std::cout << "Test of " << __func__ << ": Passed!" << std::endl;
 }
 
-int main() { test_DecoderLayer(); }
+int main() { test_Decoder(); }

@@ -12,6 +12,19 @@ void read_to_array(const char* path, T* array, int size){
     infile.close();
 }
 
+bool check_two_equal(float* array, float* array2, int size, float error){
+    float sq_diff = 0;
+    for (int i = 0; i < size; i++){
+        float diff = (float)array[i] - (float)array2[i];
+        sq_diff += diff * diff;
+    }
+    if ((sq_diff / size) > error){
+        std::cout << "MSE:" << sq_diff/size << std::endl;
+        return false;
+    }
+    return true;
+}
+
 template<typename T>
 bool check_two_equal(T* array, T* array2, int size){
     float sq_diff = 0;

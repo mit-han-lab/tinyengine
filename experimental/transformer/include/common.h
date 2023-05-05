@@ -4,7 +4,12 @@
 #include <cstdlib>
 #include <stdexcept>
 
-#define DEBUG
+#define DEBUG false
+
+#define DEBUG_INS(x) \
+    if (DEBUG) \
+        x
+    
 
 template<typename T>
 class Matrix3D {
