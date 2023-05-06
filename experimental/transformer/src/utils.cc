@@ -53,6 +53,19 @@ bool check_two_equal<int8_t>(int8_t* array, int8_t* array2, int size){
     return true;
 }
 
+bool check_two_equal(int8_t* array, int8_t* array2, int size, float error){
+    float sq_diff = 0;
+    for (int i = 0; i < size; i++){
+        float diff = (float)array[i] - (float)array2[i];
+        sq_diff += diff * diff;
+    }
+    if ((sq_diff / size) > error){
+        std::cout << "MSE:" << sq_diff/size << std::endl;
+        return false;
+    }
+    return true;
+}
+
 template<>
 bool check_two_equal<int>(int* array, int* array2, int size){
     float sq_diff = 0;

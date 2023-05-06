@@ -18,6 +18,8 @@ bool check_two_equal(T* array, T* array2, int size);
 template<>
 bool check_two_equal(int8_t* array, int8_t* array2, int size);
 
+bool check_two_equal(int8_t* array, int8_t* array2, int size, float error);
+
 bool check_two_equal(float* array, float* array2, int size, float error);
 
 

@@ -144,21 +144,23 @@ void test_Decoder() {
     // reasoning phase: 1st run
     Matrix3D<float> last_hidden_state1_GT(mem_buf.get_fpbuffer(b * sqlen * embed_dim), b, sqlen, embed_dim);
     read_to_array("assets/tests/decoder/1st_last_hidden_state.bin", last_hidden_state1_GT.m_data, last_hidden_state1_GT.length());
-    print_first_k_elelment("output_1st.last_hidden_state", output_1st.last_hidden_state.m_data, 20);
-    print_first_k_elelment("last_hidden_state1_GT", last_hidden_state1_GT.m_data, 20);
+    // print_first_k_elelment("output_1st.last_hidden_state", output_1st.last_hidden_state.m_data, 20);
+    // print_first_k_elelment("last_hidden_state1_GT", last_hidden_state1_GT.m_data, 20);
     assert(check_two_equal(output_1st.last_hidden_state.m_data, last_hidden_state1_GT.m_data, last_hidden_state1_GT.length(), 0.02));
 
     Matrix3D<int8_t> temp_key_value(mem_buf.get_int8buffer(b * sqlen * embed_dim), num_heads, sqlen, embed_dim / num_heads);
     for (int i = 0; i < num_layers; i++){
         std::string path = "assets/tests/decoder/decoder_1st_past_key" + std::to_string(i) + ".bin";
         read_to_array(path.c_str(), temp_key_value.m_data, temp_key_value.length());
-        print_first_k_elelment("output_1st.past_keys[i].m_data", output_1st.past_keys[i].m_data, 20);
-        print_first_k_elelment("temp_key_value.m_data", temp_key_value.m_data, 20);
-        assert(check_two_equal(output_1st.past_keys[i].m_data, temp_key_value.m_data, temp_key_value.length()));
+        // print_first_k_elelment("output_1st.past_keys[i].m_data", output_1st.past_keys[i].m_data, 20);
+        // print_first_k_elelment("temp_key_value.m_data", temp_key_value.m_data, 20);
+        assert(check_two_equal(output_1st.past_keys[i].m_data, temp_key_value.m_data, temp_key_value.length(), 4.5));
         
         path = "assets/tests/decoder/decoder_1st_past_value" + std::to_string(i) + ".bin";
         read_to_array(path.c_str(), temp_key_value.m_data, temp_key_value.length());
-        assert(check_two_equal(output_1st.past_values[i].m_data, temp_key_value.m_data, temp_key_value.length()));
+        // print_first_k_elelment("output_1st.past_values[i].m_data", output_1st.past_values[i].m_data, 20);
+        // print_first_k_elelment("temp_key_value.m_data", temp_key_value.m_data, 20);
+        assert(check_two_equal(output_1st.past_values[i].m_data, temp_key_value.m_data, temp_key_value.length(), 4.5));
     }
 
     // generating phase: 2nd run

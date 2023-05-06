@@ -30,7 +30,7 @@ struct Int8OPTDecoderLayer_output Int8OPTDecoderLayer::forward(const struct Int8
     this->self_attn_layer_norm.forward(input.hidden_states, hidden_states_int8);
 
     struct Int8OPTAttention_input attn_param(hidden_states_int8, input.attention_mask, input.past_key, input.past_value,
-                                             input.has_past_key_value, 0);
+                                             input.has_past_key_value, this->layer_idx);
     struct Int8OPTAttention_output attn_output = this->attn.forward(attn_param);
 
     // opt.py: residual.add_(hidden_states.to(residual.dtype))
