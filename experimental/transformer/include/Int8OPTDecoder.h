@@ -15,7 +15,12 @@ struct Int8OPTDecoder_input {
     std::vector<Matrix3D<int8_t>> past_keys, past_values;
     bool has_past_keys_values;
 
-    Int8OPTDecoder_input(Matrix3D<int> input_ids_): input_ids(input_ids_) {has_past_keys_values = false;}
+    Int8OPTDecoder_input(Matrix3D<int> input_ids_) : input_ids(input_ids_) { has_past_keys_values = false; }
+    Int8OPTDecoder_input(Matrix3D<int> input_ids_, std::vector<Matrix3D<int8_t>> past_keys_,
+                         std::vector<Matrix3D<int8_t>> past_values_)
+        : input_ids(input_ids_), past_keys(past_keys_), past_values(past_values_) {
+        has_past_keys_values = true;
+    }
 };
 
 class Int8OPTDecoder {
