@@ -81,7 +81,6 @@ bool check_two_equal<int>(int* array, int* array2, int size){
 }
 
 
-
 void print_first_k_elelment(std::string name, const int8_t *arr, int k, int start_idx){
     std::cout << name << ":";
     for (int i = start_idx; i < k; i++){

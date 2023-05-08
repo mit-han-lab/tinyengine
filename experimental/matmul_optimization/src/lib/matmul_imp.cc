@@ -216,22 +216,6 @@ void MatmulOperator::mat_mul_multithreading(const struct matmul_params *params) 
     }
 }
 
-void MatmulOperator::mat_mul_transposed(const struct matmul_params *params) {
-    int i, j, k;
-
-    const struct matrix *A = &params->A, *B = &params->B, *C = &params->C;
-    float *data_A = A->data_ptr, *data_B = B->data_ptr, *data_C = C->data_ptr;
-
-    // assume B transposed
-
-    for (i = 0; i < C->row; i++)
-        for (j = 0; j < C->column; j++) {
-            float acc = 0;
-            for (k = 0; k < A->column; k++) acc += data_A[i * A->column + k] * data_B[j * B->column + k];
-            data_C[i * C->column + j] = acc;
-        }
-}
-
 
 void MatmulOperator::mat_mul_transpose(const struct matmul_params *params) {
     int i, j, k;
@@ -251,6 +235,61 @@ void MatmulOperator::mat_mul_transpose(const struct matmul_params *params) {
             data_C[i * C->column + j] = acc;
         }
 }
+
+void *mat_mul_transposed_fastover_column_func(void *args) {
+    int i, j, k;
+    struct thread_args *mat_args = (struct thread_args *)args;
+    const struct matrix *A = mat_args->A;
+    const struct matrix *B = mat_args->B;
+    const struct matrix *C = mat_args->C;
+    float *data_A = A->data_ptr, *data_B = B->data_ptr, *data_C = C->data_ptr;
+    int start_i = mat_args->start_i, end_i = mat_args->end_i;
+
+    for (i = 0; i < C->row; i++) {
+        for (j = start_i; j < end_i; j++) {
+            float accumulators[4] = {};
+            for (k = 0; k < A->column; k += 4)
+                // assume B transposed
+                simd_mul_fp_128(&data_A[i * A->column + k], &data_B[j * B->column + k], accumulators);
+            data_C[i * C->column + j] = accumulators[0] + accumulators[1] + accumulators[2] + accumulators[3];
+        }
+    }
+
+    return NULL;
+}
+
+
+void MatmulOperator::mat_mul_transposed_fastover_column(const struct matmul_params *params) {
+    int i, j, k;
+
+    int num_thread = 8; // TODO
+    const struct matrix *A = &params->A, *B = &params->B, *C = &params->C;
+    float *data_A = A->data_ptr, *data_B = B->data_ptr, *data_C = C->data_ptr;
+
+    assert(k % 4 == 0);
+
+    if (num_thread > C->column)
+        num_thread = C->column;
+
+    pthread_t thread_pool[num_thread];
+    struct thread_args threads_args[num_thread];
+
+    // Thread creation
+    for (j = 0; j < num_thread; j++) {
+        threads_args[j].start_i = j * (C->column / num_thread);
+        threads_args[j].end_i = (j + 1) * (C->column / num_thread);
+        threads_args[j].blk_size = params->opt_params.blk_size;
+        threads_args[j].A = A;
+        threads_args[j].B = B;
+        threads_args[j].C = C;
+        pthread_create(&thread_pool[j], NULL, mat_mul_transposed_fastover_column_func, &threads_args[j]);
+    }
+    // Join threads
+    for (j = 0; j < num_thread; j++) {
+        pthread_join(thread_pool[j], NULL);
+    }
+}
+
 
 void MatmulOperator::mat_mul_transpose_simd(const struct matmul_params *params) {
     int i, j, k;

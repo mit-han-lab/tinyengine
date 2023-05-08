@@ -55,7 +55,7 @@ void Linear_FP::forward(const Matrix3D<float> &a, Matrix3D<float> &c) {
 
     matmul::MatmulOperator ops = matmul::MatmulOperator();
     // ops.mat_mul_fast((const struct matmul_params *)&params);// TODO: handling different sqlen
-    ops.mat_mul_transposed((const struct matmul_params *)&params);
+    ops.mat_mul_transposed_fastover_column((const struct matmul_params *)&params);
 
     return;
 }
