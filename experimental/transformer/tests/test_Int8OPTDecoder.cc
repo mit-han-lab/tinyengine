@@ -170,8 +170,10 @@ void test_Decoder() {
 
     struct Int8OPTDecoder_output output_2nd  = decoder.forward(input_2nd);  
 
-    Matrix3D<float> last_hidden_state2_GT(mem_buf.get_fpbuffer(b * 1 * embed_dim), b, sqlen, embed_dim);
-    read_to_array("assets/tests/decoder/1st_last_hidden_state.bin", last_hidden_state2_GT.m_data, last_hidden_state2_GT.length());
+    Matrix3D<float> last_hidden_state2_GT(mem_buf.get_fpbuffer(b * 1 * embed_dim), b, 1, embed_dim);
+    read_to_array("assets/tests/decoder/2nd_last_hidden_state.bin", last_hidden_state2_GT.m_data, last_hidden_state2_GT.length());
+    // print_first_k_elelment("output_2nd.last_hidden_state", output_2nd.last_hidden_state.m_data, 20);
+    // print_first_k_elelment("last_hidden_state2_GT.m_data", last_hidden_state2_GT.m_data, 20);
     sucess &= check_two_equal(output_2nd.last_hidden_state.m_data, last_hidden_state2_GT.m_data, last_hidden_state2_GT.length(), 0.04);
 
     temp_key_value = Matrix3D<int8_t>(mem_buf.get_int8buffer(b * 1 * embed_dim), num_heads, (sqlen+1), embed_dim / num_heads);
