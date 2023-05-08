@@ -7,7 +7,7 @@
 #include <typeinfo>
 
 #define ERROR_MAX 0.0002
-#define INT_ERROR_MAX 1
+#define INT_ERROR_MAX 0.02
 
 template<typename T>
 void read_to_array(const char* path, T* array, int size);
