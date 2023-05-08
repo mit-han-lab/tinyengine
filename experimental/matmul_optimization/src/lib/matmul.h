@@ -69,6 +69,7 @@ class MatmulOperator {
     void mat_mul_tiling(const struct matmul_params *params);
     void mat_mul_multithreading(const struct matmul_params *params);
     void mat_mul_transpose(const struct matmul_params *params);
+    void mat_mul_transposed(const struct matmul_params *params);
     void mat_mul_transpose_simd(const struct matmul_params *params);
     void mat_mul_fast(const struct matmul_params *params);
     void mat_mul_onednn(const struct matmul_params *params);
