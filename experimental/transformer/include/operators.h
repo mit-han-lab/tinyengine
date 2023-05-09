@@ -6,7 +6,7 @@
 #include "lib/matmul.h"
 
 #define BLK_SIZE 16
-#define NUM_THREAD 4
+#define NUM_THREAD 8
 
 // TODO: assign these based on models
 #define BATCH 1
