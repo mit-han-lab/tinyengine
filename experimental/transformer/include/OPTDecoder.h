@@ -14,4 +14,5 @@ class OPTDecoder{
 public:
     OPTDecoder() {}
     struct OPTDecoder_output forward(const struct OPTDecoder_input &input);
+    std::string profile_name = "OPTDecoder";
 };

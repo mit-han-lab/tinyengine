@@ -50,4 +50,5 @@ class Int8OPTDecoderLayer {
     W8A8B8O8LinearReLU fc1;
     W8A8BFP32OFP32Linear fc2;
     Int8OPTAttention attn;
+    std::string profile_name = "Int8OPTDecoderLayer";
 };

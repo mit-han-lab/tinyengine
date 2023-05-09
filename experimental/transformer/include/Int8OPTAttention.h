@@ -47,4 +47,5 @@ class Int8OPTAttention {
     BMM_S8T_S8N_S8T pv_bmm;
     W8A8B8O8Linear k_proj, v_proj, q_proj;
     W8A8BFP32OFP32Linear out_proj;
+    std::string profile_name = "Int8OPTAttention";
 };

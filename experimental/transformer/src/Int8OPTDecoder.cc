@@ -132,6 +132,7 @@ Int8OPTDecoder::Int8OPTDecoder(std::string param_path, int voc_size_, int embed_
 float last_hidden_states_buf[MAXSQLEN * MAXSQLEN]; 
 // OPTDecoder:
 struct Int8OPTDecoder_output Int8OPTDecoder::forward(const struct Int8OPTDecoder_input &input) {
+    PROFILE_START(profile_name);
     int sqlen = input.input_ids.m_dim_z, batch_size = input.input_ids.m_dim_x, past_key_values_length = 0;
 
     // modeling_opt.py: inputs_embeds = self.embed_tokens(input_ids)
@@ -183,5 +184,6 @@ struct Int8OPTDecoder_output Int8OPTDecoder::forward(const struct Int8OPTDecoder
     this->final_layer_norm.forward(hidden_states, last_hidden_states);
 
     struct Int8OPTDecoder_output output = {last_hidden_states, past_keys, past_values};
+    PROFILE_END(profile_name);
     return output;
 }

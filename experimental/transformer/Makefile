@@ -3,7 +3,7 @@ CXX = g++
 CXXFLAGS = -std=c++11 -mavx2 -mfma -pthread -O3
 
 # Executable and source files
-TARGET = test_example_eval test_ops test_Int8OPTAttention test_Int8OPTDecoderLayer test_Int8OPTDecoder test_OPTForCausalLM
+TARGET = test_ops test_Int8OPTAttention test_Int8OPTDecoderLayer test_Int8OPTDecoder test_OPTForCausalLM profile_OPTForCausalLM
 
 LIB_DIR = /home/wmchen/workspace/tinyengine/experimental/matmul_optimization/src
 LIB_SRC = $(wildcard $(LIB_DIR)/lib/*.cc)
@@ -21,9 +21,6 @@ SRC += $(LIB_SRC)
 all: $(TARGET)
 
 # Linking
-test_example_eval:
-	$(CXX) $(CXXFLAGS) $(INCLUDE_DIRS) -o test_example_eval tests/test_example_eval.cc $(SRC)
-
 test_ops:
 	$(CXX) $(CXXFLAGS) $(INCLUDE_DIRS) -o test_ops tests/test_ops.cc $(SRC)
 
@@ -38,6 +35,10 @@ test_Int8OPTDecoder:
 
 test_OPTForCausalLM:
 	$(CXX) $(CXXFLAGS) $(INCLUDE_DIRS) -o test_OPTForCausalLM tests/test_OPTForCausalLM.cc $(SRC)
+
+profile_OPTForCausalLM:
+	$(CXX) $(CXXFLAGS) $(INCLUDE_DIRS) -D PROFILER -o profile_OPTForCausalLM tests/test_OPTForCausalLM.cc $(SRC)
+
 
 # Clean up
 clean:

@@ -28,4 +28,5 @@ class OPTForCausalLM {
    private:
     Int8OPTDecoder decoder;
     Linear_FP lm_head;
+    std::string profile_name = "OPTForCausalLM";
 };

@@ -23,6 +23,7 @@ struct OPTForCausalLM_output OPTForCausalLM::forward(const struct OPTForCausalLM
     //     output_hidden_states if output_hidden_states is not None else self.config.output_hidden_states
     // )
     // return_dict = return_dict if return_dict is not None else self.config.use_return_dict
+    PROFILE_START(profile_name);
     int sqlen = input.input_ids.m_dim_z;
 
     // outputs = self.model.decoder(...)
@@ -42,5 +43,6 @@ struct OPTForCausalLM_output OPTForCausalLM::forward(const struct OPTForCausalLM
     this->lm_head.forward(decoder_output.last_hidden_state, logits);
 
     struct OPTForCausalLM_output LMoutput = {logits, decoder_output.past_keys, decoder_output.past_values};
+    PROFILE_END(profile_name);
     return LMoutput;
 }

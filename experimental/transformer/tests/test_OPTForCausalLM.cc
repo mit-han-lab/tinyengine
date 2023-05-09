@@ -56,13 +56,7 @@ void test_OPTForCausalLM() {
     OPTForCausalLM model =
         OPTForCausalLM("assets/", voc_size, embed_dim, hidden_dim, num_heads, padding_idx, num_layers);
 
-    auto start_time = std::chrono::high_resolution_clock::now();
     struct OPTForCausalLM_output output_1st = model.forward(input_1st);
-    // Record the end time
-    auto end_time = std::chrono::high_resolution_clock::now();
-    // Calculate the duration
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
-    std::cout << "1st Execution time: " << duration.count() << " milliseconds" << std::endl;
 
     Matrix3D<float> logits(mem_buf.get_fpbuffer(b * sqlen * voc_size), b, sqlen, voc_size);
     read_to_array("assets/tests/causallm/1st_logits.bin", logits.m_data, logits.length());
@@ -87,18 +81,15 @@ void test_OPTForCausalLM() {
             check_two_equal(output_1st.past_values[i].m_data, temp_key_value.m_data, temp_key_value.length(), 4.5);
     }
 
+    Profiler::getInstance().report();
+    Profiler::getInstance().reset();
+
     // generating phase: 2nd run
     Matrix3D<int> input_ids_2nd(mem_buf.get_intbuffer(sqlen), b, 1, 1);
     read_to_array("assets/tests/causallm/2nd_input_ids.bin", input_ids_2nd.m_data, input_ids_2nd.length());
     struct OPTForCausalLM_input input_2nd = {input_ids_2nd, output_1st.past_keys, output_1st.past_values};
 
-    start_time = std::chrono::high_resolution_clock::now();
     struct OPTForCausalLM_output output_2nd = model.forward(input_2nd);
-    // Record the end time
-    end_time = std::chrono::high_resolution_clock::now();
-    // Calculate the duration
-    duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
-    std::cout << "2nd Execution time: " << duration.count() << " milliseconds" << std::endl;
 
     logits = Matrix3D<float>(mem_buf.get_fpbuffer(b * 1 * voc_size), b, 1, voc_size);
     read_to_array("assets/tests/causallm/2nd_logits.bin", logits.m_data, logits.length());
@@ -127,6 +118,8 @@ void test_OPTForCausalLM() {
         std::cout << "-------- Test of " << __func__ << ": Fail! -------- " << std::endl;
     else
         std::cout << "-------- Test of " << __func__ << ": Passed! -------- " << std::endl;
+    
+    Profiler::getInstance().report();
 }
 
 int main() { test_OPTForCausalLM(); }

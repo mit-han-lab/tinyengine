@@ -5,6 +5,15 @@
 #include <cstdlib>
 #include <math.h>
 #include <typeinfo>
+#include "profiler.h"
+
+#ifdef PROFILER
+#define PROFILE_START(x) Profiler::getInstance().start(x)
+#define PROFILE_END(x) Profiler::getInstance().stop(x)
+#else
+#define PROFILE_START(x)
+#define PROFILE_END(x)
+#endif
 
 #define ERROR_MAX 0.0002
 #define INT_ERROR_MAX 0.02

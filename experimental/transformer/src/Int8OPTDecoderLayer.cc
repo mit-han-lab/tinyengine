@@ -25,6 +25,7 @@ float fc_2_arr[MAXSQLEN * EMBED_DIM];
 float temp[MAXSQLEN * EMBED_DIM];
 int8_t hidden_states_int8_arr[MAXSQLEN * EMBED_DIM];
 struct Int8OPTDecoderLayer_output Int8OPTDecoderLayer::forward(const struct Int8OPTDecoderLayer_input &input) {
+    PROFILE_START(profile_name);
     Matrix3D<int8_t> hidden_states_int8(hidden_states_int8_arr, input.hidden_states.m_dim_x,
                                         input.hidden_states.m_dim_y, input.hidden_states.m_dim_z);
     this->self_attn_layer_norm.forward(input.hidden_states, hidden_states_int8);
@@ -59,6 +60,7 @@ struct Int8OPTDecoderLayer_output Int8OPTDecoderLayer::forward(const struct Int8
     add(residual_add, fc2_out, residual_add);
 
     struct Int8OPTDecoderLayer_output output(residual_add, attn_output.attn_probs_reshaped, attn_output.past_key_value);
+    PROFILE_END(profile_name);
     return output;
 }
 

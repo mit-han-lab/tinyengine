@@ -35,4 +35,5 @@ class Int8OPTDecoder {
     int voc_size, embed_dim, padding_idx, hidden_dim, num_heads;
     std::vector<Int8OPTDecoderLayer> layers;
     LayerNorm final_layer_norm;
+    std::string profile_name = "Int8OPTDecoder";
 };
