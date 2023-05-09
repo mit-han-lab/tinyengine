@@ -39,7 +39,8 @@ Int8OPTAttention::Int8OPTAttention(std::string param_path, int embed_dim, int nu
     this->out_proj = out_proj;
 }
 
-void Int8OPTAttention::shpae(Matrix3D<int8_t> unshape, Matrix3D<int8_t> shaped, int sqlen) {
+inline void Int8OPTAttention::shpae(Matrix3D<int8_t> unshape, Matrix3D<int8_t> shaped, int sqlen) {
+    PROFILE_START("Int8OPTAttention::shpae");
     assert(unshape.m_dim_x == 1);  // bsz == 1
     assert(unshape.m_dim_y == sqlen);
     assert(unshape.m_dim_z == this->num_heads * this->head_dim);
@@ -54,9 +55,11 @@ void Int8OPTAttention::shpae(Matrix3D<int8_t> unshape, Matrix3D<int8_t> shaped, 
             }
         }
     }
+    PROFILE_END("Int8OPTAttention::shpae");
 }
 
-void Int8OPTAttention::unshape(Matrix3D<int8_t> shaped, Matrix3D<int8_t> unshape, int sqlen) {
+inline void Int8OPTAttention::unshape(Matrix3D<int8_t> shaped, Matrix3D<int8_t> unshape, int sqlen) {
+    PROFILE_START("Int8OPTAttention::unshpae");
     assert(unshape.m_dim_x == 1);  // bsz == 1
     assert(unshape.m_dim_y == sqlen);
     assert(unshape.m_dim_z == this->num_heads * this->head_dim);
@@ -71,10 +74,12 @@ void Int8OPTAttention::unshape(Matrix3D<int8_t> shaped, Matrix3D<int8_t> unshape
             }
         }
     }
+    PROFILE_END("Int8OPTAttention::unshpae");
 }
 
 template <typename T>
-void transpose_1_2idx(Matrix3D<T> &input, Matrix3D<T> &output) {
+inline void transpose_1_2idx(Matrix3D<T> &input, Matrix3D<T> &output) {
+    PROFILE_START("Int8OPTAttention::transpose_1_2idx");
     assert(input.m_dim_x == output.m_dim_x);
     assert(input.m_dim_y == output.m_dim_z);
     assert(input.m_dim_z == output.m_dim_y);
@@ -86,6 +91,7 @@ void transpose_1_2idx(Matrix3D<T> &input, Matrix3D<T> &output) {
             }
         }
     }
+    PROFILE_END("Int8OPTAttention::transpose_1_2idx");
 }
 
 // vars shared acorss layers
@@ -140,6 +146,7 @@ struct Int8OPTAttention_output Int8OPTAttention::forward(const struct Int8OPTAtt
     Matrix3D<int8_t> value_states(value_states_arr, this->num_heads, sqlen, this->head_dim);
     this->shpae(value_states_unshape, value_states, sqlen);
 
+    PROFILE_START(profile_name + "::cat_past_keys_values");
     int tgz = sqlen;
     if (input.has_past_key_value) {
         // # reuse k, v, self_attention
@@ -167,6 +174,7 @@ struct Int8OPTAttention_output Int8OPTAttention::forward(const struct Int8OPTAtt
     }
     Matrix3D<int8_t> final_value_states(ret_value_states, this->num_heads, tgz,  this->head_dim);
     Matrix3D<int8_t> final_key_states(ret_key_states, this->num_heads, tgz,  this->head_dim);
+    PROFILE_END(profile_name + "::cat_past_keys_values");
 
     // opt.py: query_states = self._shape(query_states, tgt_len, bsz).view(*proj_shape)
     int8_t query_states_arr[sqlen * this->embed_dim];
@@ -196,10 +204,12 @@ struct Int8OPTAttention_output Int8OPTAttention::forward(const struct Int8OPTAtt
     // opt.py: attn_probs.mul_(127).round_()
     // opt.py: attn_probs = attn_probs.to(torch.int8)
     // int8_t attn_probs_int8_arr[this->num_heads * sqlen * tgz];
+    PROFILE_START(profile_name + "::get_attn_probs_int8");
     Matrix3D<int8_t> attn_probs_int8(attn_probs_int8_arr, this->num_heads, sqlen, tgz);
     int len = attn_probs.length();
     for (int i = 0; i < len; i++) attn_probs_int8_arr[i] = static_cast<int8_t>(std::round(attn_probs.m_data[i] * 127));
     // print_first_k_elelment("attn_probs_int8.m_data", attn_probs_int8.m_data, 109);
+    PROFILE_END(profile_name + "::get_attn_probs_int8");
 
     // opt.py: value_states = value_states.transpose(1, 2).contiguous()
     int8_t value_states_transpose_arr[this->num_heads * this->head_dim * tgz];

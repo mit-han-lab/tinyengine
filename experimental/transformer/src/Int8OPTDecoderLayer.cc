@@ -4,11 +4,13 @@
 
 template <typename T>
 void add(Matrix3D<T> a, Matrix3D<T> b, Matrix3D<T> c) {
+    PROFILE_START("Int8OPTDecoderLayer::add");
     assert(c.length() == a.length() && a.length() == b.length());
 
     for (int i = 0; i < a.length(); i++) {
         c.m_data[i] = a.m_data[i] + b.m_data[i];
     }
+    PROFILE_END("Int8OPTDecoderLayer::add");
 }
 
 // TODO: allocate memory for these!
@@ -49,7 +51,6 @@ struct Int8OPTDecoderLayer_output Int8OPTDecoderLayer::forward(const struct Int8
     // this->fc1.x = final_layer_norm;
     // this->fc1.output = fc1_out;
     this->fc1.forward(final_layer_norm, fc1_out);
-    // W8A8B8O8LinearReLU(this->fc1);
 
     // opt.py: hidden_states = self.fc2(hidden_states)
     Matrix3D<float> fc2_out(fc_2_arr, input.hidden_states.m_dim_x, input.hidden_states.m_dim_y,

@@ -9,6 +9,7 @@ float attention_mask_buf[MAXSQLEN * MAXSQLEN];
 float pos_embeds_buf[MAXSQLEN * MAXSQLEN];
 
 Matrix3D<float> Int8OPTDecoder::prepare_decoder_attention_mask(int length, int past_length){
+    PROFILE_START("Int8OPTDecoder::prepare_decoder_attention_mask");
     assert(length - past_length > 0);
     Matrix3D<float> causal_attention_mask(attention_mask_buf, 1, length - past_length, length);
     for (int i = 0; i < length - past_length; i++){
@@ -22,10 +23,12 @@ Matrix3D<float> Int8OPTDecoder::prepare_decoder_attention_mask(int length, int p
         }
     }
 
+    PROFILE_END("Int8OPTDecoder::prepare_decoder_attention_mask");
     return causal_attention_mask;
 }
 
 Matrix3D<float> Int8OPTDecoder::get_position_embed(int sql_length, int past_length){
+    PROFILE_START("Int8OPTDecoder::get_position_embed");
     const int offset = 2; // This is specific for OPT model
     Matrix3D<float> pos_embeds(pos_embeds_buf, 1, sql_length, this->embed_dim);
 
@@ -34,6 +37,7 @@ Matrix3D<float> Int8OPTDecoder::get_position_embed(int sql_length, int past_leng
 
     memcpy(pos_embeds.m_data, &this->embed_positions.lookup.m_data[start_idx*this->embed_dim], sql_length * this->embed_dim * sizeof(float));
 
+    PROFILE_END("Int8OPTDecoder::get_position_embed");
     return pos_embeds;
 }
 
