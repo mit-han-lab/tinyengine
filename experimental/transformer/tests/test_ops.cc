@@ -1,3 +1,5 @@
+#include <cmath>
+
 #include "operators.h"
 #include "utils.h"
 
@@ -68,7 +70,7 @@ void test_LayerNormQ() {
 
     assert(check_two_equal(output_arr, GToutput_arr, b * m * n));
 
-    std::cout << "-------- Test of " << __func__ << ": Passed! -------- "<< std::endl;
+    std::cout << "-------- Test of " << __func__ << ": Passed! -------- " << std::endl;
 }
 
 void test_LayerNorm() {
@@ -100,7 +102,7 @@ void test_LayerNorm() {
 
     assert(check_two_equal(output_arr, GToutput_arr, b * m * n));
 
-    std::cout << "-------- Test of " << __func__ << ": Passed! -------- "<< std::endl;
+    std::cout << "-------- Test of " << __func__ << ": Passed! -------- " << std::endl;
 }
 
 void test_W8A8B8O8LinearReLU() {
@@ -139,7 +141,7 @@ void test_W8A8B8O8LinearReLU() {
 
     assert(check_two_equal(output_arr, GToutput_arr, m * n));
 
-    std::cout << "-------- Test of " << __func__ << ": Passed! -------- "<< std::endl;
+    std::cout << "-------- Test of " << __func__ << ": Passed! -------- " << std::endl;
 }
 
 void test_W8A8BFP32OFP32Linear() {
@@ -171,7 +173,7 @@ void test_W8A8BFP32OFP32Linear() {
 
     assert(check_two_equal(output_arr, GToutput_arr, b * m * n));
 
-    std::cout << "-------- Test of " << __func__ << ": Passed! -------- "<< std::endl;
+    std::cout << "-------- Test of " << __func__ << ": Passed! -------- " << std::endl;
 }
 
 void test_W8A8B8O8Linear() {
@@ -210,7 +212,7 @@ void test_W8A8B8O8Linear() {
 
     assert(check_two_equal(output_arr, GToutput_arr, b * m * n));
 
-    std::cout << "-------- Test of " << __func__ << ": Passed! -------- "<< std::endl;
+    std::cout << "-------- Test of " << __func__ << ": Passed! -------- " << std::endl;
 }
 
 void test_BMM_S8T_S8N_F32T() {
@@ -239,7 +241,7 @@ void test_BMM_S8T_S8N_F32T() {
 
     assert(check_two_equal(output_arr, GToutput_arr, b * m * n));
 
-    std::cout << "-------- Test of " << __func__ << ": Passed! -------- "<< std::endl;
+    std::cout << "-------- Test of " << __func__ << ": Passed! -------- " << std::endl;
 }
 
 void test_BMM_S8T_S8N_S8T() {
@@ -268,17 +270,17 @@ void test_BMM_S8T_S8N_S8T() {
 
     assert(check_two_equal(output_arr, GToutput_arr, b * m * n));
 
-    std::cout << "-------- Test of " << __func__ << ": Passed! -------- "<< std::endl;
+    std::cout << "-------- Test of " << __func__ << ": Passed! -------- " << std::endl;
 }
 
-void test_Embedding(){
+void test_Embedding() {
     const int voc_size = 50272, embed_dim = 768, sqlen = 512, padding_idx = 1;
     MemoryAllocator mem_buf;
 
     Matrix3D<int> input(mem_buf.get_intbuffer(sqlen), 1, 1, sqlen);
-    Matrix3D<float> weight(mem_buf.get_fpbuffer(voc_size*embed_dim), 1, voc_size, embed_dim);
-    Matrix3D<float> output(mem_buf.get_fpbuffer(sqlen*embed_dim), 1, sqlen, embed_dim);
-    Matrix3D<float> outputGT(mem_buf.get_fpbuffer(sqlen*embed_dim), 1, sqlen, embed_dim);
+    Matrix3D<float> weight(mem_buf.get_fpbuffer(voc_size * embed_dim), 1, voc_size, embed_dim);
+    Matrix3D<float> output(mem_buf.get_fpbuffer(sqlen * embed_dim), 1, sqlen, embed_dim);
+    Matrix3D<float> outputGT(mem_buf.get_fpbuffer(sqlen * embed_dim), 1, sqlen, embed_dim);
 
     read_to_array((char*)"assets/input_ids.bin", input.m_data, sqlen);
     read_to_array((char*)"assets/inputs_embeds.bin", outputGT.m_data, sqlen * embed_dim);
@@ -289,9 +291,8 @@ void test_Embedding(){
     embed_tokens.forward(input, output);
     assert(check_two_equal(output.m_data, outputGT.m_data, sqlen * embed_dim));
 
-    std::cout << "-------- Test of " << __func__ << ": Passed! -------- "<< std::endl;
+    std::cout << "-------- Test of " << __func__ << ": Passed! -------- " << std::endl;
 }
-
 
 int main() {
     test_LayerNormQ();

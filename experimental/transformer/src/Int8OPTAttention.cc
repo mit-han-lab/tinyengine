@@ -1,5 +1,8 @@
-#include <string.h>
 #include "Int8OPTAttention.h"
+
+#include <string.h>
+
+#include <cmath>
 
 #include "operators.h"
 #include "utils.h"
@@ -119,12 +122,11 @@ struct Int8OPTAttention_output Int8OPTAttention::forward(const struct Int8OPTAtt
     // print_first_k_elelment("query_states_unshape.m_data", query_states_unshape.m_data, 10);
 
     int8_t *ret_value_states, *ret_key_states;
-    if(cache_num[input.layer_idx] == 1){
+    if (cache_num[input.layer_idx] == 1) {
         ret_value_states = value_states_arr_cache[input.layer_idx][1];
         ret_key_states = key_states_arr_cache[input.layer_idx][1];
         cache_num[input.layer_idx] = 0;
-    }
-    else {
+    } else {
         ret_value_states = value_states_arr_cache[input.layer_idx][0];
         ret_key_states = key_states_arr_cache[input.layer_idx][0];
         cache_num[input.layer_idx] = 1;
@@ -157,7 +159,7 @@ struct Int8OPTAttention_output Int8OPTAttention::forward(const struct Int8OPTAtt
         int8_t *val_ptr = ret_value_states, *key_ptr = ret_key_states;
         int past_block = input.past_key.m_dim_y * input.past_key.m_dim_z;
         int sq_block = sqlen * this->head_dim;
-        for (int i = 0; i < input.past_key.m_dim_x; i++){
+        for (int i = 0; i < input.past_key.m_dim_x; i++) {
             memcpy(val_ptr, &input.past_value.m_data[past_block * i], past_block * sizeof(int8_t));
             val_ptr += past_block;
             memcpy(val_ptr, &value_states.m_data[sq_block * i], sq_block * sizeof(int8_t));
@@ -169,11 +171,11 @@ struct Int8OPTAttention_output Int8OPTAttention::forward(const struct Int8OPTAtt
         }
     } else {
         // Put the data into the buffer
-        memcpy(ret_value_states, value_states_arr, (this->num_heads* tgz * this->head_dim) * sizeof(int8_t));
-        memcpy(ret_key_states, key_states_arr, (this->num_heads* tgz * this->head_dim) * sizeof(int8_t));
+        memcpy(ret_value_states, value_states_arr, (this->num_heads * tgz * this->head_dim) * sizeof(int8_t));
+        memcpy(ret_key_states, key_states_arr, (this->num_heads * tgz * this->head_dim) * sizeof(int8_t));
     }
-    Matrix3D<int8_t> final_value_states(ret_value_states, this->num_heads, tgz,  this->head_dim);
-    Matrix3D<int8_t> final_key_states(ret_key_states, this->num_heads, tgz,  this->head_dim);
+    Matrix3D<int8_t> final_value_states(ret_value_states, this->num_heads, tgz, this->head_dim);
+    Matrix3D<int8_t> final_key_states(ret_key_states, this->num_heads, tgz, this->head_dim);
     PROFILE_END(profile_name + "::cat_past_keys_values");
 
     // opt.py: query_states = self._shape(query_states, tgt_len, bsz).view(*proj_shape)
@@ -216,8 +218,8 @@ struct Int8OPTAttention_output Int8OPTAttention::forward(const struct Int8OPTAtt
     Matrix3D<int8_t> value_states_transpose(value_states_transpose_arr, this->num_heads, this->head_dim, tgz);
     transpose_1_2idx(final_value_states, value_states_transpose);
     // read_to_array("assets/tests/attn_probs_int8_mock.bin", attn_probs_int8.m_data, this->num_heads * sqlen * tgz);
-    // read_to_array("assets/tests/value_states_transpose_mock.bin", value_states_transpose.m_data, this->num_heads * tgz * this->head_dim);
-    // opt.py: attn_output = self.pv_bmm(attn_probs, value_states)
+    // read_to_array("assets/tests/value_states_transpose_mock.bin", value_states_transpose.m_data, this->num_heads *
+    // tgz * this->head_dim); opt.py: attn_output = self.pv_bmm(attn_probs, value_states)
     int8_t attn_output_arr[this->num_heads * sqlen * this->head_dim];
     Matrix3D<int8_t> attn_output(attn_output_arr, this->num_heads, sqlen, this->head_dim);
     this->pv_bmm.forward(attn_probs_int8, value_states_transpose, attn_output);
