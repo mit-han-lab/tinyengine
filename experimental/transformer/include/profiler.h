@@ -28,6 +28,7 @@ public:
     }
 
     void report() const {
+        #ifdef PROFILER
         std::cout << "Section, Total time(us), Average time(us), Count" << std::endl;
         for (const auto& entry : durations) {
             std::string row;
@@ -37,6 +38,7 @@ public:
             row += std::to_string(counts.at(entry.first));
             std::cout << row << std::endl;
         }
+        #endif
     }
 
 private:

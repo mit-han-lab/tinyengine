@@ -2,8 +2,8 @@
 
 make clean && make -j
 
-# Find all executable files in the current directory starting with 'test_'
-for file in test_*; do
+# Find all executable files in the current directory starting with 'profile_'
+for file in profile_*; do
   # Check if the file is executable
   if [ -x "$file" ]; then
     echo "Running '$file'..."

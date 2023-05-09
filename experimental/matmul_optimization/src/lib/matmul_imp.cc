@@ -7,6 +7,7 @@
 #include <stdio.h>
 // #include <sys/time.h>
 #include <xmmintrin.h>  // intel SSE intrinsic
+#include <immintrin.h>  // AVX intrinsic
 
 #include <iostream>
 #include <string>
@@ -245,13 +246,36 @@ void *mat_mul_transposed_fastover_column_func(void *args) {
     float *data_A = A->data_ptr, *data_B = B->data_ptr, *data_C = C->data_ptr;
     int start_i = mat_args->start_i, end_i = mat_args->end_i;
 
+    __m256 zero256 = _mm256_setzero_ps();
     for (i = 0; i < C->row; i++) {
-        for (j = start_i; j < end_i; j++) {
-            float accumulators[4] = {};
-            for (k = 0; k < A->column; k += 4)
-                // assume B transposed
-                simd_mul_fp_128(&data_A[i * A->column + k], &data_B[j * B->column + k], accumulators);
-            data_C[i * C->column + j] = accumulators[0] + accumulators[1] + accumulators[2] + accumulators[3];
+        for (j = start_i; j + 1 < end_i; j+=2) {
+            __m256 acc = zero256, acc1 = zero256;
+            __m256 *A256 = (__m256 *)&data_A[i * A->column];
+            __m256 *B256 = (__m256 *)&data_B[j * B->column];
+            __m256 *B256_1 = (__m256 *)&data_B[(j+1) * B->column];
+            for (k = 0; k < A->column; k += 8){
+                __m256 Aik = _mm256_load_ps((const float*)A256++);
+                __m256 Bjk = _mm256_load_ps((const float*)B256++);
+                __m256 Bj1k = _mm256_load_ps((const float*)B256_1++);
+                acc = _mm256_add_ps(acc, _mm256_mul_ps(Aik, Bjk));
+                acc1 = _mm256_add_ps(acc1, _mm256_mul_ps(Aik, Bj1k));
+            }
+            float *ptr = (float*)&acc;
+            data_C[i * C->column + j] = ptr[0] + ptr[1] + ptr[2] + ptr[3] + ptr[4] + ptr[5] + ptr[6] + ptr[7];
+            ptr = (float*)&acc1;
+            data_C[i * C->column + j+1] = ptr[0] + ptr[1] + ptr[2] + ptr[3] + ptr[4] + ptr[5] + ptr[6] + ptr[7];
+        }
+        // leftover
+        if (j < end_i){
+            __m256 acc = zero256;
+            for (k = 0; k < A->column; k += 8){
+                __m256 Aik = _mm256_load_ps(&data_A[i * A->column + k]);
+                __m256 Bjk = _mm256_load_ps(&data_B[j * B->column + k]);
+                acc = _mm256_add_ps(acc, _mm256_mul_ps(Aik, Bjk));
+            }
+            float *ptr = (float*)&acc;
+            data_C[i * C->column + j] = ptr[0] + ptr[1] + ptr[2] + ptr[3] + ptr[4] + ptr[5] + ptr[6] + ptr[7];
+            j++;
         }
     }
 
@@ -266,7 +290,7 @@ void MatmulOperator::mat_mul_transposed_fastover_column(const struct matmul_para
     const struct matrix *A = &params->A, *B = &params->B, *C = &params->C;
     float *data_A = A->data_ptr, *data_B = B->data_ptr, *data_C = C->data_ptr;
 
-    assert(k % 4 == 0);
+    assert(k % 8 == 0);
 
     if (num_thread > C->column)
         num_thread = C->column;

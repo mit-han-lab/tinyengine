@@ -5,7 +5,7 @@ CXXFLAGS = -std=c++11 -mavx2 -mfma -pthread -O3
 # Executable and source files
 TARGET = test_ops test_Int8OPTAttention test_Int8OPTDecoderLayer test_Int8OPTDecoder test_OPTForCausalLM profile_OPTForCausalLM
 
-LIB_DIR = /home/wmchen/workspace/tinyengine/experimental/matmul_optimization/src
+LIB_DIR = ../matmul_optimization/src
 LIB_SRC = $(wildcard $(LIB_DIR)/lib/*.cc)
 INCLUDE_DIRS = -I$(LIB_DIR) -I./include
 

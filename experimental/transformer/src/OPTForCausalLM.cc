@@ -8,11 +8,12 @@
 float logits_output[MAXSQLEN * MAXVOCSIZE];
 float mock_model_output_arr[512 * 768];
 
+float lm_head_weight[EMBED_DIM * MAXVOCSIZE]; // TODO: make sure align with 32
 OPTForCausalLM::OPTForCausalLM(std::string param_path, int voc_size_, int embed_dim_, int hidden_dim_, int num_heads_,
                                int padding_idx_, int num_layers) {
     this->decoder = Int8OPTDecoder(param_path + "/decoder", voc_size_, embed_dim_, hidden_dim_, num_heads_,
                                    padding_idx_, num_layers);
-    this->lm_head = Linear_FP(Matrix3D<float>(new float[voc_size_ * embed_dim_], 1, voc_size_, embed_dim_),
+    this->lm_head = Linear_FP(Matrix3D<float>(lm_head_weight, 1, voc_size_, embed_dim_),
                               param_path + "/lm_head.bin");
 }
 

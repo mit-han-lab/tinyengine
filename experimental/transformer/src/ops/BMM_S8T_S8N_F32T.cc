@@ -51,6 +51,5 @@ void BMM_S8T_S8N_F32T::forward(const Matrix3D<int8_t> &x, const Matrix3D<int8_t>
         params.B.int8_data_ptr += k * n;
         params.C.data_ptr += m * n;
     }
-
     PROFILE_END(profile_name);
 }
