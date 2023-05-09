@@ -12,6 +12,7 @@ BMM_S8T_S8N_F32T::BMM_S8T_S8N_F32T(struct BMM_S8T_S8N_F32T_params &op_params){
 }
 
 void BMM_S8T_S8N_F32T::forward(const Matrix3D<int8_t> &x, const Matrix3D<int8_t> &weight, Matrix3D<float> &output) {
+    PROFILE_START(profile_name);
     assert(output.m_dim_x == x.m_dim_x);
     assert(output.m_dim_y == x.m_dim_y);
     assert(output.m_dim_z == weight.m_dim_y);
@@ -51,4 +52,5 @@ void BMM_S8T_S8N_F32T::forward(const Matrix3D<int8_t> &x, const Matrix3D<int8_t>
         params.C.data_ptr += m * n;
     }
 
+    PROFILE_END(profile_name);
 }

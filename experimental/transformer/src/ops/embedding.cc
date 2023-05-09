@@ -7,6 +7,7 @@ void load_Embedding_params(Embedding &op, std::string prefix){
 }
 
 void Embedding::forward(Matrix3D<int> input_id, Matrix3D<float> output){
+    PROFILE_START(profile_name);
     assert(input_id.m_dim_x == 1);
     assert(input_id.m_dim_y == 1);
     assert(input_id.m_dim_z == output.m_dim_y);
@@ -18,4 +19,5 @@ void Embedding::forward(Matrix3D<int> input_id, Matrix3D<float> output){
         float* target_embed = &this->lookup.m_data[token_id * this->embed_dim];
         memcpy(output_sample_ptr, target_embed, sizeof(float) * this->embed_dim);
     }
+    PROFILE_END(profile_name);
 }

@@ -14,6 +14,8 @@ public:
     void forward(const Matrix3D<int8_t> &x, Matrix3D<float> &output);
     struct matmul_params params;
     float alpha;
+private:
+    std::string profile_name = "W8A8BFP32OFP32Linear";
 };
 
 void load_W8A8BFP32OFP32Linear_params(W8A8BFP32OFP32Linear &op, std::string prefix);

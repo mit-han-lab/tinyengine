@@ -14,6 +14,8 @@ class Embedding {
     void forward(Matrix3D<int> input_id, Matrix3D<float> output);
     int embed_dim, voc_size, padding_idx;
     Matrix3D<float> lookup;
+private:
+    std::string profile_name = "Embedding";
 };
 
 

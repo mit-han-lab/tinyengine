@@ -2,6 +2,7 @@
 #include "operators.h"
 
 void softmax(const Matrix3D<float> &input, Matrix3D<float> &output, const int dim) {
+    PROFILE_START("softmax");
     int len = input.length();
 
     if (dim == 2) {
@@ -34,4 +35,5 @@ void softmax(const Matrix3D<float> &input, Matrix3D<float> &output, const int di
     } else {
         throw("Unsupported dimension for softmax");
     }
+    PROFILE_END("softmax");
 }

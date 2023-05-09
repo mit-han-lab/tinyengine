@@ -9,6 +9,7 @@ void load_LayerNormQ(LayerNormQ &op, std::string prefix) {
 }
 
 void LayerNormQ::forward(const Matrix3D<float> &x, Matrix3D<int8_t> &output) {
+    PROFILE_START(profile_name);
     Matrix3D<float> weight = params.weight;
     Matrix3D<float> bias = params.bias;
     const int last_dims = 2;
@@ -42,4 +43,5 @@ void LayerNormQ::forward(const Matrix3D<float> &x, Matrix3D<int8_t> &output) {
             }
         }
     }
+    PROFILE_END(profile_name);
 }

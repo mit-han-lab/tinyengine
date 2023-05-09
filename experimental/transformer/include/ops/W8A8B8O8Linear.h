@@ -15,6 +15,8 @@ public:
     struct matmul_params params;
     float alpha;
     float beta;
+private:
+    std::string profile_name = "W8A8B8O8Linear";
 };
 
 void load_W8A8B8O8Linear_params(W8A8B8O8Linear &op, std::string prefix);

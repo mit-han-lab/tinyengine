@@ -27,6 +27,7 @@ void linear(Matrix3D<T> &a, Matrix3D<T> &b, Matrix3D<T> &c) {
 }
 
 void Linear_FP::forward(const Matrix3D<float> &a, Matrix3D<float> &c) {
+    PROFILE_START(profile_name);
     Matrix3D<float> b = this->weight;
 
     // a: m x k   b: n x k   c: m x n
@@ -57,6 +58,7 @@ void Linear_FP::forward(const Matrix3D<float> &a, Matrix3D<float> &c) {
     // ops.mat_mul_fast((const struct matmul_params *)&params);// TODO: handling different sqlen
     ops.mat_mul_transposed_fastover_column((const struct matmul_params *)&params);
 
+    PROFILE_END(profile_name);
     return;
 }
 

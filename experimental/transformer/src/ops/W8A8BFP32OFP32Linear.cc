@@ -34,6 +34,7 @@ W8A8BFP32OFP32Linear::W8A8BFP32OFP32Linear(struct W8A8BFP32OFP32Linear_params &o
 
 
 void W8A8BFP32OFP32Linear::forward(const Matrix3D<int8_t> &x, Matrix3D<float> &output) {
+    PROFILE_START(profile_name);
     assert(output.m_dim_x == x.m_dim_x);
     assert(output.m_dim_y == x.m_dim_y);
     assert(output.m_dim_z == params.B.column);
@@ -60,4 +61,5 @@ void W8A8BFP32OFP32Linear::forward(const Matrix3D<int8_t> &x, Matrix3D<float> &o
         params.C.data_ptr += m * n;
     }
 
+    PROFILE_END(profile_name);
 }

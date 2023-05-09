@@ -9,4 +9,6 @@ public:
     Linear_FP() {};
     void forward(const Matrix3D<float> &x, Matrix3D<float> &output);
     Matrix3D<float> weight;
+private:
+    std::string profile_name = "Linear_FP";
 };
