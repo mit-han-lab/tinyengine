@@ -7,21 +7,50 @@
 #include "operators.h"
 #include "utils.h"
 
-Int8OPTAttention::Int8OPTAttention(int embed_dim, int num_heads, BMM_S8T_S8N_F32T &qk_bmm, BMM_S8T_S8N_S8T &pv_bmm,
-                                   W8A8B8O8Linear &k_proj, W8A8B8O8Linear &v_proj, W8A8B8O8Linear &q_proj,
-                                   W8A8BFP32OFP32Linear &out_proj) {
-    this->embed_dim = embed_dim;
-    this->num_heads = num_heads;
-    this->head_dim = embed_dim / num_heads;
-    this->qk_bmm = qk_bmm;
-    this->pv_bmm = pv_bmm;
-    this->k_proj = k_proj;
-    this->v_proj = v_proj;
-    this->q_proj = q_proj;
-    this->out_proj = out_proj;
+// static float attn_weights_arr[HEAD * MAXSQLEN * MAXSQLEN];
+// static float attn_weightsGT_arr[HEAD * MAXSQLEN * MAXSQLEN];
+// static float attn_probs_arr[HEAD * MAXSQLEN * MAXSQLEN];
+// static int8_t attn_probs_int8_arr[HEAD * MAXSQLEN * MAXSQLEN];
+// static int8_t key_states_arr_cache[LAYERS][2][BATCH * MAXSQLEN * EMBED_DIM];
+// static int8_t value_states_arr_cache[LAYERS][2][BATCH * MAXSQLEN * EMBED_DIM];
+// static float attn_output_fp_arr[BATCH * MAXSQLEN * EMBED_DIM];
+// static int cache_num[LAYERS] = {0};
+// int8_t query_states_unshape_arr[BATCH * MAXSQLEN * EMBED_DIM];
+// variables shared across layers
+static float *attn_weights_arr;
+static float *attn_probs_arr;
+static int8_t *attn_probs_int8_arr;
+static int8_t ***key_states_arr_cache;
+static int8_t ***value_states_arr_cache;
+static float *attn_output_fp_arr;
+static int *cache_num;
+static int8_t *query_states_unshape_arr;
+void Int8OPTAttention::initialized_memory(const struct model_config config) {
+    allocate_aligned_memory(attn_weights_arr, config.num_heads * config.max_sqlen * config.max_sqlen * sizeof(float));
+    allocate_aligned_memory(attn_probs_arr, config.num_heads * config.max_sqlen * config.max_sqlen * sizeof(float));
+    allocate_aligned_memory(attn_probs_int8_arr,
+                            config.num_heads * config.max_sqlen * config.max_sqlen * sizeof(int8_t));
+    allocate_aligned_memory(attn_output_fp_arr, config.max_sqlen * config.embed_dim * sizeof(float));
+    cache_num = new int[config.num_layers];
+    for (int i = 0; i < config.num_layers; i++) cache_num[i] = 0;
+    allocate_aligned_memory(query_states_unshape_arr, config.max_sqlen * config.embed_dim * sizeof(int8_t));
+    key_states_arr_cache = new int8_t **[config.num_layers];
+    for (int i = 0; i < config.num_layers; ++i) {
+        key_states_arr_cache[i] = new int8_t *[2];
+        for (int j = 0; j < 2; ++j) {
+            allocate_aligned_memory(key_states_arr_cache[i][j], config.max_sqlen * config.embed_dim * sizeof(int8_t));
+        }
+    }
+    value_states_arr_cache = new int8_t **[config.num_layers];
+    for (int i = 0; i < config.num_layers; ++i) {
+        value_states_arr_cache[i] = new int8_t *[2];
+        for (int j = 0; j < 2; ++j) {
+            allocate_aligned_memory(value_states_arr_cache[i][j], config.max_sqlen * config.embed_dim * sizeof(int8_t));
+        }
+    }
 }
 
-Int8OPTAttention::Int8OPTAttention(std::string param_path, int embed_dim, int num_heads, BMM_S8T_S8N_F32T &qk_bmm,
+Int8OPTAttention::Int8OPTAttention(std::string param_path, const struct model_config config, BMM_S8T_S8N_F32T &qk_bmm,
                                    BMM_S8T_S8N_S8T &pv_bmm, W8A8B8O8Linear &k_proj, W8A8B8O8Linear &v_proj,
                                    W8A8B8O8Linear &q_proj, W8A8BFP32OFP32Linear &out_proj) {
     load_BMM_S8T_S8N_F32T(qk_bmm, param_path + "/qk_bmm");
@@ -31,9 +60,10 @@ Int8OPTAttention::Int8OPTAttention(std::string param_path, int embed_dim, int nu
     load_W8A8B8O8Linear_params(q_proj, param_path + "/q_proj");
     load_W8A8BFP32OFP32Linear_params(out_proj, param_path + "/out_proj");
 
-    this->embed_dim = embed_dim;
-    this->num_heads = num_heads;
-    this->head_dim = embed_dim / num_heads;
+    this->embed_dim = config.embed_dim;
+    this->num_heads = config.num_heads;
+    assert(config.embed_dim % config.num_heads == 0);
+    this->head_dim = config.embed_dim / config.num_heads;
     this->qk_bmm = qk_bmm;
     this->pv_bmm = pv_bmm;
     this->k_proj = k_proj;
@@ -156,15 +186,15 @@ inline void transpose_1_2idx(Matrix3D<T> &input, Matrix3D<T> &output) {
 }
 
 // vars shared acorss layers
-static float attn_weights_arr[HEAD * MAXSQLEN * MAXSQLEN];
-static float attn_weightsGT_arr[HEAD * MAXSQLEN * MAXSQLEN];
-static float attn_probs_arr[HEAD * MAXSQLEN * MAXSQLEN];
-static int8_t attn_probs_int8_arr[HEAD * MAXSQLEN * MAXSQLEN];
-static int8_t key_states_arr_cache[LAYERS][2][BATCH * MAXSQLEN * EMBED_DIM];
-static int8_t value_states_arr_cache[LAYERS][2][BATCH * MAXSQLEN * EMBED_DIM];
-static float attn_output_fp_arr[BATCH * MAXSQLEN * EMBED_DIM];
-static int cache_num[LAYERS] = {0};
-int8_t query_states_unshape_arr[BATCH * MAXSQLEN * EMBED_DIM];
+// static float attn_weights_arr[HEAD * MAXSQLEN * MAXSQLEN];
+// static float attn_weightsGT_arr[HEAD * MAXSQLEN * MAXSQLEN];
+// static float attn_probs_arr[HEAD * MAXSQLEN * MAXSQLEN];
+// static int8_t attn_probs_int8_arr[HEAD * MAXSQLEN * MAXSQLEN];
+// static int8_t key_states_arr_cache[LAYERS][2][BATCH * MAXSQLEN * EMBED_DIM];
+// static int8_t value_states_arr_cache[LAYERS][2][BATCH * MAXSQLEN * EMBED_DIM];
+// static float attn_output_fp_arr[BATCH * MAXSQLEN * EMBED_DIM];
+// static int cache_num[LAYERS] = {0};
+// int8_t query_states_unshape_arr[BATCH * MAXSQLEN * EMBED_DIM];
 // TODO: var allocation method
 struct Int8OPTAttention_output Int8OPTAttention::forward(const struct Int8OPTAttention_input &input) {
     PROFILE_START(profile_name);

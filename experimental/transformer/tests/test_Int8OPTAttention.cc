@@ -78,8 +78,9 @@ void test_Int8OPTAttention() {
     auto qk_bmm_op = BMM_S8T_S8N_F32T(qk_bmm);
     auto pv_bmm_op = BMM_S8T_S8N_S8T(pv_bmm);
 
-    Int8OPTAttention attn = Int8OPTAttention("./assets/weights/layer0/self_attn", embed_dim, num_heads, qk_bmm_op,
-                                             pv_bmm_op, k_proj_op, v_proj_op, q_proj_op, out_proj_op);
+    Int8OPTAttention::initialized_memory(get_opt_model_config(OPT_125M));
+    Int8OPTAttention attn = Int8OPTAttention("./assets/weights/layer0/self_attn", get_opt_model_config(OPT_125M),
+                                             qk_bmm_op, pv_bmm_op, k_proj_op, v_proj_op, q_proj_op, out_proj_op);
 
     Matrix3D<int8_t> hidden_states(mem_buf.get_int8buffer(embed_dim * sqlen), b, sqlen, embed_dim);
     read_to_array("assets/Int8OPTAttention_hidden_states.bin", hidden_states.m_data, b * sqlen * embed_dim);
@@ -104,7 +105,7 @@ void test_Int8OPTAttention() {
     if (!sucess)
         std::cout << "Test of " << __func__ << ": Fail!" << std::endl;
     else
-        std::cout << "-------- Test of " << __func__ << ": Passed! -------- "<< std::endl;
+        std::cout << "-------- Test of " << __func__ << ": Passed! -------- " << std::endl;
 }
 
 int main() { test_Int8OPTAttention(); }

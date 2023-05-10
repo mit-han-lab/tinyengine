@@ -1,20 +1,19 @@
-#include <chrono>
-
 #include "OPTForCausalLM.h"
+
+#include <chrono>
 
 #include "operators.h"
 #include "utils.h"
 
-float logits_output[MAXSQLEN * MAXVOCSIZE];
-float mock_model_output_arr[512 * 768];
+// float logits_output[MAXSQLEN * MAXVOCSIZE];
+// float lm_head_weight[EMBED_DIM * MAXVOCSIZE]; // TODO: make sure align with 32
+OPTForCausalLM::OPTForCausalLM(std::string param_path, const struct model_config config) {
+    allocate_aligned_memory(logits_output, config.max_sqlen * config.vocsize * sizeof(float));
+    allocate_aligned_memory(lm_head_weight, config.embed_dim * config.vocsize * sizeof(float));
 
-float lm_head_weight[EMBED_DIM * MAXVOCSIZE]; // TODO: make sure align with 32
-OPTForCausalLM::OPTForCausalLM(std::string param_path, int voc_size_, int embed_dim_, int hidden_dim_, int num_heads_,
-                               int padding_idx_, int num_layers) {
-    this->decoder = Int8OPTDecoder(param_path + "/decoder", voc_size_, embed_dim_, hidden_dim_, num_heads_,
-                                   padding_idx_, num_layers);
-    this->lm_head = Linear_FP(Matrix3D<float>(lm_head_weight, 1, voc_size_, embed_dim_),
-                              param_path + "/lm_head.bin");
+    this->decoder = Int8OPTDecoder(param_path + "/decoder", config);
+    this->lm_head =
+        Linear_FP(Matrix3D<float>(lm_head_weight, 1, config.vocsize, config.embed_dim), param_path + "/lm_head.bin");
 }
 
 struct OPTForCausalLM_output OPTForCausalLM::forward(const struct OPTForCausalLM_input &input) {

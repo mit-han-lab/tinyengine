@@ -8,15 +8,6 @@
 #define BLK_SIZE 16
 #define NUM_THREAD 4
 
-// TODO: assign these based on models
-#define BATCH 1
-#define HEAD 12
-#define LAYERS 12
-#define MAXSQLEN 512
-#define EMBED_DIM 768
-#define HIDDEN_DIM 3072
-#define MAXVOCSIZE 50272
-
 // include all ops
 #include "ops/BMM_S8T_S8N_F32T.h"
 #include "ops/BMM_S8T_S8N_S8T.h"

@@ -19,14 +19,18 @@ struct OPTForCausalLM_input {
 
 class OPTForCausalLM {
    public:
-    OPTForCausalLM(std::string param_path, int voc_size_, int embed_dim_, int hidden_dim_, int num_heads_,
-                   int padding_idx_, int num_layers);
+    OPTForCausalLM(std::string param_path, const struct model_config config);
+
+    // std::string param_path, int voc_size_, int embed_dim_, int hidden_dim_, int num_heads_,
+    //            int padding_idx_, int num_layers);
     // Int8OPTDecoder decoder, Matrix3D<float> lm_head): m_decoder(decoder), lm_head_weights(lm_head) {} // TODO: take a
     // decoder
-    struct OPTForCausalLM_output forward(const struct OPTForCausalLM_input &input);
+    struct OPTForCausalLM_output forward(const struct OPTForCausalLM_input& input);
 
    private:
     Int8OPTDecoder decoder;
     Linear_FP lm_head;
     std::string profile_name = "OPTForCausalLM";
+    float* logits_output;
+    float* lm_head_weight;
 };

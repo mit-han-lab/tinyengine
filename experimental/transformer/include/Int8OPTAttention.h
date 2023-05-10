@@ -30,13 +30,11 @@ struct Int8OPTAttention_input {
 
 class Int8OPTAttention {
    public:
-    Int8OPTAttention(int embed_dim, int num_heads, BMM_S8T_S8N_F32T &qk_bmm, BMM_S8T_S8N_S8T &pv_bmm,
-                     W8A8B8O8Linear &k_proj, W8A8B8O8Linear &v_proj, W8A8B8O8Linear &q_proj,
-                     W8A8BFP32OFP32Linear &out_proj);
-    Int8OPTAttention(std::string param_path, int embed_dim, int num_heads, BMM_S8T_S8N_F32T &qk_bmm,
+    Int8OPTAttention(std::string param_path, const struct model_config config, BMM_S8T_S8N_F32T &qk_bmm,
                      BMM_S8T_S8N_S8T &pv_bmm, W8A8B8O8Linear &k_proj, W8A8B8O8Linear &v_proj, W8A8B8O8Linear &q_proj,
                      W8A8BFP32OFP32Linear &out_proj);
     Int8OPTAttention() {}
+    static void initialized_memory(const struct model_config config);
     struct Int8OPTAttention_output forward(const struct Int8OPTAttention_input &input);
 
    private:

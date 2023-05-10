@@ -38,7 +38,7 @@ struct Int8OPTDecoderLayer_input {
 
 class Int8OPTDecoderLayer {
    public:
-    Int8OPTDecoderLayer(std::string param_path, int embed_dim, int num_heads, int hidden_dim, int layer_idx,
+    Int8OPTDecoderLayer(std::string param_path, const struct model_config config, int layer_idx,
                         LayerNormQ self_attn_layer_norm, LayerNormQ final_layer_norm, W8A8B8O8LinearReLU fc1,
                         W8A8BFP32OFP32Linear fc2, BMM_S8T_S8N_F32T qk_bmm, BMM_S8T_S8N_S8T pv_bmm,
                         W8A8B8O8Linear k_proj, W8A8B8O8Linear v_proj, W8A8B8O8Linear q_proj,

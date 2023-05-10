@@ -89,7 +89,7 @@ void test_DecoderLayer_generate() {
     fc1.weight = fc1_weight;
     fc1.bias = fc1_bias;
     auto fc1_op = W8A8B8O8LinearReLU(fc1);
-    
+
     struct W8A8BFP32OFP32Linear_params fc2;
     Matrix3D<int8_t> fc2_weight(mem_buf.get_int8buffer(embed_dim * hidden_dim), 1, embed_dim, hidden_dim);
     Matrix3D<float> fc2_bias(mem_buf.get_fpbuffer(embed_dim), 1, 1, embed_dim);
@@ -101,9 +101,9 @@ void test_DecoderLayer_generate() {
     auto pv_bmm_op = BMM_S8T_S8N_S8T(pv_bmm);
 
     int layer_idx = 0;
-    Int8OPTDecoderLayer layer =
-        Int8OPTDecoderLayer("assets/weights/layer0", embed_dim, num_heads, hidden_dim, layer_idx, self_attn_layer_norm_op,
-                            final_layer_norm_op, fc1_op, fc2_op, qk_bmm_op, pv_bmm_op, k_proj_op, v_proj_op, q_proj_op, out_proj_op);
+    Int8OPTDecoderLayer layer = Int8OPTDecoderLayer("assets/weights/layer0", get_opt_model_config(OPT_125M), layer_idx,
+                                                    self_attn_layer_norm_op, final_layer_norm_op, fc1_op, fc2_op,
+                                                    qk_bmm_op, pv_bmm_op, k_proj_op, v_proj_op, q_proj_op, out_proj_op);
 
     Matrix3D<float> hidden_states(mem_buf.get_fpbuffer(b * sqlen * embed_dim), b, sqlen, embed_dim);
     read_to_array("assets/tests/generate_layer0_hidden_states.bin", hidden_states.m_data, b * sqlen * embed_dim);
@@ -119,13 +119,14 @@ void test_DecoderLayer_generate() {
     // print_first_k_elelment("residualGT.m_data", residualGT.m_data, 10);
     bool sucess = check_two_equal(residualGT.m_data, output.hidden_states.m_data, b * sqlen * embed_dim);
     if (!sucess)
-        std::cout << "-------- Test of " << __func__ << ": Fail! -------- "<< std::endl;
+        std::cout << "-------- Test of " << __func__ << ": Fail! -------- " << std::endl;
     else
-        std::cout << "-------- Test of " << __func__ << ": Passed! -------- "<< std::endl;
+        std::cout << "-------- Test of " << __func__ << ": Passed! -------- " << std::endl;
 }
 
 void test_DecoderLayer_generate_cache() {
-    const int num_heads = 12, embed_dim = 768, head_dim = embed_dim/num_heads, sqlen = 1, past_len = 108, b = 1, hidden_dim = 3072;
+    const int num_heads = 12, embed_dim = 768, head_dim = embed_dim / num_heads, sqlen = 1, past_len = 108, b = 1,
+              hidden_dim = 3072;
     MemoryAllocator mem_buf;
 
     struct BMM_S8T_S8N_F32T_params qk_bmm;
@@ -173,7 +174,7 @@ void test_DecoderLayer_generate_cache() {
     fc1.weight = fc1_weight;
     fc1.bias = fc1_bias;
     auto fc1_op = W8A8B8O8LinearReLU(fc1);
-    
+
     struct W8A8BFP32OFP32Linear_params fc2;
     Matrix3D<int8_t> fc2_weight(mem_buf.get_int8buffer(embed_dim * hidden_dim), 1, embed_dim, hidden_dim);
     Matrix3D<float> fc2_bias(mem_buf.get_fpbuffer(embed_dim), 1, 1, embed_dim);
@@ -183,23 +184,26 @@ void test_DecoderLayer_generate_cache() {
 
     auto qk_bmm_op = BMM_S8T_S8N_F32T(qk_bmm);
     auto pv_bmm_op = BMM_S8T_S8N_S8T(pv_bmm);
-    
+
     int layer_idx = 0;
-    Int8OPTDecoderLayer layer =
-        Int8OPTDecoderLayer("assets/weights/layer0", embed_dim, num_heads, hidden_dim, layer_idx, self_attn_layer_norm_op,
-                            final_layer_norm_op, fc1_op, fc2_op, qk_bmm_op, pv_bmm_op, k_proj_op, v_proj_op, q_proj_op, out_proj_op);
+    Int8OPTDecoderLayer layer = Int8OPTDecoderLayer("assets/weights/layer0", get_opt_model_config(OPT_125M), layer_idx,
+                                                    self_attn_layer_norm_op, final_layer_norm_op, fc1_op, fc2_op,
+                                                    qk_bmm_op, pv_bmm_op, k_proj_op, v_proj_op, q_proj_op, out_proj_op);
 
     int tgz = sqlen + past_len;
     Matrix3D<float> hidden_states(mem_buf.get_fpbuffer(b * sqlen * embed_dim), b, sqlen, embed_dim);
-    read_to_array("assets/tests/test_Int8OPTDecoderLayer_generate_cache/hidden_states.bin", hidden_states.m_data, b * sqlen * embed_dim);
+    read_to_array("assets/tests/test_Int8OPTDecoderLayer_generate_cache/hidden_states.bin", hidden_states.m_data,
+                  b * sqlen * embed_dim);
     Matrix3D<float> attention_mask(mem_buf.get_fpbuffer(b * sqlen * tgz), b, sqlen, tgz);
-    read_to_array("assets/tests/test_Int8OPTDecoderLayer_generate_cache/causal_attention_mask.bin", attention_mask.m_data, b * sqlen * tgz);
+    read_to_array("assets/tests/test_Int8OPTDecoderLayer_generate_cache/causal_attention_mask.bin",
+                  attention_mask.m_data, b * sqlen * tgz);
     Matrix3D<int8_t> past_keys(mem_buf.get_int8buffer(b * past_len * embed_dim), num_heads, past_len, head_dim);
-    read_to_array("assets/tests/test_Int8OPTDecoderLayer_generate_cache/past_key.bin", past_keys.m_data, past_keys.length());
+    read_to_array("assets/tests/test_Int8OPTDecoderLayer_generate_cache/past_key.bin", past_keys.m_data,
+                  past_keys.length());
     Matrix3D<int8_t> past_value(mem_buf.get_int8buffer(b * past_len * embed_dim), num_heads, past_len, head_dim);
-    read_to_array("assets/tests/test_Int8OPTDecoderLayer_generate_cache/past_value.bin", past_value.m_data, past_keys.length());
-   
-   
+    read_to_array("assets/tests/test_Int8OPTDecoderLayer_generate_cache/past_value.bin", past_value.m_data,
+                  past_keys.length());
+
     struct Int8OPTDecoderLayer_input input = {hidden_states, attention_mask, past_keys, past_value};
 
     // print_first_k_elelment("input.m_data", input.hidden_states.m_data, 10);
@@ -210,14 +214,15 @@ void test_DecoderLayer_generate_cache() {
     // print_first_k_elelment("output.past_key_value.second.m_data,", output.past_key_value.second.m_data, 10);
 
     Matrix3D<float> residualGT(mem_buf.get_fpbuffer(b * sqlen * embed_dim), b, sqlen, embed_dim);
-    read_to_array("assets/tests/test_Int8OPTDecoderLayer_generate_cache/residual.bin", residualGT.m_data, b * sqlen * embed_dim);
+    read_to_array("assets/tests/test_Int8OPTDecoderLayer_generate_cache/residual.bin", residualGT.m_data,
+                  b * sqlen * embed_dim);
     // print_first_k_elelment("output.hidden_states.m_data", output.hidden_states.m_data, 64);
     // print_first_k_elelment("residualGT.m_data", residualGT.m_data, 64);
     bool sucess = check_two_equal(residualGT.m_data, output.hidden_states.m_data, b * sqlen * embed_dim);
     if (!sucess)
-        std::cout << "-------- Test of " << __func__ << ": Fail! -------- "<< std::endl;
+        std::cout << "-------- Test of " << __func__ << ": Fail! -------- " << std::endl;
     else
-        std::cout << "-------- Test of " << __func__ << ": Passed! -------- "<< std::endl;
+        std::cout << "-------- Test of " << __func__ << ": Passed! -------- " << std::endl;
 }
 
 void test_DecoderLayer() {
@@ -269,7 +274,7 @@ void test_DecoderLayer() {
     fc1.weight = fc1_weight;
     fc1.bias = fc1_bias;
     auto fc1_op = W8A8B8O8LinearReLU(fc1);
-    
+
     struct W8A8BFP32OFP32Linear_params fc2;
     Matrix3D<int8_t> fc2_weight(mem_buf.get_int8buffer(embed_dim * hidden_dim), 1, embed_dim, hidden_dim);
     Matrix3D<float> fc2_bias(mem_buf.get_fpbuffer(embed_dim), 1, 1, embed_dim);
@@ -281,9 +286,9 @@ void test_DecoderLayer() {
     auto pv_bmm_op = BMM_S8T_S8N_S8T(pv_bmm);
 
     int layer_idx = 0;
-    Int8OPTDecoderLayer layer =
-        Int8OPTDecoderLayer("assets/weights/layer0", embed_dim, num_heads, hidden_dim, layer_idx, self_attn_layer_norm_op,
-                            final_layer_norm_op, fc1_op, fc2_op, qk_bmm_op, pv_bmm_op, k_proj_op, v_proj_op, q_proj_op, out_proj_op);
+    Int8OPTDecoderLayer layer = Int8OPTDecoderLayer("assets/weights/layer0", get_opt_model_config(OPT_125M), layer_idx,
+                                                    self_attn_layer_norm_op, final_layer_norm_op, fc1_op, fc2_op,
+                                                    qk_bmm_op, pv_bmm_op, k_proj_op, v_proj_op, q_proj_op, out_proj_op);
 
     Matrix3D<float> hidden_states(mem_buf.get_fpbuffer(b * sqlen * embed_dim), b, sqlen, embed_dim);
     read_to_array("assets/Decoder_layer_hidden_states.bin", hidden_states.m_data, b * sqlen * embed_dim);
@@ -299,10 +304,14 @@ void test_DecoderLayer() {
     // print_first_k_elelment("residualGT.m_data", residualGT.m_data, 10);
     bool sucess = check_two_equal(residualGT.m_data, output.hidden_states.m_data, b * sqlen * embed_dim);
     if (!sucess)
-        std::cout << "-------- Test of " << __func__ << ": Fail! -------- "<< std::endl;
+        std::cout << "-------- Test of " << __func__ << ": Fail! -------- " << std::endl;
     else
-        std::cout << "-------- Test of " << __func__ << ": Passed! -------- "<< std::endl;
+        std::cout << "-------- Test of " << __func__ << ": Passed! -------- " << std::endl;
 }
 
-int main() { test_DecoderLayer_generate(); test_DecoderLayer_generate_cache();  test_DecoderLayer(); }
+int main() {
+    test_DecoderLayer_generate();
+    test_DecoderLayer_generate_cache();
+    test_DecoderLayer();
+}
 // int main() { test_DecoderLayer_generate_cache();  }

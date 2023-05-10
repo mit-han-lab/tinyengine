@@ -53,8 +53,7 @@ void test_OPTForCausalLM() {
     read_to_array("assets/tests/causallm/1st_input_ids.bin", input_ids.m_data, input_ids.length());
     struct OPTForCausalLM_input input_1st = {input_ids};
 
-    OPTForCausalLM model =
-        OPTForCausalLM("assets/", voc_size, embed_dim, hidden_dim, num_heads, padding_idx, num_layers);
+    OPTForCausalLM model = OPTForCausalLM("assets/", get_opt_model_config(OPT_125M));
 
     struct OPTForCausalLM_output output_1st = model.forward(input_1st);
 

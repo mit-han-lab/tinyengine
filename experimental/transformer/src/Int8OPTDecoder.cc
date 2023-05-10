@@ -1,23 +1,22 @@
-#include <iostream>
-#include <cstring>
 #include "Int8OPTDecoder.h"
 
-#include "OPTDecoder.h"
+#include <cstring>
+#include <iostream>
+
 #include "utils.h"
 
-float attention_mask_buf[MAXSQLEN * MAXSQLEN];
-float pos_embeds_buf[MAXSQLEN * MAXSQLEN];
-
-Matrix3D<float> Int8OPTDecoder::prepare_decoder_attention_mask(int length, int past_length){
+// float attention_mask_buf[MAXSQLEN * MAXSQLEN];
+// float pos_embeds_buf[MAXSQLEN * MAXSQLEN];
+// float last_hidden_states_buf[MAXSQLEN * MAXSQLEN];
+Matrix3D<float> Int8OPTDecoder::prepare_decoder_attention_mask(int length, int past_length) {
     PROFILE_START("Int8OPTDecoder::prepare_decoder_attention_mask");
     assert(length - past_length > 0);
     Matrix3D<float> causal_attention_mask(attention_mask_buf, 1, length - past_length, length);
-    for (int i = 0; i < length - past_length; i++){
-        for (int j = 0; j < length; j++){
-            if (i + past_length < j){
+    for (int i = 0; i < length - past_length; i++) {
+        for (int j = 0; j < length; j++) {
+            if (i + past_length < j) {
                 causal_attention_mask(0, i, j) = -65504.0;
-            }
-            else{
+            } else {
                 causal_attention_mask(0, i, j) = 0.0;
             }
         }
@@ -27,33 +26,37 @@ Matrix3D<float> Int8OPTDecoder::prepare_decoder_attention_mask(int length, int p
     return causal_attention_mask;
 }
 
-Matrix3D<float> Int8OPTDecoder::get_position_embed(int sql_length, int past_length){
+Matrix3D<float> Int8OPTDecoder::get_position_embed(int sql_length, int past_length) {
     PROFILE_START("Int8OPTDecoder::get_position_embed");
-    const int offset = 2; // This is specific for OPT model
+    const int offset = 2;  // This is specific for OPT model
     Matrix3D<float> pos_embeds(pos_embeds_buf, 1, sql_length, this->embed_dim);
 
     int start_idx = past_length + offset, end_idx = past_length + sql_length + offset;
     assert(end_idx < this->embed_positions.lookup.m_dim_y);
 
-    memcpy(pos_embeds.m_data, &this->embed_positions.lookup.m_data[start_idx*this->embed_dim], sql_length * this->embed_dim * sizeof(float));
+    memcpy(pos_embeds.m_data, &this->embed_positions.lookup.m_data[start_idx * this->embed_dim],
+           sql_length * this->embed_dim * sizeof(float));
 
     PROFILE_END("Int8OPTDecoder::get_position_embed");
     return pos_embeds;
 }
 
-Int8OPTDecoder::Int8OPTDecoder(std::string param_path, int voc_size_, int embed_dim_, int hidden_dim_, int num_heads_,
-                               int padding_idx_, int num_layers) {
-    this->voc_size = voc_size_;
-    this->embed_dim = embed_dim_;
-    this->hidden_dim = hidden_dim_;
-    this->num_heads = num_heads_;
-    this->padding_idx = padding_idx_;
-    
+Int8OPTDecoder::Int8OPTDecoder(std::string param_path, const struct model_config config) {
+    allocate_aligned_memory(attention_mask_buf, config.max_sqlen * config.max_sqlen * sizeof(float));
+    allocate_aligned_memory(pos_embeds_buf, config.max_sqlen * config.max_sqlen * sizeof(float));
+    allocate_aligned_memory(last_hidden_states_buf, config.max_sqlen * config.max_sqlen * sizeof(float));
+
+    this->voc_size = config.vocsize;
+    this->embed_dim = config.embed_dim;
+    this->hidden_dim = config.hidden_dim;
+    this->num_heads = config.num_heads;
+    this->padding_idx = config.padding_idx;
+
     // Embedding
-    Matrix3D<float> embweight(new float[voc_size*embed_dim], 1, voc_size, embed_dim);
+    Matrix3D<float> embweight(new float[voc_size * embed_dim], 1, voc_size, embed_dim);
     this->embed_tokens = Embedding(embed_dim, voc_size, padding_idx, embweight);
     load_Embedding_params(this->embed_tokens, param_path + "/embed_tokens");
-    Matrix3D<float> posweight(new float[2048*embed_dim], 1, 2048, embed_dim);
+    Matrix3D<float> posweight(new float[2048 * embed_dim], 1, 2048, embed_dim);
     this->embed_positions = Embedding(embed_dim, 2048, padding_idx, posweight);
     load_Embedding_params(this->embed_positions, param_path + "/embed_positions");
 
@@ -65,7 +68,7 @@ Int8OPTDecoder::Int8OPTDecoder(std::string param_path, int voc_size_, int embed_
     load_LayerNorm(this->final_layer_norm, param_path + "/final_layer_norm");
 
     // Load all the decoder layers
-    for (int layer_idx = 0; layer_idx < num_layers; layer_idx++) {
+    for (int layer_idx = 0; layer_idx < config.num_layers; layer_idx++) {
         DEBUG_INS(std::cout << "Start loading layer:" << layer_idx << "..." << std::endl;)
         struct BMM_S8T_S8N_F32T_params qk_bmm;
         struct BMM_S8T_S8N_S8T_params pv_bmm;
@@ -125,31 +128,31 @@ Int8OPTDecoder::Int8OPTDecoder(std::string param_path, int voc_size_, int embed_
 
         std::string path = param_path + "/layer" + std::to_string(layer_idx);
 
-        Int8OPTDecoderLayer layer = Int8OPTDecoderLayer(
-            path, embed_dim, num_heads, hidden_dim, layer_idx, self_attn_layer_norm_op,
-            final_layer_norm_op, fc1_op, fc2_op, qk_bmm_op, pv_bmm_op, k_proj_op, v_proj_op, q_proj_op, out_proj_op);
-        
+        Int8OPTDecoderLayer layer =
+            Int8OPTDecoderLayer(path, config, layer_idx, self_attn_layer_norm_op, final_layer_norm_op, fc1_op, fc2_op,
+                                qk_bmm_op, pv_bmm_op, k_proj_op, v_proj_op, q_proj_op, out_proj_op);
+
         this->layers.push_back(layer);
     }
 };
 
-float last_hidden_states_buf[MAXSQLEN * MAXSQLEN]; 
 // OPTDecoder:
 struct Int8OPTDecoder_output Int8OPTDecoder::forward(const struct Int8OPTDecoder_input &input) {
     PROFILE_START(profile_name);
     int sqlen = input.input_ids.m_dim_z, batch_size = input.input_ids.m_dim_x, past_key_values_length = 0;
 
     // modeling_opt.py: inputs_embeds = self.embed_tokens(input_ids)
-    float inputs_embeds_buf[sqlen * this->embed_dim]; 
+    float inputs_embeds_buf[sqlen * this->embed_dim];
     Matrix3D<float> inputs_embeds(inputs_embeds_buf, 1, sqlen, this->embed_dim);
     this->embed_tokens.forward(input.input_ids, inputs_embeds);
 
-    if (input.has_past_keys_values){
+    if (input.has_past_keys_values) {
         past_key_values_length = input.past_keys[0].m_dim_y;
     }
 
     // causal_attention_mask = self._prepare_decoder_attention_mask
-    Matrix3D<float> causal_attention_mask = this->prepare_decoder_attention_mask(sqlen + past_key_values_length, past_key_values_length);
+    Matrix3D<float> causal_attention_mask =
+        this->prepare_decoder_attention_mask(sqlen + past_key_values_length, past_key_values_length);
 
     // modeling_opt.py: pos_embeds = self.embed_positions(attention_mask, past_key_values_length)
     Matrix3D<float> pos_embeds = this->get_position_embed(sqlen, past_key_values_length);
@@ -158,24 +161,25 @@ struct Int8OPTDecoder_output Int8OPTDecoder::forward(const struct Int8OPTDecoder
     assert(inputs_embeds.m_dim_x == pos_embeds.m_dim_x);
     assert(inputs_embeds.m_dim_y == pos_embeds.m_dim_y);
     assert(inputs_embeds.m_dim_z == pos_embeds.m_dim_z);
-    float hidden_states_buf[sqlen * this->embed_dim]; 
+    float hidden_states_buf[sqlen * this->embed_dim];
     Matrix3D<float> hidden_states(inputs_embeds_buf, 1, sqlen, this->embed_dim);
     for (int i = 0; i < inputs_embeds.length(); i++)
         hidden_states.m_data[i] = inputs_embeds.m_data[i] + pos_embeds.m_data[i];
     // print_first_k_elelment("hidden_states", hidden_states.m_data, 20);
     // print_first_k_elelment("causal_attention_mask", causal_attention_mask.m_data, 20);
-    
+
     std::vector<Matrix3D<int8_t>> past_keys, past_values;
-    for (int i = 0; i < this->layers.size(); i++) {;
-        if (!input.has_past_keys_values){
+    for (int i = 0; i < this->layers.size(); i++) {
+        ;
+        if (!input.has_past_keys_values) {
             struct Int8OPTDecoderLayer_input l_i = {hidden_states, causal_attention_mask};
             struct Int8OPTDecoderLayer_output l_o = this->layers[i].forward(l_i);
             hidden_states = l_o.hidden_states;
             past_keys.push_back(l_o.past_key_value.first);
             past_values.push_back(l_o.past_key_value.second);
-        }
-        else {
-            struct Int8OPTDecoderLayer_input l_i = {hidden_states, causal_attention_mask, input.past_keys[i], input.past_values[i]};
+        } else {
+            struct Int8OPTDecoderLayer_input l_i = {hidden_states, causal_attention_mask, input.past_keys[i],
+                                                    input.past_values[i]};
             struct Int8OPTDecoderLayer_output l_o = this->layers[i].forward(l_i);
             hidden_states = l_o.hidden_states;
             past_keys.push_back(l_o.past_key_value.first);

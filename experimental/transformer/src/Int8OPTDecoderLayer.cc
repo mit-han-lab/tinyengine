@@ -2,6 +2,14 @@
 
 #include "utils.h"
 
+// Shared memory space across all layers
+static float *hidden_states_float_arr;
+static int8_t *final_layer_norm_arr;
+static int8_t *fc_1_arr;
+static float *fc_2_arr;
+static float *temp;
+static int8_t *hidden_states_int8_arr;
+
 template <typename T>
 void add(Matrix3D<T> a, Matrix3D<T> b, Matrix3D<T> c) {
     PROFILE_START("Int8OPTDecoderLayer::add");
@@ -13,19 +21,6 @@ void add(Matrix3D<T> a, Matrix3D<T> b, Matrix3D<T> c) {
     PROFILE_END("Int8OPTDecoderLayer::add");
 }
 
-// TODO: allocate memory for these!
-float hidden_states_float_arr[MAXSQLEN * EMBED_DIM];
-float hidden_states_floatGT_arr[MAXSQLEN * EMBED_DIM];
-int8_t final_layer_norm_arr[MAXSQLEN * EMBED_DIM];
-int8_t final_layer_normGT_arr[MAXSQLEN * EMBED_DIM];
-int8_t fc_1_x_arr[MAXSQLEN * EMBED_DIM];
-int8_t fc_1_arr[MAXSQLEN * HIDDEN_DIM];
-int8_t fc_1_weight_arr[HIDDEN_DIM * EMBED_DIM];
-int32_t fc_1_bias_arr[HIDDEN_DIM];
-int8_t fc_1_arrGT[MAXSQLEN * HIDDEN_DIM];
-float fc_2_arr[MAXSQLEN * EMBED_DIM];
-float temp[MAXSQLEN * EMBED_DIM];
-int8_t hidden_states_int8_arr[MAXSQLEN * EMBED_DIM];
 struct Int8OPTDecoderLayer_output Int8OPTDecoderLayer::forward(const struct Int8OPTDecoderLayer_input &input) {
     PROFILE_START(profile_name);
     Matrix3D<int8_t> hidden_states_int8(hidden_states_int8_arr, input.hidden_states.m_dim_x,
@@ -65,25 +60,33 @@ struct Int8OPTDecoderLayer_output Int8OPTDecoderLayer::forward(const struct Int8
     return output;
 }
 
-Int8OPTDecoderLayer::Int8OPTDecoderLayer(std::string param_path, int embed_dim, int num_heads, int hidden_dim, int layer_idx,
+Int8OPTDecoderLayer::Int8OPTDecoderLayer(std::string param_path, const struct model_config config, int layer_idx,
                                          LayerNormQ self_attn_layer_norm, LayerNormQ final_layer_norm,
                                          W8A8B8O8LinearReLU fc1, W8A8BFP32OFP32Linear fc2, BMM_S8T_S8N_F32T qk_bmm,
                                          BMM_S8T_S8N_S8T pv_bmm, W8A8B8O8Linear k_proj, W8A8B8O8Linear v_proj,
                                          W8A8B8O8Linear q_proj, W8A8BFP32OFP32Linear out_proj) {
+    if (layer_idx == 0) {
+        allocate_aligned_memory(hidden_states_float_arr, config.max_sqlen * config.embed_dim * sizeof(float));
+        allocate_aligned_memory(final_layer_norm_arr, config.max_sqlen * config.embed_dim * sizeof(int8_t));
+        allocate_aligned_memory(fc_1_arr, config.max_sqlen * config.hidden_dim * sizeof(int8_t));
+        allocate_aligned_memory(fc_2_arr, config.max_sqlen * config.embed_dim * sizeof(float));
+        allocate_aligned_memory(hidden_states_int8_arr, config.max_sqlen * config.embed_dim * sizeof(int8_t));
+        Int8OPTAttention::initialized_memory(config);
+    }
+
     load_LayerNormQ(self_attn_layer_norm, param_path + "/self_attn_layer_norm");
     load_W8A8B8O8LinearReLU_params(fc1, param_path + "/fc1");
     load_W8A8BFP32OFP32Linear_params(fc2, param_path + "/fc2");
     load_LayerNormQ(final_layer_norm, param_path + "/final_layer_norm");
 
-    this->embed_dim = embed_dim;
-    this->num_attention_heads = num_heads;
-    this->hidden_dim = hidden_dim;
+    this->embed_dim = config.embed_dim;
+    this->num_attention_heads = config.num_heads;
+    this->hidden_dim = config.hidden_dim;
     this->layer_idx = layer_idx;
     this->self_attn_layer_norm = self_attn_layer_norm;
     this->fc1 = fc1;
     this->fc2 = fc2;
     this->final_layer_norm = final_layer_norm;
 
-    this->attn = Int8OPTAttention(param_path + "/self_attn", embed_dim, num_heads, qk_bmm, pv_bmm, k_proj, v_proj,
-                                  q_proj, out_proj);
+    this->attn = Int8OPTAttention(param_path + "/self_attn", config, qk_bmm, pv_bmm, k_proj, v_proj, q_proj, out_proj);
 }
