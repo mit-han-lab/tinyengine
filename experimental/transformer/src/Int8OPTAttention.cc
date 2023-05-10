@@ -80,6 +80,64 @@ inline void Int8OPTAttention::unshape(Matrix3D<int8_t> shaped, Matrix3D<int8_t> 
     PROFILE_END("Int8OPTAttention::unshpae");
 }
 
+struct transpose_1_2idx_arg {
+    int start_idx, end_idx;
+    Matrix3D<int8_t> input, output;
+};
+
+void *transpose_1_2idx_func(void *args_) {
+    struct transpose_1_2idx_arg *args = (struct transpose_1_2idx_arg *)args_;
+
+    Matrix3D<int8_t> input = args->input;
+    Matrix3D<int8_t> output = args->output;
+
+    for (int i = 0; i < input.m_dim_x; i++) {
+        for (int j = 0; j < input.m_dim_y; j++) {
+            for (int k = args->start_idx; k < args->end_idx; k++) {
+                output.m_data[i * output.m_dim_y * output.m_dim_z + k * output.m_dim_z + j] =
+                    input.m_data[i * input.m_dim_y * input.m_dim_z + j * input.m_dim_z + k];
+            }
+        }
+    }
+    return NULL;
+}
+
+inline void transpose_1_2idx_threads(Matrix3D<int8_t> &input, Matrix3D<int8_t> &output) {
+    PROFILE_START("Int8OPTAttention::transpose_1_2idx");
+    assert(input.m_dim_x == output.m_dim_x);
+    assert(input.m_dim_y == output.m_dim_z);
+    assert(input.m_dim_z == output.m_dim_y);
+
+    if (input.m_dim_y == 1 || input.m_dim_z == 1) {
+        memcpy(output.m_data, input.m_data, input.length() * sizeof(int8_t));
+    } else {
+        int num_thread = NUM_THREAD;
+        int loop_over_dim = input.m_dim_z;
+        if (num_thread > loop_over_dim) num_thread = loop_over_dim;
+
+        pthread_t thread_pool[NUM_THREAD];
+        struct transpose_1_2idx_arg threads_args[NUM_THREAD];
+
+        // Thread creation
+        for (int j = 0; j < num_thread; j++) {
+            threads_args[j].start_idx = j * (loop_over_dim / num_thread);
+            threads_args[j].input = input;
+            threads_args[j].output = output;
+            if (j == num_thread - 1)
+                threads_args[j].end_idx = loop_over_dim;
+            else
+                threads_args[j].end_idx = (j + 1) * (loop_over_dim / num_thread);
+            pthread_create(&thread_pool[j], NULL, transpose_1_2idx_func, &threads_args[j]);
+        }
+        // Join threads
+        for (int j = 0; j < num_thread; j++) {
+            pthread_join(thread_pool[j], NULL);
+        }
+    }
+
+    PROFILE_END("Int8OPTAttention::transpose_1_2idx");
+}
+
 template <typename T>
 inline void transpose_1_2idx(Matrix3D<T> &input, Matrix3D<T> &output) {
     PROFILE_START("Int8OPTAttention::transpose_1_2idx");
@@ -216,7 +274,7 @@ struct Int8OPTAttention_output Int8OPTAttention::forward(const struct Int8OPTAtt
     // opt.py: value_states = value_states.transpose(1, 2).contiguous()
     int8_t value_states_transpose_arr[this->num_heads * this->head_dim * tgz];
     Matrix3D<int8_t> value_states_transpose(value_states_transpose_arr, this->num_heads, this->head_dim, tgz);
-    transpose_1_2idx(final_value_states, value_states_transpose);
+    transpose_1_2idx_threads(final_value_states, value_states_transpose);
     // read_to_array("assets/tests/attn_probs_int8_mock.bin", attn_probs_int8.m_data, this->num_heads * sqlen * tgz);
     // read_to_array("assets/tests/value_states_transpose_mock.bin", value_states_transpose.m_data, this->num_heads *
     // tgz * this->head_dim); opt.py: attn_output = self.pv_bmm(attn_probs, value_states)

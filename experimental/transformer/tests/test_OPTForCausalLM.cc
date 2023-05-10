@@ -114,12 +114,11 @@ void test_OPTForCausalLM() {
             check_two_equal(output_2nd.past_values[i].m_data, temp_key_value.m_data, temp_key_value.length(), 4.2);
     }
 
+    Profiler::getInstance().report();
     if (!sucess)
         std::cout << "-------- Test of " << __func__ << ": Fail! -------- " << std::endl;
     else
         std::cout << "-------- Test of " << __func__ << ": Passed! -------- " << std::endl;
-    
-    Profiler::getInstance().report();
 }
 
 int main() { test_OPTForCausalLM(); }

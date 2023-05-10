@@ -6,8 +6,8 @@
 #include <pthread.h>
 #include <stdio.h>
 // #include <sys/time.h>
-#include <xmmintrin.h>  // intel SSE intrinsic
 #include <immintrin.h>  // AVX intrinsic
+#include <xmmintrin.h>  // intel SSE intrinsic
 
 #include <iostream>
 #include <string>
@@ -217,7 +217,6 @@ void MatmulOperator::mat_mul_multithreading(const struct matmul_params *params) 
     }
 }
 
-
 void MatmulOperator::mat_mul_transpose(const struct matmul_params *params) {
     int i, j, k;
 
@@ -248,32 +247,32 @@ void *mat_mul_transposed_fastover_column_func(void *args) {
 
     __m256 zero256 = _mm256_setzero_ps();
     for (i = 0; i < C->row; i++) {
-        for (j = start_i; j + 1 < end_i; j+=2) {
+        for (j = start_i; j + 1 < end_i; j += 2) {
             __m256 acc = zero256, acc1 = zero256;
             __m256 *A256 = (__m256 *)&data_A[i * A->column];
             __m256 *B256 = (__m256 *)&data_B[j * B->column];
-            __m256 *B256_1 = (__m256 *)&data_B[(j+1) * B->column];
-            for (k = 0; k < A->column; k += 8){
-                __m256 Aik = _mm256_load_ps((const float*)A256++);
-                __m256 Bjk = _mm256_load_ps((const float*)B256++);
-                __m256 Bj1k = _mm256_load_ps((const float*)B256_1++);
+            __m256 *B256_1 = (__m256 *)&data_B[(j + 1) * B->column];
+            for (k = 0; k < A->column; k += 8) {
+                __m256 Aik = _mm256_load_ps((const float *)A256++);
+                __m256 Bjk = _mm256_load_ps((const float *)B256++);
+                __m256 Bj1k = _mm256_load_ps((const float *)B256_1++);
                 acc = _mm256_add_ps(acc, _mm256_mul_ps(Aik, Bjk));
                 acc1 = _mm256_add_ps(acc1, _mm256_mul_ps(Aik, Bj1k));
             }
-            float *ptr = (float*)&acc;
+            float *ptr = (float *)&acc;
             data_C[i * C->column + j] = ptr[0] + ptr[1] + ptr[2] + ptr[3] + ptr[4] + ptr[5] + ptr[6] + ptr[7];
-            ptr = (float*)&acc1;
-            data_C[i * C->column + j+1] = ptr[0] + ptr[1] + ptr[2] + ptr[3] + ptr[4] + ptr[5] + ptr[6] + ptr[7];
+            ptr = (float *)&acc1;
+            data_C[i * C->column + j + 1] = ptr[0] + ptr[1] + ptr[2] + ptr[3] + ptr[4] + ptr[5] + ptr[6] + ptr[7];
         }
         // leftover
-        if (j < end_i){
+        if (j < end_i) {
             __m256 acc = zero256;
-            for (k = 0; k < A->column; k += 8){
+            for (k = 0; k < A->column; k += 8) {
                 __m256 Aik = _mm256_load_ps(&data_A[i * A->column + k]);
                 __m256 Bjk = _mm256_load_ps(&data_B[j * B->column + k]);
                 acc = _mm256_add_ps(acc, _mm256_mul_ps(Aik, Bjk));
             }
-            float *ptr = (float*)&acc;
+            float *ptr = (float *)&acc;
             data_C[i * C->column + j] = ptr[0] + ptr[1] + ptr[2] + ptr[3] + ptr[4] + ptr[5] + ptr[6] + ptr[7];
             j++;
         }
@@ -282,18 +281,16 @@ void *mat_mul_transposed_fastover_column_func(void *args) {
     return NULL;
 }
 
-
 void MatmulOperator::mat_mul_transposed_fastover_column(const struct matmul_params *params) {
     int i, j, k;
 
-    int num_thread = 8; // TODO
+    int num_thread = params->opt_params.num_thread;
     const struct matrix *A = &params->A, *B = &params->B, *C = &params->C;
     float *data_A = A->data_ptr, *data_B = B->data_ptr, *data_C = C->data_ptr;
 
     assert(k % 8 == 0);
 
-    if (num_thread > C->column)
-        num_thread = C->column;
+    if (num_thread > C->column) num_thread = C->column;
 
     pthread_t thread_pool[num_thread];
     struct thread_args threads_args[num_thread];
@@ -313,7 +310,6 @@ void MatmulOperator::mat_mul_transposed_fastover_column(const struct matmul_para
         pthread_join(thread_pool[j], NULL);
     }
 }
-
 
 void MatmulOperator::mat_mul_transpose_simd(const struct matmul_params *params) {
     int i, j, k;

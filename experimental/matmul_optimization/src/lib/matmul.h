@@ -15,9 +15,7 @@ struct matrix {
     int8_t *int8_data_ptr;
     int32_t *int32_data_ptr;
     struct quantization_params qparams;
-    int length(){
-        return row * column;
-    }
+    int length() { return row * column; }
 };
 
 struct optimization_params {
@@ -29,7 +27,6 @@ struct matmul_params {
     struct matrix A, B, C, bias;
     struct optimization_params opt_params;
 };
-
 
 struct thread_args {
     const struct matrix *A;
@@ -80,7 +77,9 @@ class MatmulOperator {
     void mat_mul_avx_int8_fast_2x2(const struct matmul_params *params);
     void mat_mul_avx_int8_fast_2x2_32unroll(const struct matmul_params *params);
     void mat_mul_avx_int8_fast_2x2_32unroll_nobias(const struct matmul_params *params);
+    void mat_mul_avx_int8_fast_2x2_32unroll_nobias_batch(const struct matmul_params *params);
     void mat_mul_avx_int8_fast_2x2_32unroll_nobias_ofp32(const struct matmul_params *params);
+    void mat_mul_avx_int8_fast_2x2_32unroll_nobias_ofp32_batch(const struct matmul_params *params);
     void mat_mul_avx_int8_fast_2x2_32unroll_bfp32_ofp32(const struct matmul_params *params);
     void mat_mul_avx_int8_fast_2x2_omp(const struct matmul_params *params);
     void mat_mul_cuda(const struct matmul_params *params);

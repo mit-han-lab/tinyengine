@@ -7,9 +7,7 @@ void load_BMM_S8T_S8N_S8T(BMM_S8T_S8N_S8T &op, std::string prefix) {
     read_to_array((prefix + "/alpha.bin").c_str(), &op.alpha, 1);
 }
 
-BMM_S8T_S8N_S8T::BMM_S8T_S8N_S8T(struct BMM_S8T_S8N_S8T_params &op_params){
-    alpha = op_params.alpha;
-}
+BMM_S8T_S8N_S8T::BMM_S8T_S8N_S8T(struct BMM_S8T_S8N_S8T_params &op_params) { alpha = op_params.alpha; }
 
 void BMM_S8T_S8N_S8T::forward(const Matrix3D<int8_t> &x, const Matrix3D<int8_t> &weight, Matrix3D<int8_t> &output) {
     PROFILE_START(profile_name);
@@ -25,7 +23,7 @@ void BMM_S8T_S8N_S8T::forward(const Matrix3D<int8_t> &x, const Matrix3D<int8_t> 
     params.A.row = m;
     params.A.column = k;
     params.A.int8_data_ptr = x.m_data;
-    params.A.qparams.scale = alpha; // effective_scale = a * B / C
+    params.A.qparams.scale = alpha;  // effective_scale = a * B / C
     params.B.qparams.scale = 1.0;
     params.C.qparams.scale = 1.0;
     params.A.qparams.zero_point = 0;
@@ -45,11 +43,20 @@ void BMM_S8T_S8N_S8T::forward(const Matrix3D<int8_t> &x, const Matrix3D<int8_t> 
     matmul::MatmulOperator matmul_op = matmul::MatmulOperator();
 
     // process each batch
-    for (int bz = 0; bz < x.m_dim_x; bz++){
-        matmul_op.mat_mul_avx_int8_fast_2x2_32unroll_nobias(&params);
-        params.A.int8_data_ptr += m * k;
-        params.B.int8_data_ptr += k * n;
-        params.C.int8_data_ptr += m * n;
+
+    if (m == 1 && x.m_dim_x > 1) {
+        // merge each batch
+        params.A.row = x.m_dim_x;
+        params.C.row = x.m_dim_x;
+        // B is batched, need a new op for this!
+        matmul_op.mat_mul_avx_int8_fast_2x2_32unroll_nobias_batch(&params);
+    } else {
+        for (int bz = 0; bz < x.m_dim_x; bz++) {
+            matmul_op.mat_mul_avx_int8_fast_2x2_32unroll_nobias(&params);
+            params.A.int8_data_ptr += m * k;
+            params.B.int8_data_ptr += k * n;
+            params.C.int8_data_ptr += m * n;
+        }
     }
 
     PROFILE_END(profile_name);
