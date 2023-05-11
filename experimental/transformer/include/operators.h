@@ -17,6 +17,7 @@
 #include "ops/W8A8B8O8Linear.h"
 #include "ops/W8A8B8O8LinearReLU.h"
 #include "ops/W8A8BFP32OFP32Linear.h"
+#include "ops/arg_max.h"
 #include "ops/linear.h"
 
 void softmax(const Matrix3D<float> &input, Matrix3D<float> &output, int dim);

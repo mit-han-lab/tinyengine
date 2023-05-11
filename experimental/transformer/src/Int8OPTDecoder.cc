@@ -162,15 +162,22 @@ struct Int8OPTDecoder_output Int8OPTDecoder::forward(const struct Int8OPTDecoder
     assert(inputs_embeds.m_dim_y == pos_embeds.m_dim_y);
     assert(inputs_embeds.m_dim_z == pos_embeds.m_dim_z);
     float hidden_states_buf[sqlen * this->embed_dim];
-    Matrix3D<float> hidden_states(inputs_embeds_buf, 1, sqlen, this->embed_dim);
+    Matrix3D<float> hidden_states(hidden_states_buf, 1, sqlen, this->embed_dim);
     for (int i = 0; i < inputs_embeds.length(); i++)
         hidden_states.m_data[i] = inputs_embeds.m_data[i] + pos_embeds.m_data[i];
+    // DEBUGING CODE
+    // print_first_k_elelment("pos_embeds", pos_embeds.m_data, 20);
+    // print_first_k_elelment("inputs_embeds", inputs_embeds.m_data, 20);
     // print_first_k_elelment("hidden_states", hidden_states.m_data, 20);
     // print_first_k_elelment("causal_attention_mask", causal_attention_mask.m_data, 20);
+    // float hidden_states_bufGT[sqlen * this->embed_dim];
+    // read_to_array("assets/tests/OPT_1.3B/inputs_pos.bin", hidden_states_bufGT, sqlen * this->embed_dim);
+    // print_first_k_elelment("hidden_states_bufGT", hidden_states_bufGT, 20);
+    // print_first_k_elelment("hidden_states_buf", hidden_states_buf, 20);
+    // assert(check_two_equal(hidden_states_bufGT, hidden_states_buf, hidden_states.length()));
 
     std::vector<Matrix3D<int8_t>> past_keys, past_values;
     for (int i = 0; i < this->layers.size(); i++) {
-        ;
         if (!input.has_past_keys_values) {
             struct Int8OPTDecoderLayer_input l_i = {hidden_states, causal_attention_mask};
             struct Int8OPTDecoderLayer_output l_o = this->layers[i].forward(l_i);
@@ -185,11 +192,18 @@ struct Int8OPTDecoder_output Int8OPTDecoder::forward(const struct Int8OPTDecoder
             past_keys.push_back(l_o.past_key_value.first);
             past_values.push_back(l_o.past_key_value.second);
         }
+        // if(i == 22){
+        //     read_to_array("assets/tests/OPT_1.3B/hidden_states_layer22.bin", hidden_states.m_data,
+        //     hidden_states.length()); std::cout << "---------------------------------------------------" << std::endl;
+        // }
         // print_first_k_elelment("hidden_states", hidden_states.m_data, 20);
     }
+    // read_to_array("assets/tests/OPT_1.3B/layers_out.bin", hidden_states.m_data, hidden_states.length());
+    // print_first_k_elelment("hidden_states(layers_out)", hidden_states.m_data, 20);
 
     Matrix3D<float> last_hidden_states(last_hidden_states_buf, 1, sqlen, this->embed_dim);
     this->final_layer_norm.forward(hidden_states, last_hidden_states);
+    // print_first_k_elelment("final_layer_norm", last_hidden_states.m_data, 20);
 
     struct Int8OPTDecoder_output output = {last_hidden_states, past_keys, past_values};
     PROFILE_END(profile_name);

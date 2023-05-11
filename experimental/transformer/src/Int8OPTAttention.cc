@@ -7,16 +7,6 @@
 #include "operators.h"
 #include "utils.h"
 
-// static float attn_weights_arr[HEAD * MAXSQLEN * MAXSQLEN];
-// static float attn_weightsGT_arr[HEAD * MAXSQLEN * MAXSQLEN];
-// static float attn_probs_arr[HEAD * MAXSQLEN * MAXSQLEN];
-// static int8_t attn_probs_int8_arr[HEAD * MAXSQLEN * MAXSQLEN];
-// static int8_t key_states_arr_cache[LAYERS][2][BATCH * MAXSQLEN * EMBED_DIM];
-// static int8_t value_states_arr_cache[LAYERS][2][BATCH * MAXSQLEN * EMBED_DIM];
-// static float attn_output_fp_arr[BATCH * MAXSQLEN * EMBED_DIM];
-// static int cache_num[LAYERS] = {0};
-// int8_t query_states_unshape_arr[BATCH * MAXSQLEN * EMBED_DIM];
-// variables shared across layers
 static float *attn_weights_arr;
 static float *attn_probs_arr;
 static int8_t *attn_probs_int8_arr;
@@ -185,17 +175,6 @@ inline void transpose_1_2idx(Matrix3D<T> &input, Matrix3D<T> &output) {
     PROFILE_END("Int8OPTAttention::transpose_1_2idx");
 }
 
-// vars shared acorss layers
-// static float attn_weights_arr[HEAD * MAXSQLEN * MAXSQLEN];
-// static float attn_weightsGT_arr[HEAD * MAXSQLEN * MAXSQLEN];
-// static float attn_probs_arr[HEAD * MAXSQLEN * MAXSQLEN];
-// static int8_t attn_probs_int8_arr[HEAD * MAXSQLEN * MAXSQLEN];
-// static int8_t key_states_arr_cache[LAYERS][2][BATCH * MAXSQLEN * EMBED_DIM];
-// static int8_t value_states_arr_cache[LAYERS][2][BATCH * MAXSQLEN * EMBED_DIM];
-// static float attn_output_fp_arr[BATCH * MAXSQLEN * EMBED_DIM];
-// static int cache_num[LAYERS] = {0};
-// int8_t query_states_unshape_arr[BATCH * MAXSQLEN * EMBED_DIM];
-// TODO: var allocation method
 struct Int8OPTAttention_output Int8OPTAttention::forward(const struct Int8OPTAttention_input &input) {
     PROFILE_START(profile_name);
     struct Int8OPTAttention_output output;
@@ -205,9 +184,9 @@ struct Int8OPTAttention_output Int8OPTAttention::forward(const struct Int8OPTAtt
     Matrix3D<int8_t> query_states_unshape(query_states_unshape_arr, b, sqlen, embed_dim);
     // opt.py: query_states = self.q_proj(hidden_states)
     this->q_proj.forward(input.hidden_states, query_states_unshape);
-    // print_first_k_elelment("input.hidden_states.m_data", input.hidden_states.m_data, 768);
-    // print_first_k_elelment("q_proj.params.B.int8_data_ptr.m_data", q_proj.params.B.int8_data_ptr, 10);
-    // print_first_k_elelment("query_states_unshape.m_data", query_states_unshape.m_data, 10);
+    // print_first_k_elelment("input.hidden_states.m_data", input.hidden_states.m_data, 20);
+    // print_first_k_elelment("q_proj.params.B.int8_data_ptr.m_data", q_proj.params.B.int8_data_ptr, 20);
+    // print_first_k_elelment("query_states_unshape.m_data", query_states_unshape.m_data, 20);
 
     int8_t *ret_value_states, *ret_key_states;
     if (cache_num[input.layer_idx] == 1) {
@@ -235,6 +214,8 @@ struct Int8OPTAttention_output Int8OPTAttention::forward(const struct Int8OPTAtt
     int8_t value_states_arr[sqlen * this->embed_dim];
     Matrix3D<int8_t> value_states(value_states_arr, this->num_heads, sqlen, this->head_dim);
     this->shpae(value_states_unshape, value_states, sqlen);
+    // print_first_k_elelment("key_states.m_data", key_states.m_data, 20);
+    // print_first_k_elelment("value_states.m_data", value_states.m_data, 20);
 
     PROFILE_START(profile_name + "::cat_past_keys_values");
     int tgz = sqlen;
@@ -270,18 +251,17 @@ struct Int8OPTAttention_output Int8OPTAttention::forward(const struct Int8OPTAtt
     int8_t query_states_arr[sqlen * this->embed_dim];
     Matrix3D<int8_t> query_states(query_states_arr, this->num_heads, sqlen, this->head_dim);
     this->shpae(query_states_unshape, query_states, sqlen);
-    // print_first_k_elelment("query_states.m_data", query_states.m_data, 768);
+    // print_first_k_elelment("query_states.m_data", query_states.m_data, 20);
 
     // opt.py: attn_weights = self.qk_bmm(query_states, key_states)
     // float attn_weights_arr[this->num_heads * sqlen * tgz];
-    // TODO: check src_len and tgt_len in generative mode
     Matrix3D<float> attn_weights(attn_weights_arr, this->num_heads, sqlen, tgz);
     this->qk_bmm.forward(query_states, final_key_states, attn_weights);
-    // print_first_k_elelment("attn_weights.m_data", attn_weights.m_data, 109);
+    // print_first_k_elelment("attn_weights.m_data", attn_weights.m_data, 20);
 
     // opt.py: attn_weights = attn_weights.view(bsz, self.num_heads, tgt_len, src_len) + attention_mask
     batch_Add(attn_weights, input.attention_mask, attn_weights);
-    // print_first_k_elelment("attn_weights.m_data", attn_weights.m_data, 109);
+    // print_first_k_elelment("attn_weights.m_data", attn_weights.m_data, 20);
 
     // opt.py: attn_probs = nn.functional.softmax(attn_weights, dim=-1)
     // float attn_probs_arr[this->num_heads * sqlen * sqlen];
@@ -311,6 +291,7 @@ struct Int8OPTAttention_output Int8OPTAttention::forward(const struct Int8OPTAtt
     int8_t attn_output_arr[this->num_heads * sqlen * this->head_dim];
     Matrix3D<int8_t> attn_output(attn_output_arr, this->num_heads, sqlen, this->head_dim);
     this->pv_bmm.forward(attn_probs_int8, value_states_transpose, attn_output);
+    // print_first_k_elelment("attn_output", attn_output.m_data, 20);
 
     // opt.py: attn_output = attn_output.transpose(1, 2)
     // opt.py: attn_output = attn_output.reshape(bsz, tgt_len, self.embed_dim).contiguous()
@@ -318,8 +299,9 @@ struct Int8OPTAttention_output Int8OPTAttention::forward(const struct Int8OPTAtt
     Matrix3D<int8_t> attn_output_transpose(attn_output_transpose_arr, 1, sqlen, this->num_heads * this->head_dim);
     this->unshape(attn_output, attn_output_transpose, sqlen);
 
-    // read_to_array("assets/tests/attn_output_mock.bin", attn_output_transpose.m_data, attn_output_transpose.length());
-    // print_first_k_elelment("attn_output_transpose.m_data", attn_output_transpose.m_data, 768);
+    // read_to_array("assets/tests/OPT_1.3B/layer23_attn_output_before_outproj.bin", attn_output_transpose.m_data,
+    // attn_output_transpose.length()); print_first_k_elelment("attn_output_transpose.m_data",
+    // attn_output_transpose.m_data, 20);
     Matrix3D<float> attn_output_fp(attn_output_fp_arr, 1, sqlen, this->num_heads * this->head_dim);
     this->out_proj.forward(attn_output_transpose, attn_output_fp);
     // output assignment

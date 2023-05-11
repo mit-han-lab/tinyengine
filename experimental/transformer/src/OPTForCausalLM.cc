@@ -41,6 +41,7 @@ struct OPTForCausalLM_output OPTForCausalLM::forward(const struct OPTForCausalLM
     // logits = self.lm_head(outputs[0]).contiguous()
     Matrix3D<float> logits(logits_output, 1, sqlen, this->decoder.voc_size);
     this->lm_head.forward(decoder_output.last_hidden_state, logits);
+    // print_first_k_elelment("logits_output", logits.m_data, 20);
 
     struct OPTForCausalLM_output LMoutput = {logits, decoder_output.past_keys, decoder_output.past_values};
     PROFILE_END(profile_name);

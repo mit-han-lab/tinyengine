@@ -16,12 +16,14 @@ void read_to_array(const char* path, T* array, int size) {
 
 bool check_two_equal(float* array, float* array2, int size, float error) {
     float sq_diff = 0;
+    float max_sqdiff = 0;
     for (int i = 0; i < size; i++) {
         float diff = (float)array[i] - (float)array2[i];
         sq_diff += diff * diff;
+        if (diff * diff > max_sqdiff) max_sqdiff = diff * diff;
     }
     if ((sq_diff / size) > error) {
-        std::cout << "MSE:" << sq_diff / size << std::endl;
+        std::cout << "MSE:" << sq_diff / size << ", MAX SQ diff:" << max_sqdiff << std::endl;
         return false;
     }
     return true;
@@ -30,12 +32,14 @@ bool check_two_equal(float* array, float* array2, int size, float error) {
 template <typename T>
 bool check_two_equal(T* array, T* array2, int size) {
     float sq_diff = 0;
+    float max_sqdiff = 0;
     for (int i = 0; i < size; i++) {
         float diff = (float)array[i] - (float)array2[i];
         sq_diff += diff * diff;
+        if (diff * diff > max_sqdiff) max_sqdiff = diff * diff;
     }
     if ((sq_diff / size) > ERROR_MAX) {
-        std::cout << "MSE:" << sq_diff / size << std::endl;
+        std::cout << "MSE:" << sq_diff / size << ", MAX SQ diff:" << max_sqdiff << std::endl;
         return false;
     }
     return true;
