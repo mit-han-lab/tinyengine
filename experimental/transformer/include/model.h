@@ -39,6 +39,7 @@ enum {
     OPT_6_7B,
 };
 
+const struct model_config opt_6_7B(1, 32, 32, 512, 4096, 16384, 50272, 1);
 const struct model_config opt_1_3B(1, 32, 24, 512, 2048, 8192, 50272, 1);
 const struct model_config opt_125m(1, 12, 12, 512, 768, 3072, 50272, 1);
 static struct model_config get_opt_model_config(int choise) {
@@ -51,7 +52,7 @@ static struct model_config get_opt_model_config(int choise) {
             ret = opt_1_3B;
             break;
         case OPT_6_7B:
-            // ret = {"./assets/6.7B/", 1, 32, 512, 2048, 8192, 50272};
+            ret = opt_6_7B;
             break;
         default:
             throw("Unsupported model choise.");

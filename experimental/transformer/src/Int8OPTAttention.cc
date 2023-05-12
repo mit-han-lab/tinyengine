@@ -284,7 +284,11 @@ struct Int8OPTAttention_output Int8OPTAttention::forward(const struct Int8OPTAtt
     // opt.py: value_states = value_states.transpose(1, 2).contiguous()
     int8_t value_states_transpose_arr[this->num_heads * this->head_dim * tgz];
     Matrix3D<int8_t> value_states_transpose(value_states_transpose_arr, this->num_heads, this->head_dim, tgz);
+#ifdef USE_OPT_EXP
     transpose_1_2idx_threads(final_value_states, value_states_transpose);
+#else
+    transpose_1_2idx(final_value_states, value_states_transpose);
+#endif
     // read_to_array("assets/tests/attn_probs_int8_mock.bin", attn_probs_int8.m_data, this->num_heads * sqlen * tgz);
     // read_to_array("assets/tests/value_states_transpose_mock.bin", value_states_transpose.m_data, this->num_heads *
     // tgz * this->head_dim); opt.py: attn_output = self.pv_bmm(attn_probs, value_states)

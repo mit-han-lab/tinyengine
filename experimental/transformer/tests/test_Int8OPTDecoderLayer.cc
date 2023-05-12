@@ -314,4 +314,3 @@ int main() {
     test_DecoderLayer_generate_cache();
     test_DecoderLayer();
 }
-// int main() { test_DecoderLayer_generate_cache();  }
