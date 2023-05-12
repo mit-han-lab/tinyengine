@@ -10,13 +10,13 @@ void load_W8A8B8O8Linear_params(W8A8B8O8Linear &op, std::string prefix) {
     read_to_array((prefix + "/beta.bin").c_str(), &op.beta, 1);
 }
 
-W8A8B8O8Linear::W8A8B8O8Linear(struct W8A8B8O8Linear_params &op_params){
+W8A8B8O8Linear::W8A8B8O8Linear(struct W8A8B8O8Linear_params &op_params) {
     Matrix3D<int8_t> weight = op_params.weight;
     Matrix3D<int32_t> bias = op_params.bias;
     alpha = op_params.alpha;
 
     int k = weight.m_dim_z, n = weight.m_dim_y;
-    params.A.qparams.scale = alpha; // effective_scale = a * B / C
+    params.A.qparams.scale = alpha;  // effective_scale = a * B / C
     params.B.qparams.scale = 1.0;
     params.C.qparams.scale = 1.0;
     params.A.qparams.zero_point = 0;
@@ -34,15 +34,15 @@ W8A8B8O8Linear::W8A8B8O8Linear(struct W8A8B8O8Linear_params &op_params){
     params.bias.column = n;
 }
 
-void W8A8B8O8Linear::forward(const Matrix3D<int8_t> &x, Matrix3D<int8_t> &output){
-    PROFILE_START(profile_name);
+void W8A8B8O8Linear::forward(const Matrix3D<int8_t> &x, Matrix3D<int8_t> &output) {
+    const int m = x.m_dim_y, k = x.m_dim_z, n = params.B.column, b = x.m_dim_x;
+    const long long ops = (long long)b * 2 * (long long)m * (long long)n * (long long)k + (long long)m * (long long)n;
+    PROFILE_START_FLOPS(profile_name, ops);
     assert(output.m_dim_x == x.m_dim_x);
     assert(output.m_dim_y == x.m_dim_y);
     assert(output.m_dim_z == params.B.column);
     assert(x.m_dim_z == params.B.row);
     assert(output.m_dim_z == params.bias.column);
-
-    const int m = x.m_dim_y, k = x.m_dim_z, n = params.B.column;
 
     params.A.row = m;
     params.A.column = k;
@@ -55,7 +55,7 @@ void W8A8B8O8Linear::forward(const Matrix3D<int8_t> &x, Matrix3D<int8_t> &output
     matmul::MatmulOperator matmul_op = matmul::MatmulOperator();
 
     // process each batch
-    for (int bz = 0; bz < x.m_dim_x; bz++){
+    for (int bz = 0; bz < x.m_dim_x; bz++) {
         matmul_op.mat_mul_avx_int8_fast_2x2_32unroll(&params);
         params.A.int8_data_ptr += m * k;
         params.C.int8_data_ptr += m * n;

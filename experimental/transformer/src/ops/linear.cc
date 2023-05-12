@@ -1,7 +1,8 @@
-#include "operators.h"
 #include <cassert>
 
-template<typename T>
+#include "operators.h"
+
+template <typename T>
 void linear(Matrix3D<T> &a, Matrix3D<T> &b, Matrix3D<T> &c) {
     // a: m x k   b: n x k   c: m x n
     assert(a.m_dim_x == b.m_dim_x);  // batch dim
@@ -15,7 +16,7 @@ void linear(Matrix3D<T> &a, Matrix3D<T> &b, Matrix3D<T> &c) {
         for (int i = 0; i < m; i++) {
             for (int j = 0; j < n; j++) {
                 T acc = 0;
-                for(int kk = 0; kk < k; k++){
+                for (int kk = 0; kk < k; k++) {
                     acc += a(b_, i, kk) * b(b_, j, kk);
                 }
 
@@ -23,12 +24,13 @@ void linear(Matrix3D<T> &a, Matrix3D<T> &b, Matrix3D<T> &c) {
             }
         }
     }
-
 }
 
 void Linear_FP::forward(const Matrix3D<float> &a, Matrix3D<float> &c) {
-    PROFILE_START(profile_name);
     Matrix3D<float> b = this->weight;
+    const int m = a.m_dim_y, n = b.m_dim_y, k = a.m_dim_z, b_size = b.m_dim_x;
+    const long long ops = (long long)b_size * 2 * (long long)m * (long long)n * (long long)k;
+    PROFILE_START_FLOPS(profile_name, ops);
 
     // a: m x k   b: n x k   c: m x n
     assert(a.m_dim_x == b.m_dim_x);  // batch dim
@@ -36,10 +38,8 @@ void Linear_FP::forward(const Matrix3D<float> &a, Matrix3D<float> &c) {
     assert(a.m_dim_y == c.m_dim_y);  // m
     assert(b.m_dim_y == c.m_dim_z);  // n
     // batch dim == 1 only support MM for now
-    assert(a.m_dim_x == 1);  
+    assert(a.m_dim_x == 1);
     assert(b.m_dim_x == 1);
-
-    int m = a.m_dim_y, n = b.m_dim_y, k = a.m_dim_z, b_size = b.m_dim_x;
 
     struct matmul_params params;
     params.A.row = a.m_dim_y;
@@ -54,9 +54,8 @@ void Linear_FP::forward(const Matrix3D<float> &a, Matrix3D<float> &c) {
     params.opt_params.blk_size = BLK_SIZE;
     params.opt_params.num_thread = NUM_THREAD;
 
-    matmul::MatmulOperator ops = matmul::MatmulOperator();
-    // ops.mat_mul_fast((const struct matmul_params *)&params);// TODO: handling different sqlen
-    ops.mat_mul_transposed_fastover_column((const struct matmul_params *)&params);
+    matmul::MatmulOperator op = matmul::MatmulOperator();
+    op.mat_mul_transposed_fastover_column((const struct matmul_params *)&params);
 
     PROFILE_END(profile_name);
     return;
@@ -69,7 +68,7 @@ void Linear_FP::forward(const Matrix3D<float> &a, Matrix3D<float> &c) {
 //     assert(a.m_dim_y == c.m_dim_y);  // m
 //     assert(b.m_dim_y == c.m_dim_z);  // n
 //     // batch dim == 1 only support MM for now
-//     assert(a.m_dim_x == 1);  
+//     assert(a.m_dim_x == 1);
 //     assert(b.m_dim_x == 1);
 
 //     int m = a.m_dim_y, n = b.m_dim_y, k = a.m_dim_z, b_size = b.m_dim_x;

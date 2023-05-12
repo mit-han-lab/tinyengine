@@ -11,9 +11,11 @@
 
 #ifdef PROFILER
 #define PROFILE_START(x) Profiler::getInstance().start(x)
+#define PROFILE_START_FLOPS(x, y) Profiler::getInstance().start(x, y)
 #define PROFILE_END(x) Profiler::getInstance().stop(x)
 #else
 #define PROFILE_START(x)
+#define PROFILE_START_FLOPS(x, y)
 #define PROFILE_END(x)
 #endif
 

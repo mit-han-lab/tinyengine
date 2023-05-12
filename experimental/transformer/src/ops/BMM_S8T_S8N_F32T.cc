@@ -10,13 +10,13 @@ void load_BMM_S8T_S8N_F32T(BMM_S8T_S8N_F32T &op, std::string prefix) {
 BMM_S8T_S8N_F32T::BMM_S8T_S8N_F32T(struct BMM_S8T_S8N_F32T_params &op_params) { alpha = op_params.alpha; }
 
 void BMM_S8T_S8N_F32T::forward(const Matrix3D<int8_t> &x, const Matrix3D<int8_t> &weight, Matrix3D<float> &output) {
-    PROFILE_START(profile_name);
+    const int m = x.m_dim_y, k = x.m_dim_z, n = weight.m_dim_y, b = x.m_dim_x;
+    const long long ops = (long long)b * 2 * (long long)m * (long long)n * (long long)k + (long long)m * (long long)n;
+    PROFILE_START_FLOPS(profile_name, ops);
     assert(output.m_dim_x == x.m_dim_x);
     assert(output.m_dim_y == x.m_dim_y);
     assert(output.m_dim_z == weight.m_dim_y);
     assert(x.m_dim_z == weight.m_dim_z);
-
-    const int m = x.m_dim_y, k = x.m_dim_z, n = weight.m_dim_y;
 
     struct matmul_params params;
 

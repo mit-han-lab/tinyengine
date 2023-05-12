@@ -9,13 +9,13 @@ void load_W8A8BFP32OFP32Linear_params(W8A8BFP32OFP32Linear &op, std::string pref
     read_to_array((prefix + "/alpha.bin").c_str(), &op.alpha, 1);
 }
 
-W8A8BFP32OFP32Linear::W8A8BFP32OFP32Linear(struct W8A8BFP32OFP32Linear_params &op_params){
+W8A8BFP32OFP32Linear::W8A8BFP32OFP32Linear(struct W8A8BFP32OFP32Linear_params &op_params) {
     Matrix3D<int8_t> weight = op_params.weight;
     Matrix3D<float> bias = op_params.bias;
     alpha = op_params.alpha;
 
     int k = weight.m_dim_z, n = weight.m_dim_y;
-    params.A.qparams.scale = alpha; // effective_scale = a * B / C
+    params.A.qparams.scale = alpha;  // effective_scale = a * B / C
     params.B.qparams.scale = 1.0;
     params.C.qparams.scale = 1.0;
     params.A.qparams.zero_point = 0;
@@ -32,21 +32,20 @@ W8A8BFP32OFP32Linear::W8A8BFP32OFP32Linear(struct W8A8BFP32OFP32Linear_params &o
     params.bias.column = bias.m_dim_z;
 }
 
-
 void W8A8BFP32OFP32Linear::forward(const Matrix3D<int8_t> &x, Matrix3D<float> &output) {
-    PROFILE_START(profile_name);
+    const int m = x.m_dim_y, k = x.m_dim_z, n = params.B.column, b = x.m_dim_x;
+    const long long ops = (long long)b * 2 * (long long)m * (long long)n * (long long)k + (long long)m * (long long)n;
+    PROFILE_START_FLOPS(profile_name, ops);
     assert(output.m_dim_x == x.m_dim_x);
     assert(output.m_dim_y == x.m_dim_y);
     assert(output.m_dim_z == params.B.column);
     assert(x.m_dim_z == params.B.row);
     assert(output.m_dim_z == params.bias.column);
 
-    const int m = x.m_dim_y, k = x.m_dim_z, n = params.B.column;
-
     params.A.row = m;
     params.A.column = k;
     params.A.int8_data_ptr = x.m_data;
-    params.A.qparams.scale = alpha; // effective_scale = a * B / C
+    params.A.qparams.scale = alpha;  // effective_scale = a * B / C
     params.C.row = m;
     params.C.column = n;
     params.C.data_ptr = output.m_data;
@@ -55,7 +54,7 @@ void W8A8BFP32OFP32Linear::forward(const Matrix3D<int8_t> &x, Matrix3D<float> &o
     matmul::MatmulOperator matmul_op = matmul::MatmulOperator();
 
     // process each batch
-    for (int bz = 0; bz < x.m_dim_x; bz++){
+    for (int bz = 0; bz < x.m_dim_x; bz++) {
         matmul_op.mat_mul_avx_int8_fast_2x2_32unroll_bfp32_ofp32(&params);
         params.A.int8_data_ptr += m * k;
         params.C.data_ptr += m * n;
