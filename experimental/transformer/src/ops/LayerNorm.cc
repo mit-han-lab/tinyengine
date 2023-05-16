@@ -14,7 +14,7 @@ void LayerNorm::forward(const Matrix3D<float> &x, Matrix3D<float> &output) {
     Matrix3D<float> weight = params.weight;
     Matrix3D<float> bias = params.bias;
     const int last_dims = 2;
-    const double eps = 1e-5;
+    const float eps = 1e-5;
 
     assert(last_dims == 2);  // support the last dim for now
     assert(output.m_dim_x == x.m_dim_x);
@@ -25,22 +25,22 @@ void LayerNorm::forward(const Matrix3D<float> &x, Matrix3D<float> &output) {
 
     for (int i = 0; i < x.m_dim_x; i++) {      // batches
         for (int j = 0; j < x.m_dim_y; j++) {  // samples
-            double mean = 0;
+            float mean = 0;
             for (int k = 0; k < x.m_dim_z; k++) {  // hideden states
                 mean += x(i, j, k);
             }
-            mean /= static_cast<double>(x.m_dim_z);
-            double squared_diff_sum = 0;
+            mean /= static_cast<float>(x.m_dim_z);
+            float squared_diff_sum = 0;
             for (int k = 0; k < x.m_dim_z; k++) {
-                double value = static_cast<double>(x(i, j, k));
+                float value = static_cast<float>(x(i, j, k));
                 squared_diff_sum += (value - mean) * (value - mean);
             }
-            double std_dev = sqrtl(squared_diff_sum / static_cast<double>(x.m_dim_z) + eps);
+            float std_dev = sqrtl(squared_diff_sum / static_cast<float>(x.m_dim_z) + eps);
 
             for (int k = 0; k < x.m_dim_z; k++) {
-                double value = static_cast<double>(x(i, j, k));
-                double fp_out = (((value - mean) / (std_dev)) * static_cast<double>(weight(0, 0, k))) +
-                                static_cast<double>(bias(0, 0, k));
+                float value = static_cast<float>(x(i, j, k));
+                float fp_out = (((value - mean) / (std_dev)) * static_cast<float>(weight(0, 0, k))) +
+                               static_cast<float>(bias(0, 0, k));
                 output(i, j, k) = static_cast<float>(fp_out);
                 // if (i == 0 && j == 0 && k == 1177){
                 //     std::cout << std::setprecision(15) << "squared_diff_sum" << squared_diff_sum;
