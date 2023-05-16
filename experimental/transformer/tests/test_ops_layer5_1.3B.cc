@@ -41,76 +41,7 @@ class MemoryAllocator {
     int counter;
 };
 
-void test_LayerNormQ() {
-    const int b = 1, m = 108, n = 768;
-    MemoryAllocator mem_buf;
-
-    float* intput_arr = mem_buf.get_fpbuffer(b * m * n);
-    float* weight_arr = mem_buf.get_fpbuffer(b * n);
-    float* bias_arr = mem_buf.get_fpbuffer(b * n);
-    int8_t* output_arr = mem_buf.get_int8buffer(b * m * n);
-    int8_t* GToutput_arr = mem_buf.get_int8buffer(b * m * n);
-
-    Matrix3D<float> input(intput_arr, b, m, n);
-    Matrix3D<float> weight(weight_arr, b, 1, n);
-    Matrix3D<float> bias(bias_arr, b, 1, n);
-    Matrix3D<int8_t> output(output_arr, b, m, n);
-    Matrix3D<int8_t> GToutput(GToutput_arr, b, m, n);
-
-    read_to_array((char*)"assets/LayerNormQ_bias.bin", bias_arr, b * n);
-    read_to_array((char*)"assets/LayerNormQ_x.bin", intput_arr, b * m * n);
-    read_to_array((char*)"assets/LayerNormQ_weight.bin", weight_arr, b * n);
-    read_to_array((char*)"assets/LayerNormQ_out.bin", GToutput_arr, b * m * n);
-
-    struct LayerNormQ_params op_params = {weight, bias};
-
-    LayerNormQ test_op = LayerNormQ(op_params);
-
-    test_op.forward(input, output);
-
-    bool sucess = check_two_exact_equal(output_arr, GToutput_arr, b * m * n);
-    if (!sucess)
-        std::cout << "-------- Test of " << __func__ << ": Fail! -------- " << std::endl;
-    else
-        std::cout << "-------- Test of " << __func__ << ": Passed! -------- " << std::endl;
-}
-
-void test_LayerNormQ_len512() {
-    const int b = 1, m = 512, n = 768;
-    MemoryAllocator mem_buf;
-
-    float* intput_arr = mem_buf.get_fpbuffer(b * m * n);
-    float* weight_arr = mem_buf.get_fpbuffer(b * n);
-    float* bias_arr = mem_buf.get_fpbuffer(b * n);
-    int8_t* output_arr = mem_buf.get_int8buffer(b * m * n);
-    int8_t* GToutput_arr = mem_buf.get_int8buffer(b * m * n);
-
-    Matrix3D<float> input(intput_arr, b, m, n);
-    Matrix3D<float> weight(weight_arr, b, 1, n);
-    Matrix3D<float> bias(bias_arr, b, 1, n);
-    Matrix3D<int8_t> output(output_arr, b, m, n);
-    Matrix3D<int8_t> GToutput(GToutput_arr, b, m, n);
-
-    // read_to_array((char*)"assets/LayerNormQ_bias.bin", bias_arr, b * n);
-    read_to_array((char*)"assets/tests/OPT_125m/LayerNormQ_x_len512.bin", intput_arr, b * m * n);
-    // read_to_array((char*)"assets/LayerNormQ_weight.bin", weight_arr, b * n);
-    read_to_array((char*)"assets/tests/OPT_125m/LayerNormQ_y_len512.bin", GToutput_arr, b * m * n);
-
-    struct LayerNormQ_params op_params = {weight, bias};
-
-    LayerNormQ test_op = LayerNormQ(op_params);
-    load_LayerNormQ(test_op, "models/OPT_125m/decoder/layer0/self_attn_layer_norm");
-
-    test_op.forward(input, output);
-
-    bool sucess = check_two_exact_equal(output_arr, GToutput_arr, b * m * n);
-    if (!sucess)
-        std::cout << "-------- Test of " << __func__ << ": Fail! -------- " << std::endl;
-    else
-        std::cout << "-------- Test of " << __func__ << ": Passed! -------- " << std::endl;
-}
-
-void test_LayerNormQ_1_3B() {
+void test_LayerNormQ_layer5_1_3B() {
     const int b = 1, m = 108, n = 2048;
     MemoryAllocator mem_buf;
 
@@ -126,13 +57,13 @@ void test_LayerNormQ_1_3B() {
     Matrix3D<int8_t> output(output_arr, b, m, n);
     Matrix3D<int8_t> GToutput(GToutput_arr, b, m, n);
 
-    read_to_array((char*)"assets/tests/OPT_1.3B/LayerNormQ_x.bin", intput_arr, b * m * n);
-    read_to_array((char*)"assets/tests/OPT_1.3B/LayerNormQ_out.bin", GToutput_arr, b * m * n);
+    read_to_array((char*)"assets/tests/OPT_1.3B/layer5/LayerNormQ_x.bin", intput_arr, b * m * n);
+    read_to_array((char*)"assets/tests/OPT_1.3B/layer5/LayerNormQ_out.bin", GToutput_arr, b * m * n);
 
     struct LayerNormQ_params op_params = {weight, bias};
 
     LayerNormQ op = LayerNormQ(op_params);
-    load_LayerNormQ(op, "models/OPT_1.3B/decoder/layer0/self_attn_layer_norm/");
+    load_LayerNormQ(op, "models/OPT_1.3B/decoder/layer5/self_attn_layer_norm/");
 
     LayerNormQ test_op = LayerNormQ(op_params);
 
@@ -583,21 +514,10 @@ void test_Embedding_1_3B() {
 }
 
 int main() {
-    test_LayerNormQ();
-    test_LayerNormQ_len512();
-    test_LayerNormQ_1_3B();
-    test_LayerNorm();
-    test_LayerNorm_1_3B_len512();
-    test_W8A8B8O8LinearReLU();
-    test_W8A8B8O8LinearReLU_1_3B();
-    test_W8A8B8O8Linear();
-    test_W8A8B8O8Linear_1_3B();
-    test_W8A8BFP32OFP32Linear();
-    test_W8A8BFP32OFP32Linear_1_3B();
-    test_BMM_S8T_S8N_F32T();
-    test_BMM_S8T_S8N_F32T_1_3B();
-    test_BMM_S8T_S8N_S8T();
-    test_BMM_S8T_S8N_S8T_1_3B();
-    test_Embedding();
-    test_Embedding_1_3B();
+    test_LayerNormQ_layer5_1_3B();
+    // test_W8A8B8O8LinearReLU_layer5_1_3B();
+    // test_W8A8B8O8Linear_layer5_1_3B();
+    // test_W8A8BFP32OFP32Linear_layer5_1_3B();
+    // test_BMM_S8T_S8N_F32T_layer5_1_3B();
+    // test_BMM_S8T_S8N_S8T_layer5_1_3B();
 }

@@ -32,6 +32,8 @@ struct Int8OPTDecoderLayer_output Int8OPTDecoderLayer::forward(const struct Int8
                                              input.has_past_key_value, this->layer_idx);
     struct Int8OPTAttention_output attn_output = this->attn.forward(attn_param);
     // print_first_k_elelment("attn_output.attn_output", attn_output.attn_output.m_data, 20);
+    // read_to_array("assets/tests/OPT_125m/Int8OPTAttention_attn_output_len512.bin", attn_output.attn_output.m_data,
+    // attn_output.attn_output.length());
 
     // opt.py: residual.add_(hidden_states.to(residual.dtype))
     Matrix3D<float> residual_add(hidden_states_float_arr, input.hidden_states.m_dim_x, input.hidden_states.m_dim_y,

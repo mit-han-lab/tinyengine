@@ -53,7 +53,7 @@ void test_OPTForCausalLM() {
     read_to_array("assets/tests/causallm/1st_input_ids.bin", input_ids.m_data, input_ids.length());
     struct OPTForCausalLM_input input_1st = {input_ids};
 
-    OPTForCausalLM model = OPTForCausalLM("assets/", get_opt_model_config(OPT_125M));
+    OPTForCausalLM model = OPTForCausalLM("models/OPT_125m/", get_opt_model_config(OPT_125M));
 
     struct OPTForCausalLM_output output_1st = model.forward(input_1st);
 
@@ -61,7 +61,7 @@ void test_OPTForCausalLM() {
     read_to_array("assets/tests/causallm/1st_logits.bin", logits.m_data, logits.length());
     // print_first_k_elelment("O", output_1st.logits.m_data, 20);
     // print_first_k_elelment("G", logits.m_data, 20);
-    bool sucess = check_two_equal(output_1st.logits.m_data, logits.m_data, logits.length(), 0.053);
+    bool sucess = check_two_equal(output_1st.logits.m_data, logits.m_data, logits.length());
 
     Matrix3D<int8_t> temp_key_value(mem_buf.get_int8buffer(b * sqlen * embed_dim), num_heads, sqlen,
                                     embed_dim / num_heads);
@@ -70,14 +70,13 @@ void test_OPTForCausalLM() {
         read_to_array(path.c_str(), temp_key_value.m_data, temp_key_value.length());
         // print_first_k_elelment("output_1st.past_keys[i].m_data", output_1st.past_keys[i].m_data, 20);
         // print_first_k_elelment("temp_key_value.m_data", temp_key_value.m_data, 20);
-        sucess &= check_two_equal(output_1st.past_keys[i].m_data, temp_key_value.m_data, temp_key_value.length(), 4.5);
+        sucess &= check_two_equal(output_1st.past_keys[i].m_data, temp_key_value.m_data, temp_key_value.length());
 
         path = "assets/tests/decoder/decoder_1st_past_value" + std::to_string(i) + ".bin";
         read_to_array(path.c_str(), temp_key_value.m_data, temp_key_value.length());
         // print_first_k_elelment("output_1st.past_values[i].m_data", output_1st.past_values[i].m_data, 20);
         // print_first_k_elelment("temp_key_value.m_data", temp_key_value.m_data, 20);
-        sucess &=
-            check_two_equal(output_1st.past_values[i].m_data, temp_key_value.m_data, temp_key_value.length(), 4.5);
+        sucess &= check_two_equal(output_1st.past_values[i].m_data, temp_key_value.m_data, temp_key_value.length());
     }
 
     Profiler::getInstance().report();
@@ -167,13 +166,13 @@ void test_OPTForCausalLM_1_3B() {
     Matrix3D<int> arg_max(mem_buf.get_intbuffer(sqlen), 1, 1, sqlen);
     arg_max_dim2(output_1st.logits, arg_max);
     Matrix3D<int> arg_maxGT(mem_buf.get_intbuffer(sqlen), 1, 1, sqlen);
-    read_to_array("assets/tests/OPT_1.3B/1st_logits_arg_max.bin", arg_maxGT.m_data, arg_maxGT.length());
+    read_to_array("assets/tests/OPT_1.3B/1st_logits_arg_max_int8fp32.bin", arg_maxGT.m_data, arg_maxGT.length());
 
     int total_hit = 0;
     for (int i = 0; i < sqlen; i++)
         if (arg_maxGT.m_data[i] == arg_max.m_data[i]) total_hit++;
     float hit_rate = (float)total_hit / (float)sqlen;
-    // std::cout << "sqlen:" << sqlen  << ", hits:" << total_hit << ", hit rate:" << hit_rate << std::endl;
+    std::cout << "sqlen:" << sqlen << ", hits:" << total_hit << ", hit rate:" << hit_rate << std::endl;
     sucess &= hit_rate > 0.88;
 
     Profiler::getInstance().report();
@@ -203,7 +202,7 @@ void test_OPTForCausalLM_1_3B() {
     // std::cout << "arg_max_2nd.m_data:" << arg_max_2nd.m_data[0]  << ", arg_maxGT_2nd.m_data:" <<
     // arg_maxGT_2nd.m_data[0] << std::endl;
     hit_rate = (float)total_hit / (float)1;
-    // std::cout << "sqlen:" << sqlen  << ", hits:" << total_hit << ", hit rate:" << hit_rate << std::endl;
+    std::cout << "sqlen:" << sqlen << ", hits:" << total_hit << ", hit rate:" << hit_rate << std::endl;
     sucess &= hit_rate > 0.99;
 
     Profiler::getInstance().report();
@@ -232,23 +231,28 @@ void test_OPTForCausalLM_6_7B() {
     struct OPTForCausalLM_output output_1st = model.forward(input_1st);
 
     Matrix3D<float> logits(mem_buf.get_fpbuffer(b * sqlen * voc_size), b, sqlen, voc_size);
-    read_to_array("assets/tests/OPT_1.3B/1st_logits.bin", logits.m_data, logits.length());
+    // read_to_array("assets/tests/OPT_1.3B/1st_logits.bin", logits.m_data, logits.length());
     // print_first_k_elelment("O", output_1st.logits.m_data, 70, 50);
     // print_first_k_elelment("G", logits.m_data, 70, 50);
     // sucess = check_two_equal(output_1st.logits.m_data, logits.m_data, logits.length(),
     //                          0.507);  // large error expected, see comments above
 
-    // Matrix3D<int> arg_max(mem_buf.get_intbuffer(sqlen), 1, 1, sqlen);
-    // arg_max_dim2(output_1st.logits, arg_max);
-    // Matrix3D<int> arg_maxGT(mem_buf.get_intbuffer(sqlen), 1, 1, sqlen);
-    // read_to_array("assets/tests/OPT_1.3B/1st_logits_arg_max.bin", arg_maxGT.m_data, arg_maxGT.length());
+    Matrix3D<int> arg_max(mem_buf.get_intbuffer(sqlen), 1, 1, sqlen);
+    arg_max_dim2(output_1st.logits, arg_max);
+    Matrix3D<int> arg_maxGT(mem_buf.get_intbuffer(sqlen), 1, 1, sqlen);
+    read_to_array("assets/tests/OPT_6.7B/1st_logits_arg_max.bin", arg_maxGT.m_data, arg_maxGT.length());
 
-    // int total_hit = 0;
-    // for (int i = 0; i < sqlen; i++)
-    //     if (arg_maxGT.m_data[i] == arg_max.m_data[i]) total_hit++;
-    // float hit_rate = (float)total_hit / (float)sqlen;
-    // // std::cout << "sqlen:" << sqlen  << ", hits:" << total_hit << ", hit rate:" << hit_rate << std::endl;
-    // sucess &= hit_rate > 0.88;
+    int total_hit = 0;
+    for (int i = 0; i < sqlen; i++)
+        if (arg_maxGT.m_data[i] == arg_max.m_data[i]) total_hit++;
+    float hit_rate = (float)total_hit / (float)sqlen;
+    for (int i = 0; i < sqlen; i++) std::cout << arg_maxGT.m_data[i] << ",";
+    std::cout << std::endl;
+    for (int i = 0; i < sqlen; i++) std::cout << arg_max.m_data[i] << ",";
+    std::cout << std::endl;
+
+    std::cout << "sqlen:" << sqlen << ", hits:" << total_hit << ", hit rate:" << hit_rate << std::endl;
+    sucess &= hit_rate > 0.88;
 
     Profiler::getInstance().report();
     Profiler::getInstance().reset();
@@ -288,7 +292,7 @@ void test_OPTForCausalLM_6_7B() {
 }
 
 int main() {
-    test_OPTForCausalLM_6_7B();
-    test_OPTForCausalLM_1_3B();
     test_OPTForCausalLM();
+    test_OPTForCausalLM_1_3B();
+    test_OPTForCausalLM_6_7B();
 }

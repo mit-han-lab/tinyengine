@@ -15,12 +15,29 @@ static int8_t ***value_states_arr_cache;
 static float *attn_output_fp_arr;
 static int *cache_num;
 static int8_t *query_states_unshape_arr;
+static int8_t *attn_output_arr;
+static int8_t *attn_output_transpose_arr;
+static int8_t *key_states_unshape_arr;
+static int8_t *key_states_arr;
+static int8_t *value_states_unshape_arr;
+static int8_t *value_states_arr;
+static int8_t *query_states_arr;
+static int8_t *value_states_transpose_arr;
+
 void Int8OPTAttention::initialized_memory(const struct model_config config) {
     allocate_aligned_memory(attn_weights_arr, config.num_heads * config.max_sqlen * config.max_sqlen * sizeof(float));
     allocate_aligned_memory(attn_probs_arr, config.num_heads * config.max_sqlen * config.max_sqlen * sizeof(float));
     allocate_aligned_memory(attn_probs_int8_arr,
                             config.num_heads * config.max_sqlen * config.max_sqlen * sizeof(int8_t));
     allocate_aligned_memory(attn_output_fp_arr, config.max_sqlen * config.embed_dim * sizeof(float));
+    allocate_aligned_memory(attn_output_arr, config.max_sqlen * config.embed_dim * sizeof(int8_t));
+    allocate_aligned_memory(attn_output_transpose_arr, config.max_sqlen * config.embed_dim * sizeof(int8_t));
+    allocate_aligned_memory(key_states_unshape_arr, config.max_sqlen * config.embed_dim * sizeof(int8_t));
+    allocate_aligned_memory(key_states_arr, config.max_sqlen * config.embed_dim * sizeof(int8_t));
+    allocate_aligned_memory(value_states_unshape_arr, config.max_sqlen * config.embed_dim * sizeof(int8_t));
+    allocate_aligned_memory(value_states_arr, config.max_sqlen * config.embed_dim * sizeof(int8_t));
+    allocate_aligned_memory(query_states_arr, config.max_sqlen * config.embed_dim * sizeof(int8_t));
+    allocate_aligned_memory(value_states_transpose_arr, config.max_sqlen * config.embed_dim * sizeof(int8_t));
     cache_num = new int[config.num_layers];
     for (int i = 0; i < config.num_layers; i++) cache_num[i] = 0;
     allocate_aligned_memory(query_states_unshape_arr, config.max_sqlen * config.embed_dim * sizeof(int8_t));
@@ -184,9 +201,14 @@ struct Int8OPTAttention_output Int8OPTAttention::forward(const struct Int8OPTAtt
     Matrix3D<int8_t> query_states_unshape(query_states_unshape_arr, b, sqlen, embed_dim);
     // opt.py: query_states = self.q_proj(hidden_states)
     this->q_proj.forward(input.hidden_states, query_states_unshape);
+    // int8_t GT_query_states_unshape[query_states_unshape.length()];
     // print_first_k_elelment("input.hidden_states.m_data", input.hidden_states.m_data, 20);
     // print_first_k_elelment("q_proj.params.B.int8_data_ptr.m_data", q_proj.params.B.int8_data_ptr, 20);
     // print_first_k_elelment("query_states_unshape.m_data", query_states_unshape.m_data, 20);
+    // printf("%.10f, %.10f\n", this->q_proj.alpha, this->q_proj.beta);
+    // read_to_array("assets/tests/OPT_125m/Int8OPTAttention_value_states_query_states_unshape.bin",
+    // GT_query_states_unshape, query_states_unshape.length()); assert(check_two_exact_equal(query_states_unshape_arr,
+    // GT_query_states_unshape, query_states_unshape.length()));
 
     int8_t *ret_value_states, *ret_key_states;
     if (cache_num[input.layer_idx] == 1) {
@@ -200,18 +222,14 @@ struct Int8OPTAttention_output Int8OPTAttention::forward(const struct Int8OPTAtt
     }
 
     // opt.py: key_states = self._shape(self.k_proj(hidden_states), -1, bsz)
-    int8_t key_states_unshape_arr[sqlen * this->embed_dim];
     Matrix3D<int8_t> key_states_unshape(key_states_unshape_arr, b, sqlen, embed_dim);
     this->k_proj.forward(input.hidden_states, key_states_unshape);
-    int8_t key_states_arr[b * sqlen * this->embed_dim];
     Matrix3D<int8_t> key_states(key_states_arr, this->num_heads, sqlen, this->head_dim);
     this->shpae(key_states_unshape, key_states, sqlen);
 
     // opt.py: value_states = self._shape(self.v_proj(hidden_states), -1, bsz)
-    int8_t value_states_unshape_arr[sqlen * this->embed_dim];
     Matrix3D<int8_t> value_states_unshape(value_states_unshape_arr, b, sqlen, embed_dim);
     this->v_proj.forward(input.hidden_states, value_states_unshape);
-    int8_t value_states_arr[sqlen * this->embed_dim];
     Matrix3D<int8_t> value_states(value_states_arr, this->num_heads, sqlen, this->head_dim);
     this->shpae(value_states_unshape, value_states, sqlen);
     // print_first_k_elelment("key_states.m_data", key_states.m_data, 20);
@@ -248,7 +266,7 @@ struct Int8OPTAttention_output Int8OPTAttention::forward(const struct Int8OPTAtt
     PROFILE_END(profile_name + "::cat_past_keys_values");
 
     // opt.py: query_states = self._shape(query_states, tgt_len, bsz).view(*proj_shape)
-    int8_t query_states_arr[sqlen * this->embed_dim];
+
     Matrix3D<int8_t> query_states(query_states_arr, this->num_heads, sqlen, this->head_dim);
     this->shpae(query_states_unshape, query_states, sqlen);
     // print_first_k_elelment("query_states.m_data", query_states.m_data, 20);
@@ -282,7 +300,6 @@ struct Int8OPTAttention_output Int8OPTAttention::forward(const struct Int8OPTAtt
     PROFILE_END(profile_name + "::get_attn_probs_int8");
 
     // opt.py: value_states = value_states.transpose(1, 2).contiguous()
-    int8_t value_states_transpose_arr[this->num_heads * this->head_dim * tgz];
     Matrix3D<int8_t> value_states_transpose(value_states_transpose_arr, this->num_heads, this->head_dim, tgz);
 #ifdef USE_OPT_EXP
     transpose_1_2idx_threads(final_value_states, value_states_transpose);
@@ -292,14 +309,12 @@ struct Int8OPTAttention_output Int8OPTAttention::forward(const struct Int8OPTAtt
     // read_to_array("assets/tests/attn_probs_int8_mock.bin", attn_probs_int8.m_data, this->num_heads * sqlen * tgz);
     // read_to_array("assets/tests/value_states_transpose_mock.bin", value_states_transpose.m_data, this->num_heads *
     // tgz * this->head_dim); opt.py: attn_output = self.pv_bmm(attn_probs, value_states)
-    int8_t attn_output_arr[this->num_heads * sqlen * this->head_dim];
     Matrix3D<int8_t> attn_output(attn_output_arr, this->num_heads, sqlen, this->head_dim);
     this->pv_bmm.forward(attn_probs_int8, value_states_transpose, attn_output);
     // print_first_k_elelment("attn_output", attn_output.m_data, 20);
 
     // opt.py: attn_output = attn_output.transpose(1, 2)
     // opt.py: attn_output = attn_output.reshape(bsz, tgt_len, self.embed_dim).contiguous()
-    int8_t attn_output_transpose_arr[this->num_heads * sqlen * this->head_dim];
     Matrix3D<int8_t> attn_output_transpose(attn_output_transpose_arr, 1, sqlen, this->num_heads * this->head_dim);
     this->unshape(attn_output, attn_output_transpose, sqlen);
 

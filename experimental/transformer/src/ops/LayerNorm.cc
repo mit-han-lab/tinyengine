@@ -1,4 +1,5 @@
 #include <cmath>
+#include <iomanip>
 
 #include "operators.h"
 #include "utils.h"
@@ -13,8 +14,8 @@ void LayerNorm::forward(const Matrix3D<float> &x, Matrix3D<float> &output) {
     Matrix3D<float> weight = params.weight;
     Matrix3D<float> bias = params.bias;
     const int last_dims = 2;
-    const float eps = 0.00001;
-    
+    const double eps = 1e-5;
+
     assert(last_dims == 2);  // support the last dim for now
     assert(output.m_dim_x == x.m_dim_x);
     assert(output.m_dim_y == x.m_dim_y);
@@ -24,22 +25,29 @@ void LayerNorm::forward(const Matrix3D<float> &x, Matrix3D<float> &output) {
 
     for (int i = 0; i < x.m_dim_x; i++) {      // batches
         for (int j = 0; j < x.m_dim_y; j++) {  // samples
-            float mean = 0;
+            double mean = 0;
             for (int k = 0; k < x.m_dim_z; k++) {  // hideden states
                 mean += x(i, j, k);
             }
-            mean /= static_cast<float>(x.m_dim_z);
-            float squared_diff_sum = 0;
+            mean /= static_cast<double>(x.m_dim_z);
+            double squared_diff_sum = 0;
             for (int k = 0; k < x.m_dim_z; k++) {
-                float value = x(i, j, k);
+                double value = static_cast<double>(x(i, j, k));
                 squared_diff_sum += (value - mean) * (value - mean);
             }
-            float std_dev = std::sqrt(squared_diff_sum / static_cast<float>(x.m_dim_z));
+            double std_dev = sqrtl(squared_diff_sum / static_cast<double>(x.m_dim_z) + eps);
 
             for (int k = 0; k < x.m_dim_z; k++) {
-                float value = x(i, j, k);
-                float fp_out = ((value - mean) / (std_dev + eps) * weight(0, 0, k)) + bias(0, 0, k);
-                output(i, j, k) = fp_out;
+                double value = static_cast<double>(x(i, j, k));
+                double fp_out = (((value - mean) / (std_dev)) * static_cast<double>(weight(0, 0, k))) +
+                                static_cast<double>(bias(0, 0, k));
+                output(i, j, k) = static_cast<float>(fp_out);
+                // if (i == 0 && j == 0 && k == 1177){
+                //     std::cout << std::setprecision(15) << "squared_diff_sum" << squared_diff_sum;
+                //     std::cout << std::setprecision(15) << ",value:" << value << ", std_dev:" << std_dev << ",
+                //     fp_out:" << fp_out; std::cout << std::setprecision(15) << ",weight:" << weight(0, 0, k) << ",
+                //     bias:" <<  bias(0, 0, k) << std::endl;
+                // }
             }
         }
     }

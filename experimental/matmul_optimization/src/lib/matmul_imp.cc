@@ -288,7 +288,7 @@ void MatmulOperator::mat_mul_transposed_fastover_column(const struct matmul_para
     const struct matrix *A = &params->A, *B = &params->B, *C = &params->C;
     float *data_A = A->data_ptr, *data_B = B->data_ptr, *data_C = C->data_ptr;
 
-    assert(k % 8 == 0);
+    assert(A->column % 8 == 0);
 
     if (num_thread > C->column) num_thread = C->column;
 

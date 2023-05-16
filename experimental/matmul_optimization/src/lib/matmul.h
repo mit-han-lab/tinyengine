@@ -26,6 +26,7 @@ struct optimization_params {
 struct matmul_params {
     struct matrix A, B, C, bias;
     struct optimization_params opt_params;
+    float alpha, beta;
 };
 
 struct thread_args {

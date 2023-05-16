@@ -29,11 +29,11 @@ void dump_64x8_unsigned(__m256i &target, char *title) {
     printf("\n");
 }
 
-void dump_32x16_signed(__m256i &target, char *title) {
+void dump_16x16_signed(__m256i &target, char *title) {
     int16_t *ptr = (int16_t *)&target;
 
     printf("%s:", title);
-    for (int i = 0; i < 32; i++) {
+    for (int i = 0; i < 16; i++) {
         printf("%d, ", *ptr++);
     }
     printf("\n");
@@ -543,10 +543,11 @@ void *mat_mul_avx_int8_thread_func_2x2_32unroll(void *args) {
     const struct matrix *A = &params->A, *B = &params->B, *C = &params->C;
     int32_t A_zp = A->qparams.zero_point, C_zp = C->qparams.zero_point;
     float A_sc = A->qparams.scale, B_sc = B->qparams.scale, C_sc = C->qparams.scale;
-    float effective_scale = A_sc * B_sc / C_sc;
     int8_t *data_A = A->int8_data_ptr, *data_B = B->int8_data_ptr, *data_C = C->int8_data_ptr;
     int start_i = thread_args->start_i, end_i = thread_args->end_i;
     const int8_t q_min = C->qparams.q_min, q_max = C->qparams.q_max;
+    float beta = params->beta;
+    float alpha = params->alpha;
 
     assert(A->column % 32 == 0);
 
@@ -563,8 +564,8 @@ void *mat_mul_avx_int8_thread_func_2x2_32unroll(void *args) {
                 }
                 int32_t *accptr = (int32_t *)&acc0_8x32;
                 acc = accptr[0] + accptr[1] + accptr[2] + accptr[3] + accptr[4] + accptr[5] + accptr[6] + accptr[7];
-                acc += params->bias.int32_data_ptr[j];
-                acc = (int32_t)std::round((float)acc * effective_scale);
+                acc =
+                    (int32_t)std::round((float)acc * alpha + static_cast<float>(params->bias.int8_data_ptr[j]) * beta);
                 acc -= C_zp;
                 acc = MAX(acc, q_min);
                 acc = MIN(acc, q_max);
@@ -582,26 +583,25 @@ void *mat_mul_avx_int8_thread_func_2x2_32unroll(void *args) {
                     __m256i bb = _mm256_loadu_si256((const __m256i_u *)&data_B[j * B->row + k]);
                     __m256i dd = _mm256_loadu_si256((const __m256i_u *)&data_B[(j + 1) * B->row + k]);
 
-                    // multiply_signed_int8_2x2_32epi_of(aa, bb, cc, dd, acc0_8x32, acc1_8x32, acc2_8x32, acc3_8x32);
                     multiply_signed_int8_2x2_32epi(aa, bb, cc, dd, acc0_8x32, acc1_8x32, acc2_8x32, acc3_8x32);
                 }
                 int32_t *accptr = (int32_t *)&acc0_8x32;
                 acc0 = accptr[0] + accptr[1] + accptr[2] + accptr[3] + accptr[4] + accptr[5] + accptr[6] + accptr[7];
-                acc0 += params->bias.int32_data_ptr[j];
                 accptr = (int32_t *)&acc1_8x32;
                 acc1 = accptr[0] + accptr[1] + accptr[2] + accptr[3] + accptr[4] + accptr[5] + accptr[6] + accptr[7];
-                acc1 += params->bias.int32_data_ptr[j + 1];
                 accptr = (int32_t *)&acc2_8x32;
                 acc2 = accptr[0] + accptr[1] + accptr[2] + accptr[3] + accptr[4] + accptr[5] + accptr[6] + accptr[7];
-                acc2 += params->bias.int32_data_ptr[j];
                 accptr = (int32_t *)&acc3_8x32;
                 acc3 = accptr[0] + accptr[1] + accptr[2] + accptr[3] + accptr[4] + accptr[5] + accptr[6] + accptr[7];
-                acc3 += params->bias.int32_data_ptr[j + 1];
 
-                acc0 = (int32_t)std::round((float)acc0 * effective_scale);
-                acc1 = (int32_t)std::round((float)acc1 * effective_scale);
-                acc2 = (int32_t)std::round((float)acc2 * effective_scale);
-                acc3 = (int32_t)std::round((float)acc3 * effective_scale);
+                acc0 =
+                    (int32_t)std::round((float)acc0 * alpha + static_cast<float>(params->bias.int8_data_ptr[j]) * beta);
+                acc1 = (int32_t)std::round((float)acc1 * alpha +
+                                           static_cast<float>(params->bias.int8_data_ptr[j + 1]) * beta);
+                acc2 =
+                    (int32_t)std::round((float)acc2 * alpha + static_cast<float>(params->bias.int8_data_ptr[j]) * beta);
+                acc3 = (int32_t)std::round((float)acc3 * alpha +
+                                           static_cast<float>(params->bias.int8_data_ptr[j + 1]) * beta);
 
                 acc0 -= C_zp;
                 acc1 -= C_zp;

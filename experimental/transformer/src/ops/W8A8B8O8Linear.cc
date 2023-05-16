@@ -5,15 +5,16 @@
 
 void load_W8A8B8O8Linear_params(W8A8B8O8Linear &op, std::string prefix) {
     read_to_array((prefix + "/weight.bin").c_str(), op.params.B.int8_data_ptr, op.params.B.length());
-    read_to_array((prefix + "/bias.bin").c_str(), op.params.bias.int32_data_ptr, op.params.bias.length());
+    read_to_array((prefix + "/bias_int8.bin").c_str(), op.params.bias.int8_data_ptr, op.params.bias.length());
+    read_to_array((prefix + "/alpha.bin").c_str(), &op.params.alpha, 1);
     read_to_array((prefix + "/alpha.bin").c_str(), &op.alpha, 1);
+    read_to_array((prefix + "/beta.bin").c_str(), &op.params.beta, 1);
     read_to_array((prefix + "/beta.bin").c_str(), &op.beta, 1);
 }
 
 W8A8B8O8Linear::W8A8B8O8Linear(struct W8A8B8O8Linear_params &op_params) {
     Matrix3D<int8_t> weight = op_params.weight;
-    Matrix3D<int32_t> bias = op_params.bias;
-    alpha = op_params.alpha;
+    Matrix3D<int8_t> bias = op_params.bias;
 
     int k = weight.m_dim_z, n = weight.m_dim_y;
     params.A.qparams.scale = alpha;  // effective_scale = a * B / C
@@ -29,7 +30,7 @@ W8A8B8O8Linear::W8A8B8O8Linear(struct W8A8B8O8Linear_params &op_params) {
     params.opt_params.num_thread = NUM_THREAD;
     params.C.qparams.q_max = 127;
     params.C.qparams.q_min = -128;
-    params.bias.int32_data_ptr = bias.m_data;
+    params.bias.int8_data_ptr = bias.m_data;
     params.bias.row = 1;
     params.bias.column = n;
 }

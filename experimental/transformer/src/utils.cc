@@ -14,16 +14,34 @@ void read_to_array(const char* path, T* array, int size) {
     infile.close();
 }
 
+struct max_error_info {
+    int idx;
+    float a1, a2;
+};
+
 bool check_two_equal(float* array, float* array2, int size, float error) {
     float sq_diff = 0;
     float max_sqdiff = 0;
+    struct max_error_info error_info;
+
     for (int i = 0; i < size; i++) {
         float diff = (float)array[i] - (float)array2[i];
         sq_diff += diff * diff;
-        if (diff * diff > max_sqdiff) max_sqdiff = diff * diff;
+        if (diff * diff > max_sqdiff) {
+            max_sqdiff = diff * diff;
+            error_info.idx = i;
+            error_info.a1 = array[i];
+            error_info.a2 = array2[i];
+        }
+        // if (std::sqrt(max_sqdiff) > MAX_SQ_ERROR_MAX){
+        //     std::cout << "i:" << i << ",max_sqdiff:" << std::sqrt(max_sqdiff)  << ", array[i]:";
+        //     std::cout <<  static_cast<float>(array[i]) << ", array2[i]:" << static_cast<float>(array2[i]) <<
+        //     std::endl; return false;
+        // }
     }
     if ((sq_diff / size) > error) {
         std::cout << "MSE:" << sq_diff / size << ", MAX SQ diff:" << max_sqdiff << std::endl;
+        std::cout << "@:" << error_info.idx << ",a1:" << error_info.a1 << ",a2:" << error_info.a2;
         return false;
     }
     return true;
@@ -37,6 +55,11 @@ bool check_two_equal(T* array, T* array2, int size) {
         float diff = (float)array[i] - (float)array2[i];
         sq_diff += diff * diff;
         if (diff * diff > max_sqdiff) max_sqdiff = diff * diff;
+        if (std::sqrt(max_sqdiff) > MAX_SQ_ERROR_MAX) {
+            std::cout << "i:" << i << ",max_sqdiff:" << std::sqrt(max_sqdiff) << ", array[i]:";
+            std::cout << static_cast<float>(array[i]) << ", array2[i]:" << static_cast<float>(array2[i]) << std::endl;
+            return false;
+        }
     }
     if ((sq_diff / size) > ERROR_MAX) {
         std::cout << "MSE:" << sq_diff / size << ", MAX SQ diff:" << max_sqdiff << std::endl;
@@ -50,6 +73,11 @@ bool check_two_equal<int8_t>(int8_t* array, int8_t* array2, int size) {
     float sq_diff = 0;
     float max_sqdiff = 0;
     for (int i = 0; i < size; i++) {
+        if (array[i] != array2[i]) {
+            // std::cout << "i:" << i << ", array[i]:" << static_cast<int>(array[i]) << ", array2[i]:" <<
+            // static_cast<int>(array2[i]) << std::endl;
+            return false;
+        }
         float diff = (float)array[i] - (float)array2[i];
         sq_diff += diff * diff;
         if (diff * diff > max_sqdiff) max_sqdiff = diff * diff;
@@ -61,10 +89,28 @@ bool check_two_equal<int8_t>(int8_t* array, int8_t* array2, int size) {
     return true;
 }
 
+bool check_two_exact_equal(int8_t* array, int8_t* array2, int size) {
+    float sq_diff = 0;
+    float max_sqdiff = 0;
+    for (int i = 0; i < size; i++) {
+        if (array[i] != array2[i]) {
+            std::cout << "i:" << i << ", array[i]:" << static_cast<int>(array[i])
+                      << ", array2[i]:" << static_cast<int>(array2[i]) << std::endl;
+            return false;
+        }
+    }
+    return true;
+}
+
 bool check_two_equal(int8_t* array, int8_t* array2, int size, float error) {
     float sq_diff = 0;
     float max_sqdiff = 0;
     for (int i = 0; i < size; i++) {
+        if (array[i] != array2[i]) {
+            // std::cout << "i:" << i << ", array[i]:" << static_cast<int>(array[i]) << ", array2[i]:" <<
+            // static_cast<int>(array2[i]) << std::endl;
+            return false;
+        }
         float diff = (float)array[i] - (float)array2[i];
         sq_diff += diff * diff;
         if (diff * diff > max_sqdiff) max_sqdiff = diff * diff;
@@ -74,6 +120,25 @@ bool check_two_equal(int8_t* array, int8_t* array2, int size, float error) {
         return false;
     }
     return true;
+}
+
+void print_MSE_max_diff(float* a, float* a2, int size) {
+    float sq_diff = 0;
+    float max_sqdiff = 0;
+    struct max_error_info error_info;
+
+    for (int i = 0; i < size; i++) {
+        float diff = (float)a[i] - (float)a2[i];
+        sq_diff += diff * diff;
+        if (diff * diff > max_sqdiff) {
+            max_sqdiff = diff * diff;
+            error_info.idx = i;
+            error_info.a1 = a[i];
+            error_info.a2 = a2[i];
+        }
+    }
+    std::cout << "MSE:" << sq_diff / size << ", MAX SQ diff:" << max_sqdiff;
+    std::cout << "@:" << error_info.idx << ",a1:" << error_info.a1 << ",a2:" << error_info.a2 << std::endl;
 }
 
 template <>

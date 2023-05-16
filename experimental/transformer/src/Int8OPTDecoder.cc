@@ -74,17 +74,17 @@ Int8OPTDecoder::Int8OPTDecoder(std::string param_path, const struct model_config
         struct BMM_S8T_S8N_S8T_params pv_bmm;
         struct W8A8B8O8Linear_params k_proj, v_proj, q_proj;
         Matrix3D<int8_t> k_proj_weight(new int8_t[embed_dim * embed_dim], 1, embed_dim, embed_dim);
-        Matrix3D<int32_t> k_proj_bias(new int32_t[embed_dim], 1, 1, embed_dim);
+        Matrix3D<int8_t> k_proj_bias(new int8_t[embed_dim], 1, 1, embed_dim);
         k_proj.weight = k_proj_weight;
         k_proj.bias = k_proj_bias;
         auto k_proj_op = W8A8B8O8Linear(k_proj);
         Matrix3D<int8_t> v_proj_weight(new int8_t[embed_dim * embed_dim], 1, embed_dim, embed_dim);
-        Matrix3D<int32_t> v_proj_bias(new int32_t[embed_dim], 1, 1, embed_dim);
+        Matrix3D<int8_t> v_proj_bias(new int8_t[embed_dim], 1, 1, embed_dim);
         v_proj.weight = v_proj_weight;
         v_proj.bias = v_proj_bias;
         auto v_proj_op = W8A8B8O8Linear(v_proj);
         Matrix3D<int8_t> q_proj_weight(new int8_t[embed_dim * embed_dim], 1, embed_dim, embed_dim);
-        Matrix3D<int32_t> q_proj_bias(new int32_t[embed_dim], 1, 1, embed_dim);
+        Matrix3D<int8_t> q_proj_bias(new int8_t[embed_dim], 1, 1, embed_dim);
         q_proj.weight = q_proj_weight;
         q_proj.bias = q_proj_bias;
         auto q_proj_op = W8A8B8O8Linear(q_proj);
@@ -109,11 +109,11 @@ Int8OPTDecoder::Int8OPTDecoder(std::string param_path, const struct model_config
         LayerNormQ self_attn_layer_norm_op = LayerNormQ(self_attn_layer_norm);
         LayerNormQ final_layer_norm_op = LayerNormQ(final_layer_norm);
 
-        struct W8A8B8O8Linear_params fc1;
+        struct W8A8B8O8LinearReLU_params fc1;
         Matrix3D<int8_t> fc1_weight(new int8_t[embed_dim * hidden_dim], 1, hidden_dim, embed_dim);
-        Matrix3D<int32_t> fc1_bias(new int32_t[hidden_dim], 1, 1, hidden_dim);
+        Matrix3D<int8_t> fc1_bias_int8(new int8_t[hidden_dim], 1, 1, hidden_dim);
         fc1.weight = fc1_weight;
-        fc1.bias = fc1_bias;
+        fc1.bias_int8 = fc1_bias_int8;
         auto fc1_op = W8A8B8O8LinearReLU(fc1);
 
         struct W8A8BFP32OFP32Linear_params fc2;
@@ -192,8 +192,8 @@ struct Int8OPTDecoder_output Int8OPTDecoder::forward(const struct Int8OPTDecoder
             past_keys.push_back(l_o.past_key_value.first);
             past_values.push_back(l_o.past_key_value.second);
         }
-        // if(i == 22){
-        //     read_to_array("assets/tests/OPT_1.3B/hidden_states_layer22.bin", hidden_states.m_data,
+        // if(i == 10){
+        //     read_to_array("assets/tests/OPT_6.7B/hidden_states_layer10.bin", hidden_states.m_data,
         //     hidden_states.length()); std::cout << "---------------------------------------------------" << std::endl;
         // }
         // print_first_k_elelment("hidden_states", hidden_states.m_data, 20);
