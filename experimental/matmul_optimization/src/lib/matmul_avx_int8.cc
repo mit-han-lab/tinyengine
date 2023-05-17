@@ -8,6 +8,12 @@
 #include "matmul.h"
 // #include <omp.h> // currently it is bugged
 
+inline void assign_8int32(int *ptr, int &acc) {
+    acc = (ptr[0] + ptr[1] + ptr[2] + ptr[3] + ptr[4] + ptr[5] + ptr[6] + ptr[7]);
+}
+
+inline void clamp_max_min(int &value, const int8_t min, const int8_t max) {}
+
 namespace matmul {
 void dump_64x8_signed(__m256i &target, char *title) {
     int8_t *ptr = (int8_t *)&target;
@@ -207,62 +213,6 @@ void multiply_signed_int8_2x2(__m256i &a, __m256i &b, __m256i &a2, __m256i &b2, 
                             _mm256_add_epi32(_mm256_add_epi32(cb_ext1, cb2_ext1), _mm256_add_epi32(cb_ext2, cb2_ext2)));
     acc3 = _mm256_add_epi32(acc3,
                             _mm256_add_epi32(_mm256_add_epi32(cd_ext1, cd2_ext1), _mm256_add_epi32(cd_ext2, cd2_ext2)));
-}
-
-static inline void multiply_signed_int8_x2_32epi(__m256i &a, __m256i &b, __m256i &c, __m256i &d, __m256i &acc0,
-                                                 __m256i &acc1, __m256i &acc2, __m256i &acc3) {
-    __m256i a_sign_mask = _mm256_cmpgt_epi8(zero_vec, a);  // set 0xFF if zero_vec[i] > a[i]
-    __m256i b_sign_mask = _mm256_cmpgt_epi8(zero_vec, b);  // set 0xFF if zero_vec[i] > a[i]
-    __m256i c_sign_mask = _mm256_cmpgt_epi8(zero_vec, c);
-    __m256i d_sign_mask = _mm256_cmpgt_epi8(zero_vec, d);
-
-    // Compute the two's complement of a, put it here for higher throughput with good instruction dep.
-    __m256i b_abs = _mm256_abs_epi8(b);
-    __m256i a_abs = _mm256_abs_epi8(a);
-    __m256i d_abs = _mm256_abs_epi8(d);
-    __m256i c_abs = _mm256_abs_epi8(c);
-    __m256i b_negated = _mm256_sub_epi8(_mm256_set1_epi8(0), b_abs);
-    __m256i d_negated = _mm256_sub_epi8(_mm256_set1_epi8(0), d_abs);
-
-    // Manipulate the `sign` of B to represent the sign of the 16 bit result
-    __m256i sign_mask_a_sub_b = _mm256_sub_epi8(a_sign_mask, b_sign_mask);
-    __m256i sign_mask_a_sub_d = _mm256_sub_epi8(a_sign_mask, d_sign_mask);
-    __m256i sign_mask_c_sub_b = _mm256_sub_epi8(c_sign_mask, b_sign_mask);
-    __m256i sign_mask_c_sub_d = _mm256_sub_epi8(c_sign_mask, d_sign_mask);
-
-    // sign_mask[i] if a[i] and b[i] have different sign bits
-    __m256i sign_mask_ab = _mm256_cmpeq_epi8(sign_mask_a_sub_b, zero_vec);
-    __m256i sign_mask_ad = _mm256_cmpeq_epi8(sign_mask_a_sub_d, zero_vec);
-    __m256i sign_mask_cb = _mm256_cmpeq_epi8(sign_mask_c_sub_b, zero_vec);
-    __m256i sign_mask_cd = _mm256_cmpeq_epi8(sign_mask_c_sub_d, zero_vec);
-
-    __m256i corrected_ab = _mm256_blendv_epi8(b_negated, b_abs, sign_mask_ab);
-    __m256i corrected_ad = _mm256_blendv_epi8(d_negated, d_abs, sign_mask_ad);
-    __m256i corrected_cb = _mm256_blendv_epi8(b_negated, b_abs, sign_mask_cb);
-    __m256i corrected_cd = _mm256_blendv_epi8(d_negated, d_abs, sign_mask_cd);
-
-    // Multiply the absolute values of a_abs (unsigned 8-bit integers) and corrected_b (signed 8-bit integers)
-    __m256i product_16x16_ab = _mm256_maddubs_epi16(a_abs, corrected_ab);
-    __m256i product_16x16_ad = _mm256_maddubs_epi16(a_abs, corrected_ad);
-    __m256i product_16x16_cb = _mm256_maddubs_epi16(c_abs, corrected_cb);
-    __m256i product_16x16_cd = _mm256_maddubs_epi16(c_abs, corrected_cd);
-
-    // Sign extend the 16-bit integers in vector to 32-bit integers
-    __m256i ab_ext1 = _mm256_cvtepi16_epi32(_mm256_extracti128_si256(product_16x16_ab, 0));
-    __m256i ab_ext2 = _mm256_cvtepi16_epi32(_mm256_extracti128_si256(product_16x16_ab, 1));
-    __m256i ad_ext1 = _mm256_cvtepi16_epi32(_mm256_extracti128_si256(product_16x16_ad, 0));
-    __m256i ad_ext2 = _mm256_cvtepi16_epi32(_mm256_extracti128_si256(product_16x16_ad, 1));
-    __m256i cb_ext1 = _mm256_cvtepi16_epi32(_mm256_extracti128_si256(product_16x16_cb, 0));
-    __m256i cb_ext2 = _mm256_cvtepi16_epi32(_mm256_extracti128_si256(product_16x16_cb, 1));
-    __m256i cd_ext1 = _mm256_cvtepi16_epi32(_mm256_extracti128_si256(product_16x16_cd, 0));
-    __m256i cd_ext2 = _mm256_cvtepi16_epi32(_mm256_extracti128_si256(product_16x16_cd, 1));
-
-    // Element-wise add the 32-bit integer vectors
-    // acc0 += a * b + a2 * b2, acc2 += a * d + a2 * d2, acc3 += c * b + c * b2, acc4 += c * d + c2 * d2
-    acc0 = _mm256_add_epi32(acc0, _mm256_add_epi32(ab_ext1, ab_ext2));
-    acc1 = _mm256_add_epi32(acc1, _mm256_add_epi32(ad_ext1, ad_ext2));
-    acc2 = _mm256_add_epi32(acc2, _mm256_add_epi32(cb_ext1, cb_ext2));
-    acc3 = _mm256_add_epi32(acc3, _mm256_add_epi32(cd_ext1, cd_ext2));
 }
 
 static inline void multiply_signed_int8_2x2_32epi(__m256i &a, __m256i &b, __m256i &c, __m256i &d, __m256i &acc0,
@@ -564,8 +514,7 @@ void *mat_mul_avx_int8_thread_func_2x2_32unroll(void *args) {
                 }
                 int32_t *accptr = (int32_t *)&acc0_8x32;
                 acc = accptr[0] + accptr[1] + accptr[2] + accptr[3] + accptr[4] + accptr[5] + accptr[6] + accptr[7];
-                acc =
-                    (int32_t)std::round((float)acc * alpha + static_cast<float>(params->bias.int8_data_ptr[j]) * beta);
+                acc = (int32_t)std::round((float)acc * alpha + (float)(params->bias.int8_data_ptr[j]) * beta);
                 acc -= C_zp;
                 acc = MAX(acc, q_min);
                 acc = MIN(acc, q_max);
@@ -594,14 +543,10 @@ void *mat_mul_avx_int8_thread_func_2x2_32unroll(void *args) {
                 accptr = (int32_t *)&acc3_8x32;
                 acc3 = accptr[0] + accptr[1] + accptr[2] + accptr[3] + accptr[4] + accptr[5] + accptr[6] + accptr[7];
 
-                acc0 =
-                    (int32_t)std::round((float)acc0 * alpha + static_cast<float>(params->bias.int8_data_ptr[j]) * beta);
-                acc1 = (int32_t)std::round((float)acc1 * alpha +
-                                           static_cast<float>(params->bias.int8_data_ptr[j + 1]) * beta);
-                acc2 =
-                    (int32_t)std::round((float)acc2 * alpha + static_cast<float>(params->bias.int8_data_ptr[j]) * beta);
-                acc3 = (int32_t)std::round((float)acc3 * alpha +
-                                           static_cast<float>(params->bias.int8_data_ptr[j + 1]) * beta);
+                acc0 = (int32_t)std::round((float)acc0 * alpha + (float)(params->bias.int8_data_ptr[j]) * beta);
+                acc1 = (int32_t)std::round((float)acc1 * alpha + (float)(params->bias.int8_data_ptr[j + 1]) * beta);
+                acc2 = (int32_t)std::round((float)acc2 * alpha + (float)(params->bias.int8_data_ptr[j]) * beta);
+                acc3 = (int32_t)std::round((float)acc3 * alpha + (float)(params->bias.int8_data_ptr[j + 1]) * beta);
 
                 acc0 -= C_zp;
                 acc1 -= C_zp;
@@ -647,6 +592,86 @@ void MatmulOperator::mat_mul_avx_int8_fast_2x2_32unroll(const struct matmul_para
         threads_args[j].blk_size = params->opt_params.blk_size;
         threads_args[j].params = params;
         pthread_create(&thread_pool[j], NULL, mat_mul_avx_int8_thread_func_2x2_32unroll, &threads_args[j]);
+    }
+    // Join threads
+    for (j = 0; j < num_thread; j++) {
+        pthread_join(thread_pool[j], NULL);
+    }
+}
+
+// Note: no expecting min/max clipping for this op
+void *mat_mul_avx_int8_fast_32unroll_over_column_thread_func(void *args) {
+    int i, j, k;
+    struct thread_args *thread_args = (struct thread_args *)args;
+    const struct matmul_params *params = thread_args->params;
+    const struct matrix *A = &params->A, *B = &params->B, *C = &params->C;
+    float A_sc = A->qparams.scale, B_sc = B->qparams.scale, C_sc = C->qparams.scale;
+    int8_t *data_A = A->int8_data_ptr, *data_B = B->int8_data_ptr, *data_C = C->int8_data_ptr;
+    int start_i = thread_args->start_i, end_i = thread_args->end_i;
+    const int8_t q_min = C->qparams.q_min, q_max = C->qparams.q_max;
+    float beta = params->beta;
+    float alpha = params->alpha;
+
+    for (i = 0; i < C->row; i++) {
+        for (j = start_i; j < end_i; j += 4) {
+            int acc = 0, acc1 = 0, acc2 = 0, acc3 = 0, acc4 = 0;
+            __m256i acc0_8x32 = _mm256_setzero_si256();
+            __m256i acc1_8x32 = _mm256_setzero_si256();
+            __m256i acc2_8x32 = _mm256_setzero_si256();
+            __m256i acc3_8x32 = _mm256_setzero_si256();
+            for (k = 0; k < A->column; k += 32) {
+                // assume B is transposed
+                __m256i aa = _mm256_loadu_si256((const __m256i_u *)&data_A[i * A->column + k]);
+                __m256i bb = _mm256_loadu_si256((const __m256i_u *)&data_B[j * B->row + k]);
+                __m256i bb1 = _mm256_loadu_si256((const __m256i_u *)&data_B[(j + 1) * B->row + k]);
+                __m256i bb2 = _mm256_loadu_si256((const __m256i_u *)&data_B[(j + 2) * B->row + k]);
+                __m256i bb3 = _mm256_loadu_si256((const __m256i_u *)&data_B[(j + 3) * B->row + k]);
+                acc0_8x32 = _mm256_add_epi32(acc0_8x32, multiply_signed_int8_32epi(aa, bb));
+                acc1_8x32 = _mm256_add_epi32(acc1_8x32, multiply_signed_int8_32epi(aa, bb1));
+                acc2_8x32 = _mm256_add_epi32(acc2_8x32, multiply_signed_int8_32epi(aa, bb2));
+                acc3_8x32 = _mm256_add_epi32(acc3_8x32, multiply_signed_int8_32epi(aa, bb3));
+            }
+            assign_8int32((int32_t *)&acc0_8x32, acc);
+            acc = (int32_t)std::round((float)(acc)*alpha + (float)(params->bias.int8_data_ptr[j]) * beta);
+            assign_8int32((int32_t *)&acc1_8x32, acc1);
+            acc1 = (int32_t)std::round((float)(acc1)*alpha + (float)(params->bias.int8_data_ptr[j + 1]) * beta);
+
+            assign_8int32((int32_t *)&acc2_8x32, acc2);
+            acc2 = (int32_t)std::round((float)(acc2)*alpha + (float)(params->bias.int8_data_ptr[j + 2]) * beta);
+
+            assign_8int32((int32_t *)&acc3_8x32, acc3);
+            acc3 = (int32_t)std::round((float)(acc3)*alpha + (float)(params->bias.int8_data_ptr[j + 3]) * beta);
+
+            data_C[i * C->column + j] = (int8_t)acc;
+            data_C[i * C->column + j + 1] = (int8_t)acc1;
+            data_C[i * C->column + j + 2] = (int8_t)acc2;
+            data_C[i * C->column + j + 3] = (int8_t)acc3;
+        }
+    }
+    return NULL;
+}
+
+void MatmulOperator::mat_mul_avx_int8_fast_32unroll_over_column(const struct matmul_params *params) {
+    int j, num_thread = params->opt_params.num_thread;
+
+    if (num_thread > params->C.column) num_thread = params->C.column;
+
+    assert(params->A.column % 32 == 0);
+    assert((params->C.column) % (num_thread * 8) == 0);
+
+    pthread_t thread_pool[num_thread];
+    struct thread_args threads_args[num_thread];
+
+    // Thread creation
+    for (j = 0; j < num_thread; j++) {
+        threads_args[j].start_i = j * (params->C.column / num_thread);
+        if (j == num_thread - 1)
+            threads_args[j].end_i = params->C.column;
+        else
+            threads_args[j].end_i = (j + 1) * (params->C.column / num_thread);
+        threads_args[j].blk_size = params->opt_params.blk_size;
+        threads_args[j].params = params;
+        pthread_create(&thread_pool[j], NULL, mat_mul_avx_int8_fast_32unroll_over_column_thread_func, &threads_args[j]);
     }
     // Join threads
     for (j = 0; j < num_thread; j++) {
@@ -1105,6 +1130,247 @@ void MatmulOperator::mat_mul_avx_int8_fast_2x2_32unroll_bfp32_ofp32(const struct
         threads_args[j].blk_size = params->opt_params.blk_size;
         threads_args[j].params = params;
         pthread_create(&thread_pool[j], NULL, mat_mul_avx_int8_thread_func_2x2_32unroll_bfp32_ofp32, &threads_args[j]);
+    }
+    // Join threads
+    for (j = 0; j < num_thread; j++) {
+        pthread_join(thread_pool[j], NULL);
+    }
+}
+
+// acc0 += a * b, acc1 += a * b1, acc2 += a * b2, acc3 += a * b3
+inline void multiply_signed_int8_32epi_4unroll_test(__m256i &a, __m256i &b, __m256i &b1, __m256i &b2, __m256i &b3,
+                                                    __m256i &acc0, __m256i &acc1, __m256i &acc2, __m256i &acc3) {
+    __m256i a_sign_mask = _mm256_cmpgt_epi8(zero_vec, a);  // set 0xFF if zero_vec[i] > a[i]
+    __m256i b_sign_mask = _mm256_cmpgt_epi8(zero_vec, b);  // set 0xFF if zero_vec[i] > a[i]
+
+    // Compute the two's complement of a, put it here for higher throughput with good instruction dep.
+    __m256i b_abs = _mm256_abs_epi8(b);
+    __m256i a_abs = _mm256_abs_epi8(a);
+    __m256i b_negated = _mm256_sub_epi8(_mm256_set1_epi8(0), b_abs);
+
+    // Manipulate the `sign` of B to represent the sign of the 16 bit result
+    __m256i sign_mask_a_sub_b = _mm256_sub_epi8(a_sign_mask, b_sign_mask);
+    __m256i sign_mask_a_sub_b1 = _mm256_sub_epi8(a_sign_mask, b1);
+    __m256i sign_mask_a_sub_b2 = _mm256_sub_epi8(a_sign_mask, b2);
+    __m256i sign_mask_a_sub_b3 = _mm256_sub_epi8(a_sign_mask, b3);
+    // sign_mask[i] if a[i] and b[i] have different sign bits
+    __m256i sign_mask = _mm256_cmpeq_epi8(sign_mask_a_sub_b, zero_vec);
+    __m256i sign_mask1 = _mm256_cmpeq_epi8(sign_mask_a_sub_b1, zero_vec);
+    __m256i sign_mask2 = _mm256_cmpeq_epi8(sign_mask_a_sub_b2, zero_vec);
+    __m256i sign_mask3 = _mm256_cmpeq_epi8(sign_mask_a_sub_b3, zero_vec);
+
+    __m256i corrected_b = _mm256_blendv_epi8(b_negated, b_abs, sign_mask);
+    __m256i corrected_b1 = _mm256_blendv_epi8(b_negated, b_abs, sign_mask1);
+    __m256i corrected_b2 = _mm256_blendv_epi8(b_negated, b_abs, sign_mask2);
+    __m256i corrected_b3 = _mm256_blendv_epi8(b_negated, b_abs, sign_mask3);
+
+    // Multiply the absolute values of a_abs (unsigned 8-bit integers) and corrected_b (signed 8-bit integers)
+    __m256i product_16x16 = _mm256_maddubs_epi16(a_abs, corrected_b);
+    __m256i product1_16x16 = _mm256_maddubs_epi16(a_abs, corrected_b1);
+    __m256i product2_16x16 = _mm256_maddubs_epi16(a_abs, corrected_b2);
+    __m256i product3_16x16 = _mm256_maddubs_epi16(a_abs, corrected_b3);
+
+    // Sign extend the 16-bit integers in vector to 32-bit integers
+    __m256i a_ext1 = _mm256_cvtepi16_epi32(_mm256_extracti128_si256(product_16x16, 0));
+    __m256i a_ext2 = _mm256_cvtepi16_epi32(_mm256_extracti128_si256(product_16x16, 1));
+    __m256i a1_ext1 = _mm256_cvtepi16_epi32(_mm256_extracti128_si256(product1_16x16, 0));
+    __m256i a1_ext2 = _mm256_cvtepi16_epi32(_mm256_extracti128_si256(product1_16x16, 1));
+    __m256i a2_ext1 = _mm256_cvtepi16_epi32(_mm256_extracti128_si256(product2_16x16, 0));
+    __m256i a2_ext2 = _mm256_cvtepi16_epi32(_mm256_extracti128_si256(product2_16x16, 1));
+    __m256i a3_ext1 = _mm256_cvtepi16_epi32(_mm256_extracti128_si256(product3_16x16, 0));
+    __m256i a3_ext2 = _mm256_cvtepi16_epi32(_mm256_extracti128_si256(product3_16x16, 1));
+
+    // Element-wise add the 32-bit integer vectors
+    __m256i sum0 = _mm256_add_epi32(a_ext1, a_ext2);
+    __m256i sum1 = _mm256_add_epi32(a1_ext1, a1_ext2);
+    __m256i sum2 = _mm256_add_epi32(a2_ext1, a2_ext2);
+    __m256i sum3 = _mm256_add_epi32(a3_ext1, a3_ext2);
+
+    acc0 = _mm256_add_epi32(acc0, sum0);
+    acc1 = _mm256_add_epi32(acc1, sum1);
+    acc2 = _mm256_add_epi32(acc2, sum2);
+    acc3 = _mm256_add_epi32(acc3, sum3);
+}
+
+// acc0 += a * b, acc1 += a * b1, acc2 += a * b2, acc3 += a * b3
+inline void multiply_signed_int8_32epi_4unroll(__m256i &a, __m256i &b, __m256i &b1, __m256i &b2, __m256i &b3,
+                                               __m256i &acc0, __m256i &acc1, __m256i &acc2, __m256i &acc3) {
+    __m256i a_sign_mask = _mm256_cmpgt_epi8(zero_vec, a);    // set 0xFF if zero_vec[i] > a[i]
+    __m256i b_sign_mask = _mm256_cmpgt_epi8(zero_vec, b);    // set 0xFF if zero_vec[i] > a[i]
+    __m256i b1_sign_mask = _mm256_cmpgt_epi8(zero_vec, b1);  // set 0xFF if zero_vec[i] > a[i]
+    __m256i b2_sign_mask = _mm256_cmpgt_epi8(zero_vec, b2);  // set 0xFF if zero_vec[i] > a[i]
+    __m256i b3_sign_mask = _mm256_cmpgt_epi8(zero_vec, b3);  // set 0xFF if zero_vec[i] > a[i]
+
+    // Compute the two's complement of a, put it here for higher throughput with good instruction dep.
+    __m256i b_abs = _mm256_abs_epi8(b);
+    __m256i b1_abs = _mm256_abs_epi8(b1);
+    __m256i b2_abs = _mm256_abs_epi8(b2);
+    __m256i b3_abs = _mm256_abs_epi8(b3);
+    __m256i a_abs = _mm256_abs_epi8(a);
+    __m256i b_negated = _mm256_sub_epi8(_mm256_set1_epi8(0), b_abs);
+    __m256i b1_negated = _mm256_sub_epi8(_mm256_set1_epi8(0), b1_abs);
+    __m256i b2_negated = _mm256_sub_epi8(_mm256_set1_epi8(0), b2_abs);
+    __m256i b3_negated = _mm256_sub_epi8(_mm256_set1_epi8(0), b3_abs);
+
+    // Manipulate the `sign` of B to represent the sign of the 16 bit result
+    __m256i sign_mask_a_sub_b = _mm256_sub_epi8(a_sign_mask, b_sign_mask);
+    __m256i sign_mask_a_sub_b1 = _mm256_sub_epi8(a_sign_mask, b1_sign_mask);
+    __m256i sign_mask_a_sub_b2 = _mm256_sub_epi8(a_sign_mask, b2_sign_mask);
+    __m256i sign_mask_a_sub_b3 = _mm256_sub_epi8(a_sign_mask, b3_sign_mask);
+    // sign_mask[i] if a[i] and b[i] have different sign bits
+    __m256i sign_mask = _mm256_cmpeq_epi8(sign_mask_a_sub_b, zero_vec);
+    __m256i sign_mask1 = _mm256_cmpeq_epi8(sign_mask_a_sub_b1, zero_vec);
+    __m256i sign_mask2 = _mm256_cmpeq_epi8(sign_mask_a_sub_b2, zero_vec);
+    __m256i sign_mask3 = _mm256_cmpeq_epi8(sign_mask_a_sub_b3, zero_vec);
+
+    __m256i corrected_b = _mm256_blendv_epi8(b_negated, b_abs, sign_mask);
+    __m256i corrected_b1 = _mm256_blendv_epi8(b1_negated, b1_abs, sign_mask1);
+    __m256i corrected_b2 = _mm256_blendv_epi8(b2_negated, b2_abs, sign_mask2);
+    __m256i corrected_b3 = _mm256_blendv_epi8(b3_negated, b3_abs, sign_mask3);
+
+    // Multiply the absolute values of a_abs (unsigned 8-bit integers) and corrected_b (signed 8-bit integers)
+    __m256i product_16x16 = _mm256_maddubs_epi16(a_abs, corrected_b);
+    __m256i product1_16x16 = _mm256_maddubs_epi16(a_abs, corrected_b1);
+    __m256i product2_16x16 = _mm256_maddubs_epi16(a_abs, corrected_b2);
+    __m256i product3_16x16 = _mm256_maddubs_epi16(a_abs, corrected_b3);
+
+    // Sign extend the 16-bit integers in vector to 32-bit integers
+    __m256i a_ext1 = _mm256_cvtepi16_epi32(_mm256_extracti128_si256(product_16x16, 0));
+    __m256i a_ext2 = _mm256_cvtepi16_epi32(_mm256_extracti128_si256(product_16x16, 1));
+    __m256i a1_ext1 = _mm256_cvtepi16_epi32(_mm256_extracti128_si256(product1_16x16, 0));
+    __m256i a1_ext2 = _mm256_cvtepi16_epi32(_mm256_extracti128_si256(product1_16x16, 1));
+    __m256i a2_ext1 = _mm256_cvtepi16_epi32(_mm256_extracti128_si256(product2_16x16, 0));
+    __m256i a2_ext2 = _mm256_cvtepi16_epi32(_mm256_extracti128_si256(product2_16x16, 1));
+    __m256i a3_ext1 = _mm256_cvtepi16_epi32(_mm256_extracti128_si256(product3_16x16, 0));
+    __m256i a3_ext2 = _mm256_cvtepi16_epi32(_mm256_extracti128_si256(product3_16x16, 1));
+
+    // Element-wise add the 32-bit integer vectors
+    __m256i sum0 = _mm256_add_epi32(a_ext1, a_ext2);
+    __m256i sum1 = _mm256_add_epi32(a1_ext1, a1_ext2);
+    __m256i sum2 = _mm256_add_epi32(a2_ext1, a2_ext2);
+    __m256i sum3 = _mm256_add_epi32(a3_ext1, a3_ext2);
+
+    acc0 = _mm256_add_epi32(acc0, sum0);
+    acc1 = _mm256_add_epi32(acc1, sum1);
+    acc2 = _mm256_add_epi32(acc2, sum2);
+    acc3 = _mm256_add_epi32(acc3, sum3);
+}
+
+inline void multiply_signed_int8_32epi_2unroll(__m256i &a, __m256i &b, __m256i &b1, __m256i &acc0, __m256i &acc1) {
+    __m256i a_sign_mask = _mm256_cmpgt_epi8(zero_vec, a);    // set 0xFF if zero_vec[i] > a[i]
+    __m256i b_sign_mask = _mm256_cmpgt_epi8(zero_vec, b);    // set 0xFF if zero_vec[i] > a[i]
+    __m256i b1_sign_mask = _mm256_cmpgt_epi8(zero_vec, b1);  // set 0xFF if zero_vec[i] > a[i]
+
+    // Compute the two's complement of a, put it here for higher throughput with good instruction dep.
+    __m256i b_abs = _mm256_abs_epi8(b);
+    __m256i b1_abs = _mm256_abs_epi8(b1);
+    __m256i a_abs = _mm256_abs_epi8(a);
+    __m256i b_negated = _mm256_sub_epi8(_mm256_set1_epi8(0), b_abs);
+    __m256i b1_negated = _mm256_sub_epi8(_mm256_set1_epi8(0), b1_abs);
+
+    // Manipulate the `sign` of B to represent the sign of the 16 bit result
+    __m256i sign_mask_a_sub_b = _mm256_sub_epi8(a_sign_mask, b_sign_mask);
+    __m256i sign_mask_a_sub_b1 = _mm256_sub_epi8(a_sign_mask, b1_sign_mask);
+    // sign_mask[i] if a[i] and b[i] have different sign bits
+    __m256i sign_mask = _mm256_cmpeq_epi8(sign_mask_a_sub_b, zero_vec);
+    __m256i sign_mask1 = _mm256_cmpeq_epi8(sign_mask_a_sub_b1, zero_vec);
+
+    __m256i corrected_b = _mm256_blendv_epi8(b_negated, b_abs, sign_mask);
+    __m256i corrected_b1 = _mm256_blendv_epi8(b1_negated, b1_abs, sign_mask1);
+
+    // Multiply the absolute values of a_abs (unsigned 8-bit integers) and corrected_b (signed 8-bit integers)
+    __m256i product_16x16 = _mm256_maddubs_epi16(a_abs, corrected_b);
+    __m256i product1_16x16 = _mm256_maddubs_epi16(a_abs, corrected_b1);
+
+    // Sign extend the 16-bit integers in vector to 32-bit integers
+    __m256i a_ext1 = _mm256_cvtepi16_epi32(_mm256_extracti128_si256(product_16x16, 0));
+    __m256i a_ext2 = _mm256_cvtepi16_epi32(_mm256_extracti128_si256(product_16x16, 1));
+    __m256i a1_ext1 = _mm256_cvtepi16_epi32(_mm256_extracti128_si256(product1_16x16, 0));
+    __m256i a1_ext2 = _mm256_cvtepi16_epi32(_mm256_extracti128_si256(product1_16x16, 1));
+
+    // Element-wise add the 32-bit integer vectors
+    __m256i sum0 = _mm256_add_epi32(a_ext1, a_ext2);
+    __m256i sum1 = _mm256_add_epi32(a1_ext1, a1_ext2);
+
+    acc0 = _mm256_add_epi32(acc0, sum0);
+    acc1 = _mm256_add_epi32(acc1, sum1);
+}
+
+void *mat_mul_avx_int8_thread_func_2x2_32unroll_bfp32_ofp32_over_column(void *args) {
+    int i, j, k;
+    struct thread_args *thread_args = (struct thread_args *)args;
+    const struct matmul_params *params = thread_args->params;
+    const struct matrix *A = &params->A, *B = &params->B, *C = &params->C;
+    float A_sc = A->qparams.scale, B_sc = B->qparams.scale, C_sc = C->qparams.scale;
+    float effective_scale = A_sc * B_sc / C_sc;
+    int8_t *data_A = A->int8_data_ptr, *data_B = B->int8_data_ptr;
+    float *data_C = C->data_ptr;
+    int start_i = thread_args->start_i, end_i = thread_args->end_i;
+    const int8_t q_min = C->qparams.q_min, q_max = C->qparams.q_max;
+
+    for (i = 0; i < C->row; i++) {
+        for (j = start_i; j < end_i; j += 4) {
+            int acc = 0, acc1 = 0, acc2 = 0, acc3 = 0, acc4 = 0, acc5 = 0, acc6 = 0, acc7 = 5;
+            __m256i acc0_8x32 = _mm256_setzero_si256();
+            __m256i acc1_8x32 = _mm256_setzero_si256();
+            __m256i acc2_8x32 = _mm256_setzero_si256();
+            __m256i acc3_8x32 = _mm256_setzero_si256();
+            __m256i *aa_ptr = (__m256i *)&data_A[i * A->column];
+            __m256i *bb_ptr = (__m256i *)&data_B[j * B->row];
+            __m256i *bb1_ptr = (__m256i *)&data_B[(j + 1) * B->row];
+            __m256i *bb2_ptr = (__m256i *)&data_B[(j + 2) * B->row];
+            __m256i *bb3_ptr = (__m256i *)&data_B[(j + 3) * B->row];
+            // TODO: precompute some masks to save some computation?
+            for (k = 0; k < A->column; k += 32) {
+                // multiply_signed_int8_32epi_2unroll(*aa_ptr++, *bb_ptr++, *bb1_ptr++, *bb2_ptr++, *bb3_ptr++,
+                // acc0_8x32, acc1_8x32);
+                multiply_signed_int8_32epi_4unroll(*aa_ptr++, *bb_ptr++, *bb1_ptr++, *bb2_ptr++, *bb3_ptr++, acc0_8x32,
+                                                   acc1_8x32, acc2_8x32, acc3_8x32);
+                // assume B is transposed
+                // acc0_8x32 = _mm256_add_epi32(acc0_8x32, multiply_signed_int8_32epi(*aa_ptr, *bb_ptr++));
+                // acc1_8x32 = _mm256_add_epi32(acc1_8x32, multiply_signed_int8_32epi(*aa_ptr, *bb1_ptr++));
+                // acc2_8x32 = _mm256_add_epi32(acc2_8x32, multiply_signed_int8_32epi(*aa_ptr, *bb2_ptr++));
+                // acc3_8x32 = _mm256_add_epi32(acc3_8x32, multiply_signed_int8_32epi(*aa_ptr++, *bb3_ptr++));
+            }
+            int32_t *accptr = (int32_t *)&acc0_8x32;
+            acc = accptr[0] + accptr[1] + accptr[2] + accptr[3] + accptr[4] + accptr[5] + accptr[6] + accptr[7];
+            accptr = (int32_t *)&acc1_8x32;
+            acc1 = accptr[0] + accptr[1] + accptr[2] + accptr[3] + accptr[4] + accptr[5] + accptr[6] + accptr[7];
+            accptr = (int32_t *)&acc2_8x32;
+            acc2 = accptr[0] + accptr[1] + accptr[2] + accptr[3] + accptr[4] + accptr[5] + accptr[6] + accptr[7];
+            accptr = (int32_t *)&acc3_8x32;
+            acc3 = accptr[0] + accptr[1] + accptr[2] + accptr[3] + accptr[4] + accptr[5] + accptr[6] + accptr[7];
+            data_C[i * C->column + j] = ((float)acc * effective_scale) + params->bias.data_ptr[j];
+            data_C[i * C->column + j + 1] = ((float)acc1 * effective_scale) + params->bias.data_ptr[j + 1];
+            data_C[i * C->column + j + 2] = ((float)acc2 * effective_scale) + params->bias.data_ptr[j + 2];
+            data_C[i * C->column + j + 3] = ((float)acc3 * effective_scale) + params->bias.data_ptr[j + 3];
+        }
+    }
+    return NULL;
+}
+
+void MatmulOperator::mat_mul_avx_int8_fast_2x2_32unroll_bfp32_ofp32_over_column(const struct matmul_params *params) {
+    int j, num_thread = params->opt_params.num_thread;
+
+    if (num_thread > params->C.column) num_thread = params->C.column;
+
+    assert(params->A.column % 32 == 0);
+    assert((params->C.column) % (num_thread * 4) == 0);
+
+    pthread_t thread_pool[num_thread];
+    struct thread_args threads_args[num_thread];
+
+    // Thread creation
+    for (j = 0; j < num_thread; j++) {
+        threads_args[j].start_i = j * (params->C.column / num_thread);
+        if (j == num_thread - 1)
+            threads_args[j].end_i = params->C.column;
+        else
+            threads_args[j].end_i = (j + 1) * (params->C.column / num_thread);
+        threads_args[j].blk_size = params->opt_params.blk_size;
+        threads_args[j].params = params;
+        pthread_create(&thread_pool[j], NULL, mat_mul_avx_int8_thread_func_2x2_32unroll_bfp32_ofp32_over_column,
+                       &threads_args[j]);
     }
     // Join threads
     for (j = 0; j < num_thread; j++) {

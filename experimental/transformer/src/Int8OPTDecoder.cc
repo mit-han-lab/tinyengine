@@ -192,11 +192,6 @@ struct Int8OPTDecoder_output Int8OPTDecoder::forward(const struct Int8OPTDecoder
             past_keys.push_back(l_o.past_key_value.first);
             past_values.push_back(l_o.past_key_value.second);
         }
-        // if(i == 10){
-        //     read_to_array("assets/tests/OPT_6.7B/hidden_states_layer10.bin", hidden_states.m_data,
-        //     hidden_states.length()); std::cout << "---------------------------------------------------" << std::endl;
-        // }
-        // print_first_k_elelment("hidden_states", hidden_states.m_data, 20);
     }
     // read_to_array("assets/tests/OPT_1.3B/layers_out.bin", hidden_states.m_data, hidden_states.length());
     // print_first_k_elelment("hidden_states(layers_out)", hidden_states.m_data, 20);

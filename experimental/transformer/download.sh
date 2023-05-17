@@ -2,8 +2,8 @@
 
 # List of files to download, their corresponding MD5 checksums, and target local paths
 files_and_checksums=(
-  "https://www.dropbox.com/s/vcuzqyrewt1jjs3/models.zip 5fb5742f552b4c1eeab15fe83f22d651 models.zip"
-  "https://www.dropbox.com/s/dstbc72fp7ka33d/assets.zip 87de2f473c22f0614ea4f658c5001baa assets.zip"
+  "https://www.dropbox.com/s/vcuzqyrewt1jjs3/models.zip e9a99baf4f5e66e4a69f280f07397e23 models.zip"
+  "https://www.dropbox.com/s/dstbc72fp7ka33d/assets.zip 5c18cc891bcc74be12f5cbb926fd9cc9sh assets.zip"
 )
 
 # Function to download a file if it doesn't exist or if its MD5 checksum is incorrect

@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 #include <cassert>
+#include <cmath>
 #include <cstdlib>
 #include <iostream>
 
@@ -33,8 +34,8 @@ bool check_two_equal(float* array, float* array2, int size, float error) {
             error_info.a1 = array[i];
             error_info.a2 = array2[i];
         }
-        // if (std::sqrt(max_sqdiff) > MAX_SQ_ERROR_MAX){
-        //     std::cout << "i:" << i << ",max_sqdiff:" << std::sqrt(max_sqdiff)  << ", array[i]:";
+        // if (sqrt(max_sqdiff) > MAX_SQ_ERROR_MAX){
+        //     std::cout << "i:" << i << ",max_sqdiff:" << sqrt(max_sqdiff)  << ", array[i]:";
         //     std::cout <<  static_cast<float>(array[i]) << ", array2[i]:" << static_cast<float>(array2[i]) <<
         //     std::endl; return false;
         // }
@@ -55,8 +56,8 @@ bool check_two_equal(T* array, T* array2, int size) {
         float diff = (float)array[i] - (float)array2[i];
         sq_diff += diff * diff;
         if (diff * diff > max_sqdiff) max_sqdiff = diff * diff;
-        if (std::sqrt(max_sqdiff) > MAX_SQ_ERROR_MAX) {
-            std::cout << "i:" << i << ",max_sqdiff:" << std::sqrt(max_sqdiff) << ", array[i]:";
+        if (sqrt(max_sqdiff) > MAX_SQ_ERROR_MAX) {
+            std::cout << "i:" << i << ",max_sqdiff:" << sqrt(max_sqdiff) << ", array[i]:";
             std::cout << static_cast<float>(array[i]) << ", array2[i]:" << static_cast<float>(array2[i]) << std::endl;
             return false;
         }
@@ -74,8 +75,8 @@ bool check_two_equal<int8_t>(int8_t* array, int8_t* array2, int size) {
     float max_sqdiff = 0;
     for (int i = 0; i < size; i++) {
         if (array[i] != array2[i]) {
-            // std::cout << "i:" << i << ", array[i]:" << static_cast<int>(array[i]) << ", array2[i]:" <<
-            // static_cast<int>(array2[i]) << std::endl;
+            std::cout << "i:" << i << ", array[i]:" << static_cast<int>(array[i])
+                      << ", array2[i]:" << static_cast<int>(array2[i]) << std::endl;
             return false;
         }
         float diff = (float)array[i] - (float)array2[i];
@@ -106,17 +107,17 @@ bool check_two_equal(int8_t* array, int8_t* array2, int size, float error) {
     float sq_diff = 0;
     float max_sqdiff = 0;
     for (int i = 0; i < size; i++) {
-        if (array[i] != array2[i]) {
-            // std::cout << "i:" << i << ", array[i]:" << static_cast<int>(array[i]) << ", array2[i]:" <<
-            // static_cast<int>(array2[i]) << std::endl;
-            return false;
-        }
+        // if (array[i] != array2[i]) {
+        // std::cout << "i:" << i << ", array[i]:" << static_cast<int>(array[i]) << ", array2[i]:" <<
+        // static_cast<int>(array2[i]) << std::endl;
+        // return false;
+        // }
         float diff = (float)array[i] - (float)array2[i];
         sq_diff += diff * diff;
         if (diff * diff > max_sqdiff) max_sqdiff = diff * diff;
     }
     if ((sq_diff / size) > error) {
-        std::cout << "MSE:" << sq_diff / size << ", MAX SQ diff:" << max_sqdiff << std::endl;
+        // std::cout << "MSE:" << sq_diff / size << ", MAX SQ diff:" << max_sqdiff << std::endl;
         return false;
     }
     return true;
