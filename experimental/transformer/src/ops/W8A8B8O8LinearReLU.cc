@@ -38,14 +38,14 @@ W8A8B8O8LinearReLU::W8A8B8O8LinearReLU(struct W8A8B8O8LinearReLU_params &op_para
 }
 
 void W8A8B8O8LinearReLU::forward(const Matrix3D<int8_t> &x, Matrix3D<int8_t> &output) {
-    PROFILE_START(profile_name);
+    const int m = x.m_dim_y, k = x.m_dim_z, n = params.B.column, b = x.m_dim_x;
+    const long long ops = (long long)b * 2 * (long long)m * (long long)n * (long long)k + (long long)m * (long long)n;
+    PROFILE_START_FLOPS(profile_name, ops);
     assert(output.m_dim_x == x.m_dim_x);
     assert(output.m_dim_y == x.m_dim_y);
     assert(output.m_dim_z == params.B.column);
     assert(x.m_dim_z == params.B.row);
     assert(output.m_dim_z == params.bias.column);
-
-    const int m = x.m_dim_y, k = x.m_dim_z, n = params.B.column;
 
     params.A.row = m;
     params.A.column = k;
@@ -57,12 +57,36 @@ void W8A8B8O8LinearReLU::forward(const Matrix3D<int8_t> &x, Matrix3D<int8_t> &ou
 
     matmul::MatmulOperator matmul_op = matmul::MatmulOperator();
 
-    // process each batch
+    // printf("W8A8B8O8LinearReLU-m,n,k: %d, %d, %d\n", m,n,k);
+    // // process each batch
+    // for (int bz = 0; bz < x.m_dim_x; bz++) {
+    //     matmul_op.mat_mul_avx_int8_fast_2x2_32unroll(&params);
+    //     params.A.int8_data_ptr += m * k;
+    //     params.C.int8_data_ptr += m * n;
+    // }
+#ifdef USE_OPT_EXP
+    // printf("W8A8B8O8Linear-m,n,k: %d, %d, %d\n", m,n,k);
+    if (m == 1) {
+        // let's loop over the column dim instead of row
+        for (int bz = 0; bz < x.m_dim_x; bz++) {
+            matmul_op.mat_mul_avx_int8_fast_32unroll_over_column(&params);
+            params.A.int8_data_ptr += m * k;
+            params.C.int8_data_ptr += m * n;
+        }
+    } else {
+        for (int bz = 0; bz < x.m_dim_x; bz++) {
+            matmul_op.mat_mul_avx_int8_fast_2x2_32unroll(&params);
+            params.A.int8_data_ptr += m * k;
+            params.C.int8_data_ptr += m * n;
+        }
+    }
+#else
     for (int bz = 0; bz < x.m_dim_x; bz++) {
         matmul_op.mat_mul_avx_int8_fast_2x2_32unroll(&params);
         params.A.int8_data_ptr += m * k;
         params.C.int8_data_ptr += m * n;
     }
+#endif
 
-    PROFILE_START(profile_name);
+    PROFILE_END(profile_name);
 }

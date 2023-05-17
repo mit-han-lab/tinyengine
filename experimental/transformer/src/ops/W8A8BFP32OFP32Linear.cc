@@ -54,6 +54,7 @@ void W8A8BFP32OFP32Linear::forward(const Matrix3D<int8_t> &x, Matrix3D<float> &o
     matmul::MatmulOperator matmul_op = matmul::MatmulOperator();
 
 #ifdef USE_OPT_EXP
+    // printf("W8A8BFP32OFP32Linear-m,n,k: %d, %d, %d\n", m,n,k);
     if (m == 1) {
         // let's loop over the column dim instead of row
         for (int bz = 0; bz < x.m_dim_x; bz++) {
