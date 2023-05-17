@@ -599,7 +599,7 @@ void MatmulOperator::mat_mul_avx_int8_fast_2x2_32unroll(const struct matmul_para
     }
 }
 
-// Note: no expecting min/max clipping for this op, default to int8 range
+// Note: no expecting min/max clipping for this op, default to int8 range/ReLU if q_min == 0
 void *mat_mul_avx_int8_fast_32unroll_over_column_thread_func(void *args) {
     int i, j, k;
     struct thread_args *thread_args = (struct thread_args *)args;
