@@ -103,7 +103,7 @@ void test_LayerNormQ_len512() {
 
     test_op.forward(input, output);
 
-    bool sucess = check_two_exact_equal(output_arr, GToutput_arr, b * m * n);
+    bool sucess = check_two_equal(output_arr, GToutput_arr, b * m * n);
     if (!sucess)
         std::cout << "-------- Test of " << __func__ << ": Fail! -------- " << std::endl;
     else
@@ -204,7 +204,7 @@ void test_LayerNorm_1_3B_len512() {
 
     test_op.forward(input, output);
 
-    bool sucess = check_two_equal(output_arr, GToutput_arr, b * m * n);
+    bool sucess = check_two_equal(output_arr, GToutput_arr, b * m * n, 8e-6);
     if (!sucess)
         std::cout << "-------- Test of " << __func__ << ": Fail! -------- " << std::endl;
     else

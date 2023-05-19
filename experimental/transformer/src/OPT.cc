@@ -8,12 +8,7 @@ std::mt19937 OPT_rng;
 //   - n_past:    the context size so far
 //   - n_threads: number of threads to use
 //
-static bool OPT_eval_internal(
-            const int * tokens,
-            const int   n_tokens,
-            const int   n_past,
-            const int   n_threads) {
-
+static bool OPT_eval_internal(const int* tokens, const int n_tokens, const int n_past, const int n_threads) {
     // enforce that the first token is BOS
     /*
     if (n_past == 0 && tokens[0] != llama_token_bos()) {
@@ -22,266 +17,267 @@ static bool OPT_eval_internal(
     }
     */
 
-    const int N = n_tokens;
+    //     const int N = n_tokens;
 
-    const auto & model   = lctx.model;
-    const auto & hparams = model.hparams;
+    //     const auto & model   = lctx.model;
+    //     const auto & hparams = model.hparams;
 
-    const auto & kv_self = model.kv_self;
+    //     const auto & kv_self = model.kv_self;
 
-    const int n_embd  = hparams.n_embd;
-    const int n_layer = hparams.n_layer;
-    const int n_ctx   = hparams.n_ctx;
-    const int n_head  = hparams.n_head;
-    const int n_vocab = hparams.n_vocab;
-    const int n_rot   = hparams.n_embd/hparams.n_head;
+    //     const int n_embd  = hparams.n_embd;
+    //     const int n_layer = hparams.n_layer;
+    //     const int n_ctx   = hparams.n_ctx;
+    //     const int n_head  = hparams.n_head;
+    //     const int n_vocab = hparams.n_vocab;
+    //     const int n_rot   = hparams.n_embd/hparams.n_head;
 
-    auto & mem_per_token = lctx.mem_per_token;
-    auto & buf_compute   = lctx.buf_compute;
+    //     auto & mem_per_token = lctx.mem_per_token;
+    //     auto & buf_compute   = lctx.buf_compute;
 
-    struct ggml_init_params params = {
-        /*.mem_size   =*/ buf_compute.size,
-        /*.mem_buffer =*/ buf_compute.addr,
-        /*.no_alloc   =*/ false,
-    };
+    //     struct ggml_init_params params = {
+    //         /*.mem_size   =*/ buf_compute.size,
+    //         /*.mem_buffer =*/ buf_compute.addr,
+    //         /*.no_alloc   =*/ false,
+    //     };
 
-    struct ggml_context * ctx0 = ggml_init(params);
+    //     struct ggml_context * ctx0 = ggml_init(params);
 
-    // for big prompts, if BLAS is enabled, it is better to use only one thread
-    // otherwise, the threads are spin-lock waiting for the BLAS calls and are degrading the performance
-    ggml_cgraph gf = {};
-    gf.n_threads = N >= 32 && ggml_cpu_has_blas() && !ggml_cpu_has_gpublas() ? 1 : n_threads;
+    //     // for big prompts, if BLAS is enabled, it is better to use only one thread
+    //     // otherwise, the threads are spin-lock waiting for the BLAS calls and are degrading the performance
+    //     ggml_cgraph gf = {};
+    //     gf.n_threads = N >= 32 && ggml_cpu_has_blas() && !ggml_cpu_has_gpublas() ? 1 : n_threads;
 
-    struct ggml_tensor * embd = ggml_new_tensor_1d(ctx0, GGML_TYPE_I32, N);
-    memcpy(embd->data, tokens, N*ggml_element_size(embd));
+    //     struct ggml_tensor * embd = ggml_new_tensor_1d(ctx0, GGML_TYPE_I32, N);
+    //     memcpy(embd->data, tokens, N*ggml_element_size(embd));
 
-    struct ggml_tensor * inpL = ggml_get_rows(ctx0, model.tok_embeddings, embd);
+    //     struct ggml_tensor * inpL = ggml_get_rows(ctx0, model.tok_embeddings, embd);
 
-    for (int il = 0; il < n_layer; ++il) {
-        struct ggml_tensor * inpSA = inpL;
+    //     for (int il = 0; il < n_layer; ++il) {
+    //         struct ggml_tensor * inpSA = inpL;
 
-        struct ggml_tensor * cur;
+    //         struct ggml_tensor * cur;
 
-        lctx.use_buf(ctx0, 0);
+    //         lctx.use_buf(ctx0, 0);
 
-        // norm
-        {
-            cur = ggml_rms_norm(ctx0, inpL);
+    //         // norm
+    //         {
+    //             cur = ggml_rms_norm(ctx0, inpL);
 
-            // cur = attention_norm*cur
-            cur = ggml_mul(ctx0,
-                        ggml_repeat(ctx0, model.layers[il].attention_norm, cur),
-                        cur);
-        }
+    //             // cur = attention_norm*cur
+    //             cur = ggml_mul(ctx0,
+    //                         ggml_repeat(ctx0, model.layers[il].attention_norm, cur),
+    //                         cur);
+    //         }
 
-        // self-attention
-        {
-            // compute Q and K and RoPE them
-            struct ggml_tensor * Qcur = ggml_rope_inplace(ctx0, ggml_reshape_3d(ctx0, ggml_mul_mat(ctx0, model.layers[il].wq, cur), n_embd/n_head, n_head, N), n_past, n_rot, 0);
-            struct ggml_tensor * Kcur = ggml_rope_inplace(ctx0, ggml_reshape_3d(ctx0, ggml_mul_mat(ctx0, model.layers[il].wk, cur), n_embd/n_head, n_head, N), n_past, n_rot, 0);
+    //         // self-attention
+    //         {
+    //             // compute Q and K and RoPE them
+    //             struct ggml_tensor * Qcur = ggml_rope_inplace(ctx0, ggml_reshape_3d(ctx0, ggml_mul_mat(ctx0,
+    //             model.layers[il].wq, cur), n_embd/n_head, n_head, N), n_past, n_rot, 0); struct ggml_tensor * Kcur =
+    //             ggml_rope_inplace(ctx0, ggml_reshape_3d(ctx0, ggml_mul_mat(ctx0, model.layers[il].wk, cur),
+    //             n_embd/n_head, n_head, N), n_past, n_rot, 0);
 
-            // store key and value to memory
-            {
-                // compute the transposed [N, n_embd] V matrix
-                struct ggml_tensor * Vcur = ggml_transpose(ctx0, ggml_reshape_2d(ctx0, ggml_mul_mat(ctx0, model.layers[il].wv, cur), n_embd, N));
+    //             // store key and value to memory
+    //             {
+    //                 // compute the transposed [N, n_embd] V matrix
+    //                 struct ggml_tensor * Vcur = ggml_transpose(ctx0, ggml_reshape_2d(ctx0, ggml_mul_mat(ctx0,
+    //                 model.layers[il].wv, cur), n_embd, N));
 
-                struct ggml_tensor * k = ggml_view_1d(ctx0, kv_self.k, N*n_embd, (ggml_element_size(kv_self.k)*n_embd)*(il*n_ctx + n_past));
-                struct ggml_tensor * v = ggml_view_2d(ctx0, kv_self.v, N, n_embd,
-                        (   n_ctx)*ggml_element_size(kv_self.v),
-                        (il*n_ctx)*ggml_element_size(kv_self.v)*n_embd + n_past*ggml_element_size(kv_self.v));
+    //                 struct ggml_tensor * k = ggml_view_1d(ctx0, kv_self.k, N*n_embd,
+    //                 (ggml_element_size(kv_self.k)*n_embd)*(il*n_ctx + n_past)); struct ggml_tensor * v =
+    //                 ggml_view_2d(ctx0, kv_self.v, N, n_embd,
+    //                         (   n_ctx)*ggml_element_size(kv_self.v),
+    //                         (il*n_ctx)*ggml_element_size(kv_self.v)*n_embd + n_past*ggml_element_size(kv_self.v));
 
-                // important: storing RoPE-ed version of K in the KV cache!
-                ggml_build_forward_expand(&gf, ggml_cpy(ctx0, Kcur, k));
-                ggml_build_forward_expand(&gf, ggml_cpy(ctx0, Vcur, v));
-            }
+    //                 // important: storing RoPE-ed version of K in the KV cache!
+    //                 ggml_build_forward_expand(&gf, ggml_cpy(ctx0, Kcur, k));
+    //                 ggml_build_forward_expand(&gf, ggml_cpy(ctx0, Vcur, v));
+    //             }
 
-            struct ggml_tensor * Q =
-                ggml_permute(ctx0,
-                        Qcur,
-                        0, 2, 1, 3);
+    //             struct ggml_tensor * Q =
+    //                 ggml_permute(ctx0,
+    //                         Qcur,
+    //                         0, 2, 1, 3);
 
-            struct ggml_tensor * K =
-                ggml_permute(ctx0,
-                        ggml_reshape_3d(ctx0,
-                            ggml_view_1d(ctx0, kv_self.k, (n_past + N)*n_embd, il*n_ctx*ggml_element_size(kv_self.k)*n_embd),
-                            n_embd/n_head, n_head, n_past + N),
-                        0, 2, 1, 3);
+    //             struct ggml_tensor * K =
+    //                 ggml_permute(ctx0,
+    //                         ggml_reshape_3d(ctx0,
+    //                             ggml_view_1d(ctx0, kv_self.k, (n_past + N)*n_embd,
+    //                             il*n_ctx*ggml_element_size(kv_self.k)*n_embd), n_embd/n_head, n_head, n_past + N),
+    //                         0, 2, 1, 3);
 
-            // K * Q
-            struct ggml_tensor * KQ = ggml_mul_mat(ctx0, K, Q);
+    //             // K * Q
+    //             struct ggml_tensor * KQ = ggml_mul_mat(ctx0, K, Q);
 
-            // KQ_scaled = KQ / sqrt(n_embd/n_head)
-            struct ggml_tensor * KQ_scale = ggml_new_f32(ctx0, 1.0f/sqrtf(float(n_embd)/n_head));
+    //             // KQ_scaled = KQ / sqrt(n_embd/n_head)
+    //             struct ggml_tensor * KQ_scale = ggml_new_f32(ctx0, 1.0f/sqrtf(float(n_embd)/n_head));
 
-            // KQ_scaled shape [n_past + N, N, n_head, 1]
-            struct ggml_tensor * KQ_scaled = ggml_scale_inplace(ctx0, KQ, KQ_scale);
+    //             // KQ_scaled shape [n_past + N, N, n_head, 1]
+    //             struct ggml_tensor * KQ_scaled = ggml_scale_inplace(ctx0, KQ, KQ_scale);
 
-            // KQ_masked = mask_past(KQ_scaled)
-            struct ggml_tensor * KQ_masked = ggml_diag_mask_inf_inplace(ctx0, KQ_scaled, n_past);
+    //             // KQ_masked = mask_past(KQ_scaled)
+    //             struct ggml_tensor * KQ_masked = ggml_diag_mask_inf_inplace(ctx0, KQ_scaled, n_past);
 
-            // KQ = soft_max(KQ_masked)
-            struct ggml_tensor * KQ_soft_max = ggml_soft_max_inplace(ctx0, KQ_masked);
+    //             // KQ = soft_max(KQ_masked)
+    //             struct ggml_tensor * KQ_soft_max = ggml_soft_max_inplace(ctx0, KQ_masked);
 
+    //             // split cached V into n_head heads
+    //             struct ggml_tensor * V =
+    //                 ggml_view_3d(ctx0, kv_self.v,
+    //                         n_past + N, n_embd/n_head, n_head,
+    //                         n_ctx*ggml_element_size(kv_self.v),
+    //                         n_ctx*ggml_element_size(kv_self.v)*n_embd/n_head,
+    //                         il*n_ctx*ggml_element_size(kv_self.v)*n_embd);
 
-            // split cached V into n_head heads
-            struct ggml_tensor * V =
-                ggml_view_3d(ctx0, kv_self.v,
-                        n_past + N, n_embd/n_head, n_head,
-                        n_ctx*ggml_element_size(kv_self.v),
-                        n_ctx*ggml_element_size(kv_self.v)*n_embd/n_head,
-                        il*n_ctx*ggml_element_size(kv_self.v)*n_embd);
+    // #if 1
+    //             struct ggml_tensor * KQV = ggml_mul_mat(ctx0, V, KQ_soft_max);
+    // #else
+    //             // make V contiguous in memory to speed up the matmul, however we waste time on the copy
+    //             // on M1 this is faster for the perplexity computation, but ~5% slower for the single-token
+    //             generation
+    //             // is there a better way?
+    //             struct ggml_tensor * V_cont = ggml_cpy(ctx0, V, ggml_new_tensor_3d(ctx0, kv_self.v->type, n_past + N,
+    //             n_embd/n_head, n_head)); struct ggml_tensor * KQV = ggml_mul_mat(ctx0, V_cont, KQ_soft_max);
+    // #endif
 
-#if 1
-            struct ggml_tensor * KQV = ggml_mul_mat(ctx0, V, KQ_soft_max);
-#else
-            // make V contiguous in memory to speed up the matmul, however we waste time on the copy
-            // on M1 this is faster for the perplexity computation, but ~5% slower for the single-token generation
-            // is there a better way?
-            struct ggml_tensor * V_cont = ggml_cpy(ctx0, V, ggml_new_tensor_3d(ctx0, kv_self.v->type, n_past + N, n_embd/n_head, n_head));
-            struct ggml_tensor * KQV = ggml_mul_mat(ctx0, V_cont, KQ_soft_max);
-#endif
+    //             // KQV_merged = KQV.permute(0, 2, 1, 3)
+    //             struct ggml_tensor * KQV_merged = ggml_permute(ctx0, KQV, 0, 2, 1, 3);
 
-            // KQV_merged = KQV.permute(0, 2, 1, 3)
-            struct ggml_tensor * KQV_merged = ggml_permute(ctx0, KQV, 0, 2, 1, 3);
+    //             // cur = KQV_merged.contiguous().view(n_embd, N)
+    //             cur = ggml_cpy(ctx0,
+    //                     KQV_merged,
+    //                     ggml_new_tensor_2d(ctx0, GGML_TYPE_F32, n_embd, N));
 
-            // cur = KQV_merged.contiguous().view(n_embd, N)
-            cur = ggml_cpy(ctx0,
-                    KQV_merged,
-                    ggml_new_tensor_2d(ctx0, GGML_TYPE_F32, n_embd, N));
+    //             // projection (no bias)
+    //             cur = ggml_mul_mat(ctx0,
+    //                     model.layers[il].wo,
+    //                     cur);
+    //         }
 
-            // projection (no bias)
-            cur = ggml_mul_mat(ctx0,
-                    model.layers[il].wo,
-                    cur);
-        }
+    //         lctx.use_buf(ctx0, 1);
 
-        lctx.use_buf(ctx0, 1);
+    //         struct ggml_tensor * inpFF = ggml_add(ctx0, cur, inpSA);
 
-        struct ggml_tensor * inpFF = ggml_add(ctx0, cur, inpSA);
+    //         // feed-forward network
+    //         {
+    //             // norm
+    //             {
+    //                 cur = ggml_rms_norm(ctx0, inpFF);
 
-        // feed-forward network
-        {
-            // norm
-            {
-                cur = ggml_rms_norm(ctx0, inpFF);
+    //                 // cur = ffn_norm*cur
+    //                 cur = ggml_mul(ctx0,
+    //                         ggml_repeat(ctx0, model.layers[il].ffn_norm, cur),
+    //                         cur);
+    //             }
 
-                // cur = ffn_norm*cur
-                cur = ggml_mul(ctx0,
-                        ggml_repeat(ctx0, model.layers[il].ffn_norm, cur),
-                        cur);
-            }
+    //             struct ggml_tensor * tmp = ggml_mul_mat(ctx0,
+    //                     model.layers[il].w3,
+    //                     cur);
 
-            struct ggml_tensor * tmp = ggml_mul_mat(ctx0,
-                    model.layers[il].w3,
-                    cur);
+    //             cur = ggml_mul_mat(ctx0,
+    //                     model.layers[il].w1,
+    //                     cur);
 
-            cur = ggml_mul_mat(ctx0,
-                    model.layers[il].w1,
-                    cur);
+    //             // SILU activation
+    //             cur = ggml_silu(ctx0, cur);
 
-            // SILU activation
-            cur = ggml_silu(ctx0, cur);
+    //             cur = ggml_mul(ctx0, cur, tmp);
 
-            cur = ggml_mul(ctx0, cur, tmp);
+    //             cur = ggml_mul_mat(ctx0,
+    //                     model.layers[il].w2,
+    //                     cur);
+    //         }
 
-            cur = ggml_mul_mat(ctx0,
-                    model.layers[il].w2,
-                    cur);
-        }
+    //         cur = ggml_add(ctx0, cur, inpFF);
 
-        cur = ggml_add(ctx0, cur, inpFF);
+    //         // input for next layer
+    //         inpL = cur;
+    //     }
 
-        // input for next layer
-        inpL = cur;
-    }
+    //     lctx.use_buf(ctx0, 0);
 
-    lctx.use_buf(ctx0, 0);
+    //     // used at the end to optionally extract the embeddings
+    //     struct ggml_tensor * embeddings = NULL;
 
-    // used at the end to optionally extract the embeddings
-    struct ggml_tensor * embeddings = NULL;
+    //     // norm
+    //     {
 
-    // norm
-    {
+    //         inpL = ggml_rms_norm(ctx0, inpL);
 
-        inpL = ggml_rms_norm(ctx0, inpL);
+    //         // inpL = norm*inpL
+    //         inpL = ggml_mul(ctx0,
+    //                     ggml_repeat(ctx0, model.norm, inpL),
+    //                     inpL);
 
-        // inpL = norm*inpL
-        inpL = ggml_mul(ctx0,
-                    ggml_repeat(ctx0, model.norm, inpL),
-                    inpL);
+    //         embeddings = inpL;
+    //     }
 
-        embeddings = inpL;
-    }
+    //     // lm_head
+    //     inpL = ggml_mul_mat(ctx0, model.output, inpL);
 
-    // lm_head
-    inpL = ggml_mul_mat(ctx0, model.output, inpL);
+    //     lctx.use_buf(ctx0, -1);
 
-    lctx.use_buf(ctx0, -1);
+    //     // logits -> probs
+    //     //inpL = ggml_soft_max_inplace(ctx0, inpL);
 
-    // logits -> probs
-    //inpL = ggml_soft_max_inplace(ctx0, inpL);
+    //     // run the computation
+    //     ggml_build_forward_expand(&gf, inpL);
+    //     ggml_graph_compute       (ctx0, &gf);
 
-    // run the computation
-    ggml_build_forward_expand(&gf, inpL);
-    ggml_graph_compute       (ctx0, &gf);
+    //     // plot the computation graph in dot format (for debugging purposes)
+    //     //if (n_past%100 == 0) {
+    //     //    ggml_graph_dump_dot(&gf, NULL, "llama.dot");
+    //     //}
 
+    //     //embd_w.resize(n_vocab*N);
+    //     //memcpy(embd_w.data(), ggml_get_data(inpL), sizeof(float)*n_vocab*N);
 
-    // plot the computation graph in dot format (for debugging purposes)
-    //if (n_past%100 == 0) {
-    //    ggml_graph_dump_dot(&gf, NULL, "llama.dot");
-    //}
+    //     // update kv token count
+    //     lctx.model.kv_self.n = n_past + N;
 
-    //embd_w.resize(n_vocab*N);
-    //memcpy(embd_w.data(), ggml_get_data(inpL), sizeof(float)*n_vocab*N);
+    //     // extract logits
+    //     {
+    //         auto & logits_out = lctx.logits;
 
-    // update kv token count
-    lctx.model.kv_self.n = n_past + N;
+    //         if (lctx.logits_all) {
+    //             logits_out.resize(n_vocab * N);
+    //             memcpy(logits_out.data(), (float *) ggml_get_data(inpL), sizeof(float)*n_vocab*N);
+    //         }
+    //         else {
+    //             // return result for just the last token
+    //             logits_out.resize(n_vocab);
+    //             memcpy(logits_out.data(), (float *) ggml_get_data(inpL) + (n_vocab*(N-1)), sizeof(float)*n_vocab);
+    //         }
+    //     }
 
-    // extract logits
-    {
-        auto & logits_out = lctx.logits;
+    //     // extract embeddings
+    //     if (!lctx.embedding.empty()) {
+    //         auto & embedding_out = lctx.embedding;
 
-        if (lctx.logits_all) {
-            logits_out.resize(n_vocab * N);
-            memcpy(logits_out.data(), (float *) ggml_get_data(inpL), sizeof(float)*n_vocab*N);
-        } 
-        else {
-            // return result for just the last token
-            logits_out.resize(n_vocab);
-            memcpy(logits_out.data(), (float *) ggml_get_data(inpL) + (n_vocab*(N-1)), sizeof(float)*n_vocab);
-        }
-    }
+    //         embedding_out.resize(n_embd);
+    //         memcpy(embedding_out.data(), (float *) ggml_get_data(embeddings) + (n_embd*(N - 1)),
+    //         sizeof(float)*n_embd);
+    //     }
 
-    // extract embeddings
-    if (!lctx.embedding.empty()) {
-        auto & embedding_out = lctx.embedding;
+    //     if (mem_per_token == 0) {
+    //         mem_per_token = ggml_used_mem(ctx0)/N;
+    //     }
 
-        embedding_out.resize(n_embd);
-        memcpy(embedding_out.data(), (float *) ggml_get_data(embeddings) + (n_embd*(N - 1)), sizeof(float)*n_embd);
-    }
+    // /*
+    // #if 0
+    //     printf("\n%s: used_mem = %.3f MB, scratch -- %.3f MB %.3f MB\n", __func__,
+    //             ggml_used_mem(ctx0)/1024.0/1024.0,
+    //             lctx.get_buf_max_mem(0)/1024.0/1024.0,
+    //             lctx.get_buf_max_mem(1)/1024.0/1024.0);
+    // #endif
+    // */
 
-    if (mem_per_token == 0) {
-        mem_per_token = ggml_used_mem(ctx0)/N;
-    }
-
-/*
-#if 0
-    printf("\n%s: used_mem = %.3f MB, scratch -- %.3f MB %.3f MB\n", __func__,
-            ggml_used_mem(ctx0)/1024.0/1024.0,
-            lctx.get_buf_max_mem(0)/1024.0/1024.0,
-            lctx.get_buf_max_mem(1)/1024.0/1024.0);
-#endif
-*/
-
-    ggml_free(ctx0);
+    //     ggml_free(ctx0);
 
     return true;
 }
 
-int OPT_eval(const int * tokens,
-                   int   n_tokens,
-                   int   n_past,
-                   int   n_threads) {
+int OPT_eval(const int* tokens, int n_tokens, int n_past, int n_threads) {
     if (!OPT_eval_internal(tokens, n_tokens, n_past, n_threads)) {
         fprintf(stderr, "Failed to eval in OPT_eval_internal().\n");
         return 1;
@@ -290,8 +286,8 @@ int OPT_eval(const int * tokens,
     return 0;
 }
 
-void OPT_sample_repetition_penalty(OPT_token_data_array * candidates, const int * last_tokens, 
-                            size_t last_tokens_size, float penalty) {
+void OPT_sample_repetition_penalty(OPT_token_data_array* candidates, const int* last_tokens, size_t last_tokens_size,
+                                   float penalty) {
     if (last_tokens_size == 0 || penalty == 1.0f) {
         return;
     }
@@ -302,8 +298,9 @@ void OPT_sample_repetition_penalty(OPT_token_data_array * candidates, const int 
             continue;
         }
 
-        // The academic publication that described this technique actually just only divided, but that would cause tokens with negative logits to become more likely, which is obviously wrong.
-        // This is common fix for this problem, which is to multiply by the penalty instead of dividing.
+        // The academic publication that described this technique actually just only divided, but that would cause
+        // tokens with negative logits to become more likely, which is obviously wrong. This is common fix for this
+        // problem, which is to multiply by the penalty instead of dividing.
         if (candidates->data[i].logit <= 0) {
             candidates->data[i].logit *= penalty;
         } else {
@@ -314,8 +311,8 @@ void OPT_sample_repetition_penalty(OPT_token_data_array * candidates, const int 
     candidates->sorted = false;
 }
 
-void OPT_sample_frequency_and_presence_penalties(OPT_token_data_array * candidates, const int * last_tokens_p, 
-                                    size_t last_tokens_size, float alpha_frequency, float alpha_presence) {
+void OPT_sample_frequency_and_presence_penalties(OPT_token_data_array* candidates, const int* last_tokens_p,
+                                                 size_t last_tokens_size, float alpha_frequency, float alpha_presence) {
     if (last_tokens_size == 0 || (alpha_frequency == 0.0f && alpha_presence == 0.0f)) {
         return;
     }
@@ -340,35 +337,33 @@ void OPT_sample_frequency_and_presence_penalties(OPT_token_data_array * candidat
     candidates->sorted = false;
 }
 
-int OPT_sample_token_greedy(OPT_token_data_array * candidates) {
+int OPT_sample_token_greedy(OPT_token_data_array* candidates) {
     // Find max element
-    auto max_iter = std::max_element(candidates->data, candidates->data + candidates->size, [](const OPT_token_data & a, const OPT_token_data & b) {
-        return a.logit < b.logit;
-    });
+    auto max_iter =
+        std::max_element(candidates->data, candidates->data + candidates->size,
+                         [](const OPT_token_data& a, const OPT_token_data& b) { return a.logit < b.logit; });
 
     int result = max_iter->id;
     return result;
 }
 
-void OPT_sample_temperature(OPT_token_data_array * candidates_p, float temp) {
+void OPT_sample_temperature(OPT_token_data_array* candidates_p, float temp) {
     for (size_t i = 0; i < candidates_p->size; ++i) {
         candidates_p->data[i].logit /= temp;
     }
 }
 
-
 //
 // sampling
 //
 
-void OPT_sample_softmax(OPT_token_data_array * candidates) {
+void OPT_sample_softmax(OPT_token_data_array* candidates) {
     assert(candidates->size > 0);
 
     // Sort the logits in descending order
     if (!candidates->sorted) {
-        std::sort(candidates->data, candidates->data + candidates->size, [](const OPT_token_data & a, const OPT_token_data & b) {
-            return a.logit > b.logit;
-        });
+        std::sort(candidates->data, candidates->data + candidates->size,
+                  [](const OPT_token_data& a, const OPT_token_data& b) { return a.logit > b.logit; });
         candidates->sorted = true;
     }
 
@@ -384,7 +379,7 @@ void OPT_sample_softmax(OPT_token_data_array * candidates) {
     }
 }
 
-int OPT_sample_token(OPT_token_data_array * candidates) {
+int OPT_sample_token(OPT_token_data_array* candidates) {
     OPT_sample_softmax(candidates);
 
     std::vector<float> probs;
@@ -394,23 +389,21 @@ int OPT_sample_token(OPT_token_data_array * candidates) {
     }
 
     std::discrete_distribution<> dist(probs.begin(), probs.end());
-    auto & rng = OPT_rng;
+    auto& rng = OPT_rng;
     int idx = dist(rng);
 
     int result = candidates->data[idx].id;
     return result;
 }
 
-void OPT_sample_top_k(OPT_token_data_array * candidates, int k, size_t min_keep) {
-    k = std::max(k, (int) min_keep);
-    k = std::min(k, (int) candidates->size);
+void OPT_sample_top_k(OPT_token_data_array* candidates, int k, size_t min_keep) {
+    k = std::max(k, (int)min_keep);
+    k = std::min(k, (int)candidates->size);
 
     // Sort scores in descending order
     if (!candidates->sorted) {
-        auto comp = [](const OPT_token_data & a, const OPT_token_data & b) {
-            return a.logit > b.logit;
-        };
-        if (k == (int) candidates->size) {
+        auto comp = [](const OPT_token_data& a, const OPT_token_data& b) { return a.logit > b.logit; };
+        if (k == (int)candidates->size) {
             std::sort(candidates->data, candidates->data + candidates->size, comp);
         } else {
             std::partial_sort(candidates->data, candidates->data + k, candidates->data + candidates->size, comp);
@@ -421,7 +414,8 @@ void OPT_sample_top_k(OPT_token_data_array * candidates, int k, size_t min_keep)
     candidates->size = k;
 }
 
-int OPT_sample_token_mirostat(const OPT_vocab & vocab, OPT_token_data_array * candidates, float tau, float eta, int m, float * mu) {
+int OPT_sample_token_mirostat(const OPT_vocab& vocab, OPT_token_data_array* candidates, float tau, float eta, int m,
+                              float* mu) {
     auto N = float(OPT_n_vocab(vocab));
 
     OPT_sample_softmax(candidates);
@@ -447,9 +441,9 @@ int OPT_sample_token_mirostat(const OPT_vocab & vocab, OPT_token_data_array * ca
     int X = OPT_sample_token(candidates);
 
     // Compute error as the difference between observed surprise and target surprise value
-    size_t X_idx = std::distance(candidates->data, std::find_if(candidates->data, candidates->data + candidates->size, [&](const OPT_token_data & candidate) {
-        return candidate.id == X;
-    }));
+    size_t X_idx = std::distance(candidates->data,
+                                 std::find_if(candidates->data, candidates->data + candidates->size,
+                                              [&](const OPT_token_data& candidate) { return candidate.id == X; }));
     float observed_surprise = -log2f(candidates->data[X_idx].p);
     float e = observed_surprise - tau;
 
@@ -459,13 +453,13 @@ int OPT_sample_token_mirostat(const OPT_vocab & vocab, OPT_token_data_array * ca
     return X;
 }
 
-int OPT_sample_token_mirostat_v2(OPT_token_data_array * candidates, float tau, float eta, float * mu) {
+int OPT_sample_token_mirostat_v2(OPT_token_data_array* candidates, float tau, float eta, float* mu) {
     OPT_sample_softmax(candidates);
 
     // Truncate the words with surprise values greater than mu
-    candidates->size = std::distance(candidates->data, std::find_if(candidates->data, candidates->data + candidates->size, [&](const OPT_token_data & candidate) {
-        return -log2f(candidate.p) > *mu;
-    }));
+    candidates->size = std::distance(
+        candidates->data, std::find_if(candidates->data, candidates->data + candidates->size,
+                                       [&](const OPT_token_data& candidate) { return -log2f(candidate.p) > *mu; }));
 
     // Normalize the probabilities of the remaining words
     OPT_sample_softmax(candidates);
@@ -474,9 +468,9 @@ int OPT_sample_token_mirostat_v2(OPT_token_data_array * candidates, float tau, f
     int X = OPT_sample_token(candidates);
 
     // Compute error as the difference between observed surprise and target surprise value
-    size_t X_idx = std::distance(candidates->data, std::find_if(candidates->data, candidates->data + candidates->size, [&](const OPT_token_data & candidate) {
-        return candidate.id == X;
-    }));
+    size_t X_idx = std::distance(candidates->data,
+                                 std::find_if(candidates->data, candidates->data + candidates->size,
+                                              [&](const OPT_token_data& candidate) { return candidate.id == X; }));
     float observed_surprise = -log2f(candidates->data[X_idx].p);
     float e = observed_surprise - tau;
 
@@ -486,7 +480,7 @@ int OPT_sample_token_mirostat_v2(OPT_token_data_array * candidates, float tau, f
     return X;
 }
 
-void OPT_sample_tail_free(OPT_token_data_array * candidates, float z, size_t min_keep) {
+void OPT_sample_tail_free(OPT_token_data_array* candidates, float z, size_t min_keep) {
     if (z >= 1.0f || candidates->size <= 2) {
         return;
     }
@@ -511,7 +505,7 @@ void OPT_sample_tail_free(OPT_token_data_array * candidates, float z, size_t min
 
     // Normalize the second derivatives
     float second_derivatives_sum = std::accumulate(second_derivatives.begin(), second_derivatives.end(), 0.0f);
-    for (float & value : second_derivatives) {
+    for (float& value : second_derivatives) {
         value /= second_derivatives_sum;
     }
 
@@ -531,7 +525,7 @@ void OPT_sample_tail_free(OPT_token_data_array * candidates, float z, size_t min
     candidates->size = last_idx;
 }
 
-void OPT_sample_typical(OPT_token_data_array * candidates, float p, size_t min_keep) {
+void OPT_sample_typical(OPT_token_data_array* candidates, float p, size_t min_keep) {
     // Reference implementation:
     // https://github.com/huggingface/transformers/compare/main...cimeister:typical-sampling:typical-pr
     if (p >= 1.0f) {
@@ -557,9 +551,8 @@ void OPT_sample_typical(OPT_token_data_array * candidates, float p, size_t min_k
     std::vector<size_t> indices(candidates->size);
     std::iota(indices.begin(), indices.end(), 0);
 
-    std::sort(indices.begin(), indices.end(), [&](size_t a, size_t b) {
-        return shifted_scores[a] < shifted_scores[b];
-    });
+    std::sort(indices.begin(), indices.end(),
+              [&](size_t a, size_t b) { return shifted_scores[a] < shifted_scores[b]; });
 
     // Compute the cumulative probabilities
     float cum_sum = 0.0f;
@@ -588,7 +581,7 @@ void OPT_sample_typical(OPT_token_data_array * candidates, float p, size_t min_k
     candidates->size = new_candidates.size();
 }
 
-void OPT_sample_top_p(OPT_token_data_array * candidates, float p, size_t min_keep) {
+void OPT_sample_top_p(OPT_token_data_array* candidates, float p, size_t min_keep) {
     if (p >= 1.0f) {
         return;
     }
