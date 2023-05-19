@@ -1,6 +1,6 @@
 # Compiler and flags
 CXX = g++
-CXXFLAGS = -std=c++11 -mavx2 -mfma -pthread -O3
+CXXFLAGS = -std=c++17 -mavx2 -mfma -pthread -O3
 
 # Executable and source files
 TARGET = test_ops test_Int8OPTAttention test_Int8OPTDecoderLayer test_Int8OPTDecoder test_OPTForCausalLM profile_OPTForCausalLM test_ops_layer5_1.3B
