@@ -276,43 +276,7 @@ void test_W8A8BFP32OFP32Linear_1_3B() {
         std::cout << "-------- Test of " << __func__ << ": Passed! -------- " << std::endl;
 }
 
-void test_W8A8B8O8Linear() {
-    const int b = 1, m = 108, k = 768, n = 768;
-    MemoryAllocator mem_buf;
-
-    int8_t* intput_arr = mem_buf.get_int8buffer(b * m * k);
-    int8_t* weight_arr = mem_buf.get_int8buffer(b * k * n);
-    int8_t* weightGT_arr = mem_buf.get_int8buffer(b * k * n);
-    int8_t* biasint8_arr = mem_buf.get_int8buffer(b * n);
-    int8_t* biasint8GT_arr = mem_buf.get_int8buffer(b * n);
-    int32_t* biasint32_arr = mem_buf.get_intbuffer(b * n);
-    int8_t* output_arr = mem_buf.get_int8buffer(b * m * n);
-    int8_t* GToutput_arr = mem_buf.get_int8buffer(b * m * n);
-
-    Matrix3D<int8_t> input(intput_arr, b, m, k);
-    Matrix3D<int8_t> weight(weight_arr, b, n, k);
-    Matrix3D<int8_t> bias(biasint8_arr, b, 1, n);
-    Matrix3D<int8_t> output(output_arr, b, m, n);
-    Matrix3D<int8_t> GToutput(GToutput_arr, b, m, n);
-
-    read_to_array((char*)"assets/tests/OPT_125m/W8A8B8O8Linear_x.bin", intput_arr, b * m * k);
-    read_to_array((char*)"assets/tests/OPT_125m/W8A8B8O8Linear_y.bin", GToutput_arr, b * m * n);
-
-    struct W8A8B8O8Linear_params op_params = {weight, bias};
-
-    W8A8B8O8Linear test_op = W8A8B8O8Linear(op_params);
-    load_W8A8B8O8Linear_params(test_op, "models/OPT_125m/decoder/layer0/self_attn/q_proj/");
-
-    test_op.forward(input, output);
-
-    bool sucess = check_two_exact_equal(output_arr, GToutput_arr, b * m * n);
-    if (!sucess)
-        std::cout << "-------- Test of " << __func__ << ": Fail! -------- " << std::endl;
-    else
-        std::cout << "-------- Test of " << __func__ << ": Passed! -------- " << std::endl;
-}
-
-void test_W8A8B8O8Linear_1_3B() {
+void test_W8A8B8O8Linear_layer5_1_3B() {
     const int b = 1, m = 108, k = 2048, n = 2048;
     MemoryAllocator mem_buf;
 
@@ -328,8 +292,8 @@ void test_W8A8B8O8Linear_1_3B() {
     Matrix3D<int8_t> output(output_arr, b, m, n);
     Matrix3D<int8_t> GToutput(GToutput_arr, b, m, n);
 
-    read_to_array((char*)"assets/tests/OPT_1.3B/W8A8B8O8Linear_x.bin", intput_arr, b * m * k);
-    read_to_array((char*)"assets/tests/OPT_1.3B/W8A8B8O8Linear_y.bin", GToutput_arr, m * n);
+    read_to_array((char*)"assets/tests/OPT_1.3B/layer5/W8A8B8O8Linear_x.bin", intput_arr, b * m * k);
+    read_to_array((char*)"assets/tests/OPT_1.3B/layer5/W8A8B8O8Linear_y.bin", GToutput_arr, m * n);
 
     struct W8A8B8O8Linear_params op_params = {weight, bias};
 
@@ -515,8 +479,8 @@ void test_Embedding_1_3B() {
 
 int main() {
     test_LayerNormQ_layer5_1_3B();
+    test_W8A8B8O8Linear_layer5_1_3B();
     // test_W8A8B8O8LinearReLU_layer5_1_3B();
-    // test_W8A8B8O8Linear_layer5_1_3B();
     // test_W8A8BFP32OFP32Linear_layer5_1_3B();
     // test_BMM_S8T_S8N_F32T_layer5_1_3B();
     // test_BMM_S8T_S8N_S8T_layer5_1_3B();
