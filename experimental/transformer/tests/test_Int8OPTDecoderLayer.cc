@@ -512,11 +512,11 @@ void test_DecoderLayer() {
     read_to_array("assets/tests/OPT_125m/DecoderLayer_present_value.bin", value_statesGT,
                   output.past_key_value.second.length());
 
-    bool sucess = check_two_equal(residualGT.m_data, output.hidden_states.m_data, b * sqlen * embed_dim);
+    bool sucess = check_two_equal(residualGT.m_data, output.hidden_states.m_data, b * sqlen * embed_dim, 4e-6);
     sucess &=
-        check_two_exact_equal(output.past_key_value.first.m_data, key_statesGT, output.past_key_value.first.length());
-    sucess &= check_two_exact_equal(output.past_key_value.second.m_data, value_statesGT,
-                                    output.past_key_value.second.length());
+        check_two_equal(output.past_key_value.first.m_data, key_statesGT, output.past_key_value.first.length(), 6e-5);
+    sucess &= check_two_equal(output.past_key_value.second.m_data, value_statesGT,
+                              output.past_key_value.second.length(), 6e-5);
     // print_first_k_elelment("output.hidden_states.m_data", output.hidden_states.m_data, 10);
     // print_first_k_elelment("residualGT.m_data", residualGT.m_data, 10);
     if (!sucess)

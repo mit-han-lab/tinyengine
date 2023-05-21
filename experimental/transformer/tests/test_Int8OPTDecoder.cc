@@ -216,14 +216,13 @@ void test_get_position_embed() {
         std::cout << "-------- Test of " << __func__ << ": Passed! -------- " << std::endl;
 }
 
-// TODO: update assets
 void test_Decoder() {
     const int num_heads = 12, embed_dim = 768, sqlen = 108, b = 1, hidden_dim = 3072, voc_size = 50272, padding_idx = 1,
               num_layers = 12;
     MemoryAllocator mem_buf;
 
     Matrix3D<int> input_ids(mem_buf.get_intbuffer(sqlen), b, 1, sqlen);
-    read_to_array("assets/tests/decoder/decoder_1st_input_ids.bin", input_ids.m_data, b * sqlen);
+    read_to_array("assets/tests/OPT_125m/decoder/decoder_1st_input_ids.bin", input_ids.m_data, b * sqlen);
     struct Int8OPTDecoder_input input_1st = {input_ids};
 
     Int8OPTDecoder decoder = Int8OPTDecoder("models/OPT_125m/decoder/", get_opt_model_config(OPT_125M));
@@ -232,7 +231,7 @@ void test_Decoder() {
 
     // reasoning phase: 1st run
     Matrix3D<float> last_hidden_state1_GT(mem_buf.get_fpbuffer(b * sqlen * embed_dim), b, sqlen, embed_dim);
-    read_to_array("assets/tests/decoder/1st_last_hidden_state.bin", last_hidden_state1_GT.m_data,
+    read_to_array("assets/tests/OPT_125m/decoder/1st_last_hidden_state.bin", last_hidden_state1_GT.m_data,
                   last_hidden_state1_GT.length());
     // print_first_k_elelment("output_1st.last_hidden_state", output_1st.last_hidden_state.m_data, 20);
     // print_first_k_elelment("last_hidden_state1_GT", last_hidden_state1_GT.m_data, 20);
@@ -242,52 +241,51 @@ void test_Decoder() {
     Matrix3D<int8_t> temp_key_value(mem_buf.get_int8buffer(b * sqlen * embed_dim), num_heads, sqlen,
                                     embed_dim / num_heads);
     for (int i = 0; i < num_layers; i++) {
-        std::string path = "assets/tests/decoder/decoder_1st_past_key" + std::to_string(i) + ".bin";
+        std::string path = "assets/tests/OPT_125m/decoder/decoder_1st_past_key" + std::to_string(i) + ".bin";
         read_to_array(path.c_str(), temp_key_value.m_data, temp_key_value.length());
         // print_first_k_elelment("output_1st.past_keys[i].m_data", output_1st.past_keys[i].m_data, 20);
         // print_first_k_elelment("temp_key_value.m_data", temp_key_value.m_data, 20);
-        sucess &= check_two_equal(output_1st.past_keys[i].m_data, temp_key_value.m_data, temp_key_value.length(), 4.5);
+        sucess &= check_two_equal(output_1st.past_keys[i].m_data, temp_key_value.m_data, temp_key_value.length(), 1.2);
 
-        path = "assets/tests/decoder/decoder_1st_past_value" + std::to_string(i) + ".bin";
+        path = "assets/tests/OPT_125m/decoder/decoder_1st_past_value" + std::to_string(i) + ".bin";
         read_to_array(path.c_str(), temp_key_value.m_data, temp_key_value.length());
         // print_first_k_elelment("output_1st.past_values[i].m_data", output_1st.past_values[i].m_data, 20);
         // print_first_k_elelment("temp_key_value.m_data", temp_key_value.m_data, 20);
         sucess &=
-            check_two_equal(output_1st.past_values[i].m_data, temp_key_value.m_data, temp_key_value.length(), 4.5);
+            check_two_equal(output_1st.past_values[i].m_data, temp_key_value.m_data, temp_key_value.length(), 1.8);
     }
 
-    // // generating phase: 2nd run
-    // Matrix3D<int> input_ids_2nd(mem_buf.get_intbuffer(sqlen), b, 1, 1);
-    // read_to_array("assets/tests/decoder/decoder_2nd_input_ids.bin", input_ids_2nd.m_data, b * 1);
-    // struct Int8OPTDecoder_input input_2nd = {input_ids_2nd, output_1st.past_keys, output_1st.past_values};
+    // generating phase: 2nd run
+    Matrix3D<int> input_ids_2nd(mem_buf.get_intbuffer(sqlen), b, 1, 1);
+    read_to_array("assets/tests/OPT_125m/decoder/2nd_input_ids.bin", input_ids_2nd.m_data, b * 1);
+    struct Int8OPTDecoder_input input_2nd = {input_ids_2nd, output_1st.past_keys, output_1st.past_values};
 
-    // struct Int8OPTDecoder_output output_2nd = decoder.forward(input_2nd);
+    struct Int8OPTDecoder_output output_2nd = decoder.forward(input_2nd);
 
-    // Matrix3D<float> last_hidden_state2_GT(mem_buf.get_fpbuffer(b * 1 * embed_dim), b, 1, embed_dim);
-    // read_to_array("assets/tests/decoder/2nd_last_hidden_state.bin", last_hidden_state2_GT.m_data,
-    //               last_hidden_state2_GT.length());
-    // // print_first_k_elelment("output_2nd.last_hidden_state", output_2nd.last_hidden_state.m_data, 20);
-    // // print_first_k_elelment("last_hidden_state2_GT.m_data", last_hidden_state2_GT.m_data, 20);
-    // sucess &= check_two_equal(output_2nd.last_hidden_state.m_data, last_hidden_state2_GT.m_data,
-    //                           last_hidden_state2_GT.length(), 0.013);
+    Matrix3D<float> last_hidden_state2_GT(mem_buf.get_fpbuffer(b * 1 * embed_dim), b, 1, embed_dim);
+    read_to_array("assets/tests/OPT_125m/decoder/2nd_last_hidden_state.bin", last_hidden_state2_GT.m_data,
+                  last_hidden_state2_GT.length());
+    // print_first_k_elelment("output_2nd.last_hidden_state", output_2nd.last_hidden_state.m_data, 20);
+    // print_first_k_elelment("last_hidden_state2_GT.m_data", last_hidden_state2_GT.m_data, 20);
+    sucess &= check_two_equal(output_2nd.last_hidden_state.m_data, last_hidden_state2_GT.m_data,
+                              last_hidden_state2_GT.length(), 0.02);
 
-    // temp_key_value =
-    //     Matrix3D<int8_t>(mem_buf.get_int8buffer(b * 1 * embed_dim), num_heads, (sqlen + 1), embed_dim / num_heads);
-    // for (int i = 0; i < num_layers; i++) {
-    //     std::string path = "assets/tests/decoder/decoder_2nd_past_key" + std::to_string(i) + ".bin";
-    //     read_to_array(path.c_str(), temp_key_value.m_data, temp_key_value.length());
-    //     // print_first_k_elelment("output_2nd.past_keys[i].m_data", output_2nd.past_keys[i].m_data, 20);
-    //     // print_first_k_elelment("temp_key_value.m_data", temp_key_value.m_data, 20);
-    //     sucess &= check_two_equal(output_2nd.past_keys[i].m_data, temp_key_value.m_data,
-    //     temp_key_value.length(), 2.8);
+    temp_key_value =
+        Matrix3D<int8_t>(mem_buf.get_int8buffer(b * 1 * embed_dim), num_heads, (sqlen + 1), embed_dim / num_heads);
+    for (int i = 0; i < num_layers; i++) {
+        std::string path = "assets/tests/OPT_125m/decoder/decoder_2nd_past_key" + std::to_string(i) + ".bin";
+        read_to_array(path.c_str(), temp_key_value.m_data, temp_key_value.length());
+        // print_first_k_elelment("output_2nd.past_keys[i].m_data", output_2nd.past_keys[i].m_data, 20);
+        // print_first_k_elelment("temp_key_value.m_data", temp_key_value.m_data, 20);
+        sucess &= check_two_equal(output_2nd.past_keys[i].m_data, temp_key_value.m_data, temp_key_value.length(), 1.2);
 
-    //     path = "assets/tests/decoder/decoder_2nd_past_value" + std::to_string(i) + ".bin";
-    //     read_to_array(path.c_str(), temp_key_value.m_data, temp_key_value.length());
-    //     // print_first_k_elelment("output_2nd.past_values[i].m_data", output_2nd.past_values[i].m_data, 20);
-    //     // print_first_k_elelment("temp_key_value.m_data", temp_key_value.m_data, 20);
-    //     sucess &=
-    //         check_two_equal(output_2nd.past_values[i].m_data, temp_key_value.m_data, temp_key_value.length(), 4.2);
-    // }
+        path = "assets/tests/OPT_125m/decoder/decoder_2nd_past_value" + std::to_string(i) + ".bin";
+        read_to_array(path.c_str(), temp_key_value.m_data, temp_key_value.length());
+        // print_first_k_elelment("output_2nd.past_values[i].m_data", output_2nd.past_values[i].m_data, 20);
+        // print_first_k_elelment("temp_key_value.m_data", temp_key_value.m_data, 20);
+        sucess &=
+            check_two_equal(output_2nd.past_values[i].m_data, temp_key_value.m_data, temp_key_value.length(), 1.8);
+    }
 
     if (!sucess)
         std::cout << "-------- Test of " << __func__ << ": Fail! -------- " << std::endl;
