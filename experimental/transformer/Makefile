@@ -3,7 +3,7 @@ CXX = g++
 CXXFLAGS = -std=c++17 -mavx2 -mfma -pthread -O3
 
 # Executable and source files
-TARGET = test_ops test_Int8OPTAttention test_Int8OPTDecoderLayer test_Int8OPTDecoder test_OPTForCausalLM profile_OPTForCausalLM test_ops_layer5_1.3B
+TARGET = test_ops test_Int8OPTAttention test_Int8OPTDecoderLayer test_Int8OPTDecoder test_OPTForCausalLM profile_OPTForCausalLM test_ops_layer5_1.3B test_OPTTokenizer
 
 LIB_DIR = ../matmul_optimization/src
 LIB_SRC = $(wildcard $(LIB_DIR)/lib/*.cc)
@@ -42,6 +42,8 @@ test_ops_layer5_1.3B:
 profile_OPTForCausalLM:
 	$(CXX) $(CXXFLAGS) $(INCLUDE_DIRS) -D PROFILER -o profile_OPTForCausalLM tests/test_OPTForCausalLM.cc $(SRC)
 
+test_OPTTokenizer:
+	$(CXX) $(CXXFLAGS) $(INCLUDE_DIRS) -D PROFILER -o test_OPTTokenizer tests/test_OPTTokenizer.cc $(SRC)
 
 # Clean up
 clean:
