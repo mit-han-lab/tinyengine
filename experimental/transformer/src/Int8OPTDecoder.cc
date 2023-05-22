@@ -43,8 +43,9 @@ Matrix3D<float> Int8OPTDecoder::get_position_embed(int sql_length, int past_leng
 
 Int8OPTDecoder::Int8OPTDecoder(std::string param_path, const struct model_config config) {
     allocate_aligned_memory(attention_mask_buf, config.max_sqlen * config.max_sqlen * sizeof(float));
-    allocate_aligned_memory(pos_embeds_buf, config.max_sqlen * config.max_sqlen * sizeof(float));
-    allocate_aligned_memory(last_hidden_states_buf, config.max_sqlen * config.max_sqlen * sizeof(float));
+    allocate_aligned_memory(pos_embeds_buf, config.max_sqlen * config.embed_dim * sizeof(float));
+    allocate_aligned_memory(last_hidden_states_buf, config.max_sqlen * config.embed_dim * sizeof(float));
+    allocate_aligned_memory(hidden_states_buf, config.max_sqlen * config.embed_dim * sizeof(float));
 
     this->voc_size = config.vocsize;
     this->embed_dim = config.embed_dim;
@@ -153,18 +154,20 @@ struct Int8OPTDecoder_output Int8OPTDecoder::forward(const struct Int8OPTDecoder
     // causal_attention_mask = self._prepare_decoder_attention_mask
     Matrix3D<float> causal_attention_mask =
         this->prepare_decoder_attention_mask(sqlen + past_key_values_length, past_key_values_length);
+    // std::cout << "causal_attention_mask(md5):" << causal_attention_mask.getMD5() << std::endl;
 
     // modeling_opt.py: pos_embeds = self.embed_positions(attention_mask, past_key_values_length)
     Matrix3D<float> pos_embeds = this->get_position_embed(sqlen, past_key_values_length);
+    // std::cout << "causal_attention_mask(md5):" << causal_attention_mask.getMD5() << std::endl;
 
     // modeling_opt.py: hidden_states = inputs_embeds + pos_embeds
     assert(inputs_embeds.m_dim_x == pos_embeds.m_dim_x);
     assert(inputs_embeds.m_dim_y == pos_embeds.m_dim_y);
     assert(inputs_embeds.m_dim_z == pos_embeds.m_dim_z);
-    float hidden_states_buf[sqlen * this->embed_dim];
     Matrix3D<float> hidden_states(hidden_states_buf, 1, sqlen, this->embed_dim);
     for (int i = 0; i < inputs_embeds.length(); i++)
         hidden_states.m_data[i] = inputs_embeds.m_data[i] + pos_embeds.m_data[i];
+    // std::cout << "causal_attention_mask(md5):" << causal_attention_mask.getMD5() << std::endl;
     // DEBUGING CODE
     // print_first_k_elelment("pos_embeds", pos_embeds.m_data, 20);
     // print_first_k_elelment("inputs_embeds", inputs_embeds.m_data, 20);

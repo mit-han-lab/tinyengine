@@ -40,4 +40,5 @@ class Int8OPTDecoder {
     float* attention_mask_buf;
     float* pos_embeds_buf;
     float* last_hidden_states_buf;
+    float* hidden_states_buf;
 };

@@ -1,13 +1,13 @@
 # Compiler and flags
 CXX = g++
-CXXFLAGS = -std=c++17 -mavx2 -mfma -pthread -O3
+CXXFLAGS = -std=c++17 -mavx2 -pthread -O3
 
 # Executable and source files
-TARGET = test_ops test_Int8OPTAttention test_Int8OPTDecoderLayer test_Int8OPTDecoder test_OPTForCausalLM profile_OPTForCausalLM test_ops_layer5_1.3B test_OPTTokenizer
+TARGET = test_ops test_Int8OPTAttention test_Int8OPTDecoderLayer test_Int8OPTDecoder test_OPTForCausalLM profile_OPTForCausalLM test_OPTTokenizer
 
 LIB_DIR = ../matmul_optimization/src
 LIB_SRC = $(wildcard $(LIB_DIR)/lib/*.cc)
-INCLUDE_DIRS = -I$(LIB_DIR) -I./include
+INCLUDE_DIRS = -I$(LIB_DIR) -I./include -I./json/single_include/
 
 $(info $(LIB_SRC))
 
@@ -35,9 +35,6 @@ test_Int8OPTDecoder:
 
 test_OPTForCausalLM:
 	$(CXX) $(CXXFLAGS) $(INCLUDE_DIRS) -o test_OPTForCausalLM tests/test_OPTForCausalLM.cc $(SRC)
-
-test_ops_layer5_1.3B:
-	$(CXX) $(CXXFLAGS) $(INCLUDE_DIRS) -o test_ops_layer5_1.3B tests/test_ops_layer5_1.3B.cc $(SRC)
 
 profile_OPTForCausalLM:
 	$(CXX) $(CXXFLAGS) $(INCLUDE_DIRS) -D PROFILER -o profile_OPTForCausalLM tests/test_OPTForCausalLM.cc $(SRC)

@@ -4,3 +4,6 @@
 [submodule "mcunet"]
 	path = mcunet
 	url = https://github.com/mit-han-lab/mcunet
+[submodule "experimental/transformer/json"]
+	path = experimental/transformer/json
+	url = https://github.com/nlohmann/json
