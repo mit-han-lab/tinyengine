@@ -173,7 +173,7 @@ void test_OPTForCausalLM_1_3B() {
     // std::cout << "arg_max_2nd.m_data:" << arg_max_2nd.m_data[0]  << ", arg_maxGT_2nd.m_data:" <<
     // arg_maxGT_2nd.m_data[0] << std::endl;
     hit_rate = (float)total_hit / (float)1;
-    std::cout << "sqlen:" << sqlen << ", hits:" << total_hit << ", hit rate:" << hit_rate << std::endl;
+    std::cout << "sqlen:" << 1 << ", hits:" << total_hit << ", hit rate:" << hit_rate << std::endl;
     sucess &= hit_rate > 0.99;
 
     Profiler::getInstance().report();
@@ -255,7 +255,7 @@ void test_OPTForCausalLM_6_7B() {
     // std::cout << "arg_max_2nd.m_data:" << arg_max_2nd.m_data[0]  << ", arg_maxGT_2nd.m_data:" <<
     // arg_maxGT_2nd.m_data[0] << std::endl;
     hit_rate = (float)total_hit / (float)1;
-    // std::cout << "sqlen:" << sqlen  << ", hits:" << total_hit << ", hit rate:" << hit_rate << std::endl;
+    std::cout << "sqlen:" << 1 << ", hits:" << total_hit << ", hit rate:" << hit_rate << std::endl;
     sucess &= hit_rate > 0.99;
 
     Profiler::getInstance().report();
