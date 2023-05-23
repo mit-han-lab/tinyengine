@@ -25,23 +25,6 @@
 
 //std::vector<int> OPT_tokenize(const OPT_vocab & vocab, const std::string & text, bool add_bos);
 
-
-/* TODO */
-inline int n_ctx = 1024;
-inline std::vector<int> last_n_tokens(n_ctx);
-
-inline int OPT_token_bos() {
-    return 1;
-}
-
-inline int OPT_token_eos() {
-    return 2;
-}
-
-inline int OPT_token_nl() {
-    return 13;
-}
-
 struct pair_hash {
     template <class T1, class T2>
     std::size_t operator () (const std::pair<T1,T2> &p) const {
