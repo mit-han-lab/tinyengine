@@ -6,45 +6,6 @@
 }*/
 
 /*
-// Defining constant map of vocab file names
-std::map<std::string, std::string> VOCAB_FILES_NAMES = {
-    {"vocab_file", "vocab.json"},
-    {"merges_file", "merges.txt"}
-};
-
-// Defining constant maps for pretrained vocab files
-std::map<std::string, std::string> vocab_file = {
-    {"gpt2", "https://huggingface.co/gpt2/resolve/main/vocab.json"},
-    {"gpt2-medium", "https://huggingface.co/gpt2-medium/resolve/main/vocab.json"},
-    {"gpt2-large", "https://huggingface.co/gpt2-large/resolve/main/vocab.json"},
-    {"gpt2-xl", "https://huggingface.co/gpt2-xl/resolve/main/vocab.json"},
-    {"distilgpt2", "https://huggingface.co/distilgpt2/resolve/main/vocab.json"}
-};
-
-std::map<std::string, std::string> merges_file = {
-    {"gpt2", "https://huggingface.co/gpt2/resolve/main/merges.txt"},
-    {"gpt2-medium", "https://huggingface.co/gpt2-medium/resolve/main/merges.txt"},
-    {"gpt2-large", "https://huggingface.co/gpt2-large/resolve/main/merges.txt"},
-    {"gpt2-xl", "https://huggingface.co/gpt2-xl/resolve/main/merges.txt"},
-    {"distilgpt2", "https://huggingface.co/distilgpt2/resolve/main/merges.txt"}
-};
-
-std::map<std::string, std::map<std::string, std::string>> PRETRAINED_VOCAB_FILES_MAP = {
-    {"vocab_file", vocab_file},
-    {"merges_file", merges_file}
-};
-
-// Defining constant map for pretrained positional embeddings sizes
-std::map<std::string, int> PRETRAINED_POSITIONAL_EMBEDDINGS_SIZES = {
-    {"gpt2", 1024},
-    {"gpt2-medium", 1024},
-    {"gpt2-large", 1024},
-    {"gpt2-xl", 1024},
-    {"distilgpt2", 1024}
-};
-*/
-
-/*
  *  Tokenizer
  */
 Encoder::Encoder(std::map<std::string, int> encoder, std::vector<std::pair<std::string, std::string>> bpe_merges) {

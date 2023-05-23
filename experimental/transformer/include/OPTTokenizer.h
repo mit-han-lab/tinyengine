@@ -21,8 +21,6 @@
 #include <boost/regex.hpp>
 #include <nlohmann/json.hpp>
 
-//#include "OPT.h"
-
 //std::vector<int> OPT_tokenize(const OPT_vocab & vocab, const std::string & text, bool add_bos);
 
 struct pair_hash {

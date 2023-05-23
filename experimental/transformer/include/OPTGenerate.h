@@ -14,16 +14,6 @@
 
 inline std::mt19937 OPT_rng;
 
-inline int OPT_token_bos() {
-      return 0;
-}
-inline int OPT_token_eos() {
-      return 2;
-}
-inline int OPT_token_nl() {
-      return 3;  // TODO: To be checked
-}
-
 typedef struct OPT_token_data {
     int id;       // token id
     float logit;  // log-odds of the token
@@ -37,18 +27,17 @@ typedef struct OPT_token_data_array {
 } OPT_token_data_array;
 
 struct opt_params {
-    int32_t seed = -1;  // RNG seed
-    // int32_t n_threads     = get_num_physical_cores(); // TODO: fix this
-    int32_t n_threads = 1;
-    int32_t n_predict = 128;  // new tokens to predict
-    int32_t n_parts = -1;    // amount of model parts (-1 = determine from model dimensions)
-    int32_t n_ctx = 512;     // context size
-    int32_t n_batch = 512;   // batch size for prompt processing (must be >=32 to use BLAS)
-    int32_t n_keep = 0;      // number of tokens to keep from initial prompt
-    int32_t n_vocab = 50272;  // vocabulary size
+    int32_t seed      = -1;         // RNG seed
+    int32_t n_threads = 1;          // TODO: fix this
+    int32_t n_predict = 128;        // new tokens to predict
+    int32_t n_parts   = -1;         // amount of model parts (-1 = determine from model dimensions)
+    int32_t n_ctx     = 512;        // context size
+    int32_t n_batch   = 512;        // batch size for prompt processing (must be >=32 to use BLAS)
+    int32_t n_keep    = 0;          // number of tokens to keep from initial prompt
+    int32_t n_vocab   = 50272;      // vocabulary size
 
     // sampling parameters
-    std::unordered_map<int, float> logit_bias;  // logit bias for specific tokens
+    std::unordered_map<int, float> logit_bias;    // logit bias for specific tokens
     int32_t top_k             = 40;               // <= 0 to use vocab size
     float   top_p             = 0.95f;            // 1.0 = disabled
     float   tfs_z             = 1.00f;            // 1.0 = disabled
