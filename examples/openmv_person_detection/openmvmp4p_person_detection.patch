@@ -1,0 +1,229 @@
+diff --git a/src/omv/boards/OPENMV4P/imlib_config.h b/src/omv/boards/OPENMV4P/imlib_config.h
+index 6b4cd2f4..ee5f14f0 100644
+--- a/src/omv/boards/OPENMV4P/imlib_config.h
++++ b/src/omv/boards/OPENMV4P/imlib_config.h
+@@ -18,102 +18,102 @@
+ #define IMLIB_ENABLE_IMAGE_FILE_IO
+ 
+ // Enable LAB LUT
+-#define IMLIB_ENABLE_LAB_LUT
++// #define IMLIB_ENABLE_LAB_LUT
+ 
+ // Enable YUV LUT
+-//#define IMLIB_ENABLE_YUV_LUT
++// #define IMLIB_ENABLE_YUV_LUT
+ 
+ // Enable mean pooling
+-#define IMLIB_ENABLE_MEAN_POOLING
++// #define IMLIB_ENABLE_MEAN_POOLING
+ 
+ // Enable midpoint pooling
+-#define IMLIB_ENABLE_MIDPOINT_POOLING
++// #define IMLIB_ENABLE_MIDPOINT_POOLING
+ 
+ // Enable binary ops
+-#define IMLIB_ENABLE_BINARY_OPS
++// #define IMLIB_ENABLE_BINARY_OPS
+ 
+ // Enable math ops
+-#define IMLIB_ENABLE_MATH_OPS
++// #define IMLIB_ENABLE_MATH_OPS
+ 
+ // Enable flood_fill()
+-#define IMLIB_ENABLE_FLOOD_FILL
++// #define IMLIB_ENABLE_FLOOD_FILL
+ 
+ // Enable mean()
+-#define IMLIB_ENABLE_MEAN
++// #define IMLIB_ENABLE_MEAN
+ 
+ // Enable median()
+-#define IMLIB_ENABLE_MEDIAN
++// #define IMLIB_ENABLE_MEDIAN
+ 
+ // Enable mode()
+-#define IMLIB_ENABLE_MODE
++// #define IMLIB_ENABLE_MODE
+ 
+ // Enable midpoint()
+-#define IMLIB_ENABLE_MIDPOINT
++// #define IMLIB_ENABLE_MIDPOINT
+ 
+ // Enable morph()
+-#define IMLIB_ENABLE_MORPH
++// #define IMLIB_ENABLE_MORPH
+ 
+ // Enable Gaussian
+-#define IMLIB_ENABLE_GAUSSIAN
++// #define IMLIB_ENABLE_GAUSSIAN
+ 
+ // Enable Laplacian
+-#define IMLIB_ENABLE_LAPLACIAN
++// #define IMLIB_ENABLE_LAPLACIAN
+ 
+ // Enable bilateral()
+-#define IMLIB_ENABLE_BILATERAL
++// #define IMLIB_ENABLE_BILATERAL
+ 
+ // Enable cartoon()
+ // #define IMLIB_ENABLE_CARTOON
+ 
+ // Enable linpolar()
+-#define IMLIB_ENABLE_LINPOLAR
++// #define IMLIB_ENABLE_LINPOLAR
+ 
+ // Enable logpolar()
+-#define IMLIB_ENABLE_LOGPOLAR
++// #define IMLIB_ENABLE_LOGPOLAR
+ 
+ // Enable lens_corr()
+-#define IMLIB_ENABLE_LENS_CORR
++// #define IMLIB_ENABLE_LENS_CORR
+ 
+ // Enable rotation_corr()
+-#define IMLIB_ENABLE_ROTATION_CORR
++// #define IMLIB_ENABLE_ROTATION_CORR
+ 
+ // Enable phasecorrelate()
+ #if defined(IMLIB_ENABLE_ROTATION_CORR)
+-#define IMLIB_ENABLE_FIND_DISPLACEMENT
++// #define IMLIB_ENABLE_FIND_DISPLACEMENT
+ #endif
+ 
+ // Enable get_similarity()
+-#define IMLIB_ENABLE_GET_SIMILARITY
++// #define IMLIB_ENABLE_GET_SIMILARITY
+ 
+ // Enable find_lines()
+-#define IMLIB_ENABLE_FIND_LINES
++// #define IMLIB_ENABLE_FIND_LINES
+ 
+ // Enable find_line_segments()
+-#define IMLIB_ENABLE_FIND_LINE_SEGMENTS
++// #define IMLIB_ENABLE_FIND_LINE_SEGMENTS
+ 
+ // Enable find_circles()
+-#define IMLIB_ENABLE_FIND_CIRCLES
++// #define IMLIB_ENABLE_FIND_CIRCLES
+ 
+ // Enable find_rects()
+-#define IMLIB_ENABLE_FIND_RECTS
++// #define IMLIB_ENABLE_FIND_RECTS
+ 
+ // Enable find_qrcodes() (14 KB)
+-#define IMLIB_ENABLE_QRCODES
++// #define IMLIB_ENABLE_QRCODES
+ 
+ // Enable find_apriltags() (64 KB)
+-#define IMLIB_ENABLE_APRILTAGS
++// #define IMLIB_ENABLE_APRILTAGS
+ 
+ // Enable fine find_apriltags() - (8-way connectivity versus 4-way connectivity)
+ // #define IMLIB_ENABLE_FINE_APRILTAGS
+ 
+ // Enable high res find_apriltags() - uses more RAM
+-#define IMLIB_ENABLE_HIGH_RES_APRILTAGS
++// #define IMLIB_ENABLE_HIGH_RES_APRILTAGS
+ 
+ // Enable find_datamatrices() (26 KB)
+-#define IMLIB_ENABLE_DATAMATRICES
++// #define IMLIB_ENABLE_DATAMATRICES
+ 
+ // Enable find_barcodes() (42 KB)
+-#define IMLIB_ENABLE_BARCODES
++// #define IMLIB_ENABLE_BARCODES
+ 
+ // Enable CMSIS NN
+ // #if !defined(CUBEAI)
+@@ -122,26 +122,26 @@
+ 
+ // Enable Tensor Flow
+ #if !defined(CUBEAI)
+-#define IMLIB_ENABLE_TF
++// #define IMLIB_ENABLE_TF
+ #endif
+ 
+ // Enable FAST (20+ KBs).
+ // #define IMLIB_ENABLE_FAST
+ 
+ // Enable find_template()
+-#define IMLIB_FIND_TEMPLATE
++// #define IMLIB_FIND_TEMPLATE
+ 
+ // Enable find_lbp()
+-#define IMLIB_ENABLE_FIND_LBP
++// #define IMLIB_ENABLE_FIND_LBP
+ 
+ // Enable find_keypoints()
+-#define IMLIB_ENABLE_FIND_KEYPOINTS
++// #define IMLIB_ENABLE_FIND_KEYPOINTS
+ 
+ // Enable load, save and match descriptor
+-#define IMLIB_ENABLE_DESCRIPTOR
++// #define IMLIB_ENABLE_DESCRIPTOR
+ 
+ // Enable find_hog()
+-#define IMLIB_ENABLE_HOG
++// #define IMLIB_ENABLE_HOG
+ 
+ // Enable selective_search()
+ // #define IMLIB_ENABLE_SELECTIVE_SEARCH
+@@ -149,4 +149,4 @@
+ // Enable STM32 DMA2D
+ #define IMLIB_ENABLE_DMA2D
+ 
+-#endif //__IMLIB_CONFIG_H__
++#endif  //__IMLIB_CONFIG_H__
+diff --git a/src/omv/boards/OPENMV4P/omv_boardconfig.h b/src/omv/boards/OPENMV4P/omv_boardconfig.h
+index 178c8ea6..6ec5761d 100644
+--- a/src/omv/boards/OPENMV4P/omv_boardconfig.h
++++ b/src/omv/boards/OPENMV4P/omv_boardconfig.h
+@@ -146,6 +146,7 @@
+ // Note: fb_alloc is a stack-based, dynamically allocated memory on FB.
+ // The maximum available fb_alloc memory = FB_ALLOC_SIZE + FB_SIZE - (w*h*bpp).
+ #define OMV_MAIN_MEMORY         SRAM1       // data, bss and heap
++#define OMV_MAIN_MEMORY2        SRAM5       // my memory
+ #define OMV_STACK_MEMORY        ITCM        // stack memory
+ #define OMV_DMA_MEMORY          SRAM3       // Misc DMA buffers memory.
+ #define OMV_FB_MEMORY           DRAM        // Framebuffer, fb_alloc
+@@ -153,12 +154,15 @@
+ #define OMV_JPEG_MEMORY_OFFSET  (31M)       // JPEG buffer is placed after FB/fballoc memory.
+ #define OMV_VOSPI_MEMORY        SRAM4       // VoSPI buffer memory.
+ #define OMV_FB_OVERLAY_MEMORY   AXI_SRAM    // Fast fb_alloc memory.
+-#define OMV_FB_OVERLAY_MEMORY_OFFSET    (496*1024) // Fast fb_alloc memory size.
++// #define OMV_FB_OVERLAY_MEMORY_OFFSET    (496*1024) // Fast fb_alloc memory size.
++#define OMV_FB_OVERLAY_MEMORY_OFFSET    (240*1024) // Fast fb_alloc memory size.
++
+ 
+ #define OMV_FB_SIZE             (20M)       // FB memory: header + VGA/GS image
+ #define OMV_FB_ALLOC_SIZE       (11M)       // minimum fb alloc size
+ #define OMV_STACK_SIZE          (64K)
+-#define OMV_HEAP_SIZE           (240K)
++// #define OMV_HEAP_SIZE           (240K)
++#define OMV_HEAP_SIZE           (140K)
+ #define OMV_SDRAM_SIZE          (32 * 1024 * 1024) // This needs to be here for UVC firmware.
+ 
+ #define OMV_LINE_BUF_SIZE       (11 * 1024) // Image line buffer round(2592 * 2BPP * 2 buffers).
+@@ -175,14 +179,18 @@
+ #define OMV_DTCM_LENGTH         128K
+ #define OMV_ITCM_ORIGIN         0x00000000
+ #define OMV_ITCM_LENGTH         64K
+-#define OMV_SRAM1_ORIGIN        0x30000000
+-#define OMV_SRAM1_LENGTH        256K        // SRAM1 + SRAM2 + 1/2 SRAM3
++// #define OMV_SRAM1_ORIGIN        0x30000000
++// #define OMV_SRAM1_LENGTH        256K        // SRAM1 + SRAM2 + 1/2 SRAM3
++#define OMV_SRAM1_ORIGIN        0x24000000
++#define OMV_SRAM1_LENGTH        512K
+ #define OMV_SRAM3_ORIGIN        0x30040000
+ #define OMV_SRAM3_LENGTH        32K
+ #define OMV_SRAM4_ORIGIN        0x38000000
+ #define OMV_SRAM4_LENGTH        64K
+-#define OMV_AXI_SRAM_ORIGIN     0x24000000
+-#define OMV_AXI_SRAM_LENGTH     512K
++// #define OMV_AXI_SRAM_ORIGIN     0x24000000
++// #define OMV_AXI_SRAM_LENGTH     512K
++#define OMV_AXI_SRAM_ORIGIN     0x30000000
++#define OMV_AXI_SRAM_LENGTH     256K
+ #define OMV_DRAM_ORIGIN         0xC0000000
+ #define OMV_DRAM_LENGTH         32M
+ 
