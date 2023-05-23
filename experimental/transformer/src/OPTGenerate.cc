@@ -369,7 +369,6 @@ std::vector<int> OPTGenerate(std::vector<int> input_ids,
         const int     mirostat        = generation_config.mirostat;
         const float   mirostat_tau    = generation_config.mirostat_tau;
         const float   mirostat_eta    = generation_config.mirostat_eta;
-        const bool    penalize_nl     = generation_config.penalize_nl;
         const int     n_vocab         = generation_config.n_vocab;
 
         // Apply generation_config.logit_bias map
@@ -388,7 +387,6 @@ std::vector<int> OPTGenerate(std::vector<int> input_ids,
         OPT_token_data_array candidates_p = { candidates.data(), candidates.size(), false };
 
         // Apply penalties
-        //float nl_logit = logits[OPT_token_nl()];
         auto last_n_repeat = std::min(std::min((int)last_n_tokens.size(), repeat_last_n), n_ctx);
         OPT_sample_repetition_penalty(&candidates_p,
             last_n_tokens.data() + last_n_tokens.size() - last_n_repeat,
@@ -396,9 +394,6 @@ std::vector<int> OPTGenerate(std::vector<int> input_ids,
         OPT_sample_frequency_and_presence_penalties(&candidates_p,
             last_n_tokens.data() + last_n_tokens.size() - last_n_repeat,
             last_n_repeat, alpha_frequency, alpha_presence);
-        /*if (!penalize_nl) {
-            logits[OPT_token_nl()] = nl_logit;
-        }*/
 
         int id = 0;
         if (temp <= 0) {
