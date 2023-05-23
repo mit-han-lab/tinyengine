@@ -3,7 +3,7 @@ CXX = g++
 CXXFLAGS = -std=c++17 -mavx2 -pthread -O3
 
 # Executable and source files
-TARGET = test_ops test_Int8OPTAttention test_Int8OPTDecoderLayer test_Int8OPTDecoder test_OPTForCausalLM profile_OPTForCausalLM test_OPTTokenizer test_OPTGenerate
+TARGET = test_ops test_Int8OPTAttention test_Int8OPTDecoderLayer test_Int8OPTDecoder test_OPTForCausalLM profile_OPTForCausalLM test_OPTTokenizer test_OPTGenerate demo
 
 LIB_DIR = ../matmul_optimization/src
 LIB_SRC = $(wildcard $(LIB_DIR)/lib/*.cc)
@@ -40,10 +40,13 @@ profile_OPTForCausalLM:
 	$(CXX) $(CXXFLAGS) $(INCLUDE_DIRS) -D PROFILER -o profile_OPTForCausalLM tests/test_OPTForCausalLM.cc $(SRC)
 
 test_OPTTokenizer:
-	$(CXX) $(CXXFLAGS) $(INCLUDE_DIRS) -D PROFILER -o test_OPTTokenizer tests/test_OPTTokenizer.cc $(SRC)
+	$(CXX) $(CXXFLAGS) $(INCLUDE_DIRS) -o test_OPTTokenizer tests/test_OPTTokenizer.cc $(SRC)
 
 test_OPTGenerate:
-	$(CXX) $(CXXFLAGS) $(INCLUDE_DIRS) -D PROFILER -o test_OPTGenerate tests/test_OPTGenerate.cc $(SRC)
+	$(CXX) $(CXXFLAGS) $(INCLUDE_DIRS) -o test_OPTGenerate tests/test_OPTGenerate.cc $(SRC)
+
+demo:
+	$(CXX) $(CXXFLAGS) $(INCLUDE_DIRS) -o demo application/demo.cc $(SRC)
 
 # Clean up
 clean:

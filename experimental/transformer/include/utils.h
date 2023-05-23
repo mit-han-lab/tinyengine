@@ -9,6 +9,10 @@
 
 #include "profiler.h"
 
+#define STATS_START(x) Profiler::getInstance().start(x)
+#define STATS_FLOPS(x, y) Profiler::getInstance().start(x, y)
+#define STATS_END(x) Profiler::getInstance().stop(x)
+
 #ifdef PROFILER
 #define PROFILE_START(x) Profiler::getInstance().start(x)
 #define PROFILE_START_FLOPS(x, y) Profiler::getInstance().start(x, y)

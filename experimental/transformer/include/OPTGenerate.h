@@ -81,7 +81,5 @@ void OPT_sample_typical(OPT_token_data_array* candidates, float p, size_t min_ke
 void OPT_sample_top_p(OPT_token_data_array* candidates, float p, size_t min_keep);
 
 std::vector<int> OPTGenerate(OPTForCausalLM model, std::vector<int> input_ids,
-                             const struct opt_params generation_config);
-
-void OPTGenerate_interactive(OPTForCausalLM model, std::vector<int> input_ids,
-                             const struct opt_params generation_config, Encoder encoder);
+                             const struct opt_params generation_config, Encoder* encoder = NULL,
+                             bool interactive = false);

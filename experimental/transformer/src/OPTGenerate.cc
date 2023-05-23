@@ -1,6 +1,7 @@
 #include "OPTGenerate.h"
 
 #include "common.h"
+#include "util.h"
 
 void OPT_sample_repetition_penalty(OPT_token_data_array* candidates, const int* last_tokens, size_t last_tokens_size,
                                    float penalty) {
@@ -320,7 +321,7 @@ void OPT_sample_top_p(OPT_token_data_array* candidates, float p, size_t min_keep
 
 // OPTGenerate function
 std::vector<int> OPTGenerate(OPTForCausalLM model, std::vector<int> input_ids,
-                             const struct opt_params generation_config) {
+                             const struct opt_params generation_config, Encoder* encoder, bool interactive) {
     std::vector<int> last_n_tokens(generation_config.n_ctx);
     std::fill(last_n_tokens.begin(), last_n_tokens.end(), 0);
     std::vector<int> embd;
@@ -338,10 +339,14 @@ std::vector<int> OPTGenerate(OPTForCausalLM model, std::vector<int> input_ids,
         }
     }
 
+    if (encoder == NULL) interactive = false;
+    if (interactive) std::cout << "Generated: " << std::endl;
+
     bool has_past_kv = false;
     std::vector<Matrix3D<int8_t>> past_keys, past_values;
     int n_remain = generation_config.n_predict;
     while (n_remain != 0) {
+        STATS_START("Token generation");
         std::vector<float> logits(generation_config.n_vocab);
 
         int sqlen = 1;
@@ -433,8 +438,16 @@ std::vector<int> OPTGenerate(OPTForCausalLM model, std::vector<int> input_ids,
         generate_ids.push_back(id);
         input_ids = std::vector<int>{id};
 
+        if (interactive) std::cout << encoder->decode(input_ids) << std::flush;
+
         --n_remain;
+        STATS_END("Token generation");
     }
+
+    if (interactive) std::cout << std::endl;
+
+    Profiler::getInstance().report_internal();
+    Profiler::getInstance().reset();
 
     return generate_ids;
 }

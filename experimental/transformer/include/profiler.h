@@ -34,8 +34,7 @@ class Profiler {
         counts[section]++;
     }
 
-    void report() const {
-#ifdef PROFILER
+    void report_internal() const {
         std::cout << "Section, Total time(us), Average time(us), Count, GOPs" << std::endl;
         for (const auto& entry : durations) {
             std::string row;
@@ -43,7 +42,7 @@ class Profiler {
             row += std::to_string(entry.second) + ", ";
             row += std::to_string(entry.second / counts.at(entry.first)) + ", ";
             if (flops.count(entry.first) == 0)
-                row += std::to_string(counts.at(entry.first));
+                row += std::to_string(counts.at(entry.first)) + ", N/A, N/A";
             else {
                 row += std::to_string(counts.at(entry.first)) + ", ";
                 // ops and microsecond
@@ -51,6 +50,11 @@ class Profiler {
             }
             std::cout << row << std::endl;
         }
+    }
+
+    void report() const {
+#ifdef PROFILER
+        report_internal();
 #endif
     }
 
