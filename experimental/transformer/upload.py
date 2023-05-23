@@ -15,12 +15,11 @@ def subebackups(file_path, target_path, token):
             dbx.files_upload(f.read(), dest_path)
 
         else:
-
             upload_session_start_result = dbx.files_upload_session_start(f.read(CHUNK_SIZE))
             cursor = dropbox.files.UploadSessionCursor(
                 session_id=upload_session_start_result.session_id, offset=f.tell()
             )
-            commit = dropbox.files.CommitInfo(path=dest_path)
+            commit = dropbox.files.CommitInfo(path=dest_path, mode=dropbox.files.WriteMode("overwrite"))
 
             while f.tell() < file_size:
                 if (file_size - f.tell()) <= CHUNK_SIZE:
@@ -35,5 +34,5 @@ if __name__ == "__main__":
     parser.add_argument("token", help="Your Dropbox OAuth2 token.")
     args = parser.parse_args()
 
-    subebackups("assets.zip", "/MIT/transformer_assets/assets_test.zip", args.token)
+    subebackups("assets.zip", "/MIT/transformer_assets/assets.zip", args.token)
     subebackups("models.zip", "/MIT/transformer_assets/models.zip", args.token)

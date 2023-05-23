@@ -49,6 +49,8 @@ def export_W8A8B8O8Linear(op, prefix):
         f.write(op.weight.cpu().numpy().tobytes())
     with open(os.path.join(f"{outpath}", "bias.bin"), "wb") as f:
         f.write((op.bias.cpu().float() * (op.b.item() / op.a.item())).round().int().numpy().tobytes())
+    with open(os.path.join(f"{outpath}", "bias_int8.bin"), "wb") as f:
+        f.write((op.bias.cpu().numpy().tobytes()))
     with open(os.path.join(f"{outpath}", "alpha.bin"), "wb") as f:
         f.write(op.a.cpu().float().numpy().tobytes())
     with open(os.path.join(f"{outpath}", "beta.bin"), "wb") as f:

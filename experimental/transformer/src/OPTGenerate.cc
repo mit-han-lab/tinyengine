@@ -1,7 +1,7 @@
 #include "OPTGenerate.h"
 
 #include "common.h"
-#include "util.h"
+#include "utils.h"
 
 void OPT_sample_repetition_penalty(OPT_token_data_array* candidates, const int* last_tokens, size_t last_tokens_size,
                                    float penalty) {
