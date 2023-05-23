@@ -2,7 +2,7 @@
 
 /*std::vector<int> OPT_tokenize(const OPT_vocab & vocab, const std::string & text, bool add_bos) {
     std::vector<int> res(text.size() + (int) add_bos);
-    return res; 
+    return res;
 }*/
 
 /*
@@ -44,21 +44,20 @@ std::map<std::string, int> PRETRAINED_POSITIONAL_EMBEDDINGS_SIZES = {
 };
 */
 
-
-/* 
- *  Tokenizer 
+/*
+ *  Tokenizer
  */
 Encoder::Encoder(std::map<std::string, int> encoder, std::vector<std::pair<std::string, std::string>> bpe_merges) {
     this->encoder = encoder;
-    for(auto &it: encoder) {
+    for (auto &it : encoder) {
         this->decoder[it.second] = it.first;
     }
     this->byte_encoder = bytes_to_unicode();
-    for(auto &it: byte_encoder) {
+    for (auto &it : byte_encoder) {
         this->byte_decoder[it.second] = it.first;
     }
-    for(int i = 0; i < bpe_merges.size(); ++i) {
-        this->bpe_ranks.insert(std::make_pair(bpe_merges[i], i)); 
+    for (int i = 0; i < bpe_merges.size(); ++i) {
+        this->bpe_ranks.insert(std::make_pair(bpe_merges[i], i));
     }
 }
 
@@ -93,7 +92,7 @@ Encoder::std::vector<std::pair<int, unsigned char>> bytes_to_unicode() {
 
 std::unordered_map<int, std::string> Encoder::bytes_to_unicode() {
     std::unordered_map<int, std::string> byte_to_unicode;
-    
+
     // Range from '!' to '~'
     for (int b = '!'; b <= '~'; ++b) {
         byte_to_unicode[b] = std::string(1, static_cast<char>(b));
@@ -143,7 +142,7 @@ std::unordered_map<int, std::string> Encoder::bytes_to_unicode() {
     byte_to_unicode[0xA3] = u8"\u0156";  // Ŗ
     byte_to_unicode[0xA4] = u8"\u00A4";  // Currency symbol
     byte_to_unicode[0xA5] = u8"\u0128";  // Ĩ
-    
+
     return byte_to_unicode;
 }
 
@@ -159,43 +158,42 @@ std::set<std::pair<std::string, std::string>> Encoder::get_pairs(std::vector<std
 }
 
 std::string Encoder::bpe(std::string token) {
-    auto it = this->cache.find(token); // Find the token in the cache
-    if (it != this->cache.end()) { // If the token is in the cache
+    auto it = this->cache.find(token);  // Find the token in the cache
+    if (it != this->cache.end()) {      // If the token is in the cache
         return it->second;
     }
 
-    std::vector<std::string> word; // word = tuple(token)
+    std::vector<std::string> word;  // word = tuple(token)
     for (char c : token) {
         word.push_back(std::string(1, c));
     }
 
     std::set<std::pair<std::string, std::string>> pairs = get_pairs(word);
 
-    if(pairs.empty())
-        return token;    
+    if (pairs.empty()) return token;
 
-    while(true) {
+    while (true) {
         std::pair<std::string, std::string> bigram;
-        int min_index = std::numeric_limits<int>::max(); // Start with the highest possible int value
+        int min_index = std::numeric_limits<int>::max();  // Start with the highest possible int value
 
-        for (const auto &pair: pairs) {
-            auto it = this->bpe_ranks.find(pair); // Find the pair in the map
-            if (it != this->bpe_ranks.end()) { // If the pair is in the map
-                if (it->second < min_index) { // If the current pair's value is less than the min_index
+        for (const auto &pair : pairs) {
+            auto it = this->bpe_ranks.find(pair);  // Find the pair in the map
+            if (it != this->bpe_ranks.end()) {     // If the pair is in the map
+                if (it->second < min_index) {      // If the current pair's value is less than the min_index
                     min_index = it->second;
                     bigram = pair;
                 }
             }
         }
 
-        if (min_index == std::numeric_limits<int>::max()) // No pair was found in bpe_ranks
+        if (min_index == std::numeric_limits<int>::max())  // No pair was found in bpe_ranks
             break;
 
         std::string first = bigram.first;
         std::string second = bigram.second;
         std::vector<std::string> new_word;
         int i = 0;
-        while(i < word.size()) {
+        while (i < word.size()) {
             auto it = std::find(word.begin() + i, word.end(), first);
             if (it == word.end()) {
                 new_word.insert(new_word.end(), word.begin() + i, word.end());
@@ -208,8 +206,7 @@ std::string Encoder::bpe(std::string token) {
             if (word[i] == first && i < word.size() - 1 && word[i + 1] == second) {
                 new_word.push_back(first + second);
                 i += 2;
-            }
-            else {
+            } else {
                 new_word.push_back(word[i]);
                 i += 1;
             }
@@ -232,7 +229,11 @@ std::vector<int> Encoder::encode(std::string text) {
     std::vector<int> bpe_tokens;
 
     // Using Regex to tokenize
-    std::regex pat = std::regex("'s|'t|'re|'ve|'m|'ll|'d| ?[a-zA-Z]+| ?[0-9]+| ?[^\\s\\p{L}\\p{N}]+|\\s+(?!\\S)|\\s+");
+    // MACOS does not support p{L}\\p{N}, we may need different regex lib
+    // std::regex pat = std::regex("'s|'t|'re|'ve|'m|'ll|'d| ?[a-zA-Z]+| ?[0-9]+|
+    // ?[^\\s\\p{L}\\p{N}]+|\\s+(?!\\S)|\\s+");
+    std::regex pat = std::regex("'s|'t|'re|'ve|'m|'ll|'d| ?[a-zA-Z]+| ?[0-9]+| ?[^\\s]+|\\s+(?!\\S)|\\s+");
+
     std::sregex_iterator iter(text.begin(), text.end(), pat);
     std::sregex_iterator end;
 
@@ -241,7 +242,7 @@ std::vector<int> Encoder::encode(std::string text) {
         std::string encoded_token;
 
         for (char b : token) {
-            for (auto &it: this->byte_encoder) {
+            for (auto &it : this->byte_encoder) {
                 if (it.first == int(static_cast<int>(b))) {
                     encoded_token += it.second;
                     break;
@@ -265,8 +266,7 @@ std::string Encoder::decode(std::vector<int> tokens) {
             if (int(this->decoder[token][0]) < '!' || int(this->decoder[token][0]) > '~') {
                 text += " ";
                 i_flag = 2;
-            }
-            else {
+            } else {
                 text += std::string(1, this->decoder[token][0]);
             }
 
@@ -296,7 +296,9 @@ Encoder get_encoder(std::string vocab_file, std::string bpe_file) {
     while (std::getline(infile, line)) {
         std::istringstream iss(line);
         std::string a, b;
-        if (!(iss >> a >> b)) { break; } // error
+        if (!(iss >> a >> b)) {
+            break;
+        }  // error
         bpe_merges.push_back({a, b});
     }
 

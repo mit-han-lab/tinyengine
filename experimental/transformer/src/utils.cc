@@ -3,16 +3,22 @@
 #include <stdio.h>
 
 #include <cassert>
+#include <cerrno>  // for errno
 #include <cmath>
 #include <cstdlib>
+#include <cstring>  // for strerror
 #include <iostream>
 
 template <typename T>
 void read_to_array(const char* path, T* array, int size) {
     std::ifstream infile(path, std::ios::binary | std::ios::in);
-    assert(infile);
-    infile.read(reinterpret_cast<char*>(array), size * sizeof(T));
-    infile.close();
+    if (infile.fail()) {
+        std::cout << "Failed to open file: " << strerror(errno) << std::endl;
+        throw("Expected error...");
+    } else {
+        infile.read(reinterpret_cast<char*>(array), size * sizeof(T));
+        infile.close();
+    }
 }
 
 struct max_error_info {
