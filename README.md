@@ -5,7 +5,7 @@ TinyEngine is a part of MCUNet, which also consists of TinyNAS. MCUNet is a syst
 
 **The MCUNet and TinyNAS repo is [here](https://github.com/mit-han-lab/mcunet).**
 
-### [MCUNetV1](https://hanlab.mit.edu/projects/mcunet) | [MCUNetV2](https://hanlab.mit.edu/projects/mcunetv2) | [MCUNetV3](https://hanlab.mit.edu/projects/mcunetv3)
+### [TinyML Project Website](https://hanlab.mit.edu/projects/tinyml) | [MCUNetV1](https://hanlab.mit.edu/projects/mcunet) | [MCUNetV2](https://hanlab.mit.edu/projects/mcunetv2) | [MCUNetV3](https://hanlab.mit.edu/projects/mcunetv3)
 
 ### [Demo (Inference)](https://www.youtube.com/watch?v=F4XKn0iDfxg)
 
@@ -19,7 +19,7 @@ TinyEngine is a part of MCUNet, which also consists of TinyNAS. MCUNet is a syst
 
 **If you are interested in getting updates, please sign up [here](https://forms.gle/UW1uUmnfk1k6UJPPA) to get notified!**
 
-- **(2024/03)** We release the [new demo video](https://www.youtube.com/watch?v=0pUFZYdoMY8) of [On-Device Training Under 256KB Memory](https://arxiv.org/abs/2206.15472).
+- **(2024/03)** We release a [new demo video](https://www.youtube.com/watch?v=0pUFZYdoMY8) of [On-Device Training Under 256KB Memory](https://arxiv.org/abs/2206.15472).
 - **(2023/02)** We now support running [the inference tutorial](tutorial/inference) without an Arducam. Feel free to give it a try!
 - **(2023/02)** We release the source code of the [person detection demo](examples/openmv_person_detection), [face mask detection demo](examples/openmv_face_mask_detection), and [on-device training demo](examples/openmv_training_sparse) on OpenMV Cam H7.
 - **(2022/12)** We update the [measured results](README.md#measured-results) on STM32H743 with the new versions of the inference libraries.
