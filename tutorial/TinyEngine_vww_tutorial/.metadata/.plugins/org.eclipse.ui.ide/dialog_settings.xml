@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section name="Workbench">
+	<list key="installedFeatures">
+		<item value="com.st.stm32cube.common.feature.mx.stinsider:6.1.0.202011121557"/>
+		<item value="com.st.stm32cube.common.feature.mx:6.1.0.202011121557"/>
+		<item value="org.eclipse.cdt.debug.gdbjtag:9.11.1.202005131504"/>
+		<item value="org.eclipse.cdt.gdb:9.11.1.202004012021"/>
+		<item value="org.eclipse.cdt.native:9.11.1.202005051837"/>
+		<item value="org.eclipse.cdt.platform:9.11.1.202006011430"/>
+		<item value="org.eclipse.cdt:9.11.1.202006011430"/>
+		<item value="org.eclipse.emf.common:2.19.0.v20200324-0932"/>
+		<item value="org.eclipse.emf.ecore:2.22.0.v20200519-1135"/>
+		<item value="org.eclipse.epp.mpc:1.8.3.v20200526-1554"/>
+		<item value="org.eclipse.help:2.3.200.v20200604-0540"/>
+		<item value="org.eclipse.platform:4.16.0.v20200604-0951"/>
+		<item value="org.eclipse.rcp:4.16.0.v20200604-0951"/>
+		<item value="org.eclipse.remote.console:3.0.1.201909031456"/>
+		<item value="org.eclipse.rse.core:4.5.100.202002061858"/>
+		<item value="org.eclipse.rse.dstore:4.5.100.202002061858"/>
+		<item value="org.eclipse.rse.ftp:4.5.100.202002061858"/>
+		<item value="org.eclipse.rse.local:4.5.100.202002061858"/>
+		<item value="org.eclipse.rse.ssh:4.5.100.202002061858"/>
+		<item value="org.eclipse.rse.telnet:4.5.100.202002061858"/>
+		<item value="org.eclipse.rse:4.5.100.202002061858"/>
+		<item value="org.eclipse.tm.terminal.control.feature:4.6.1.202005200056"/>
+		<item value="org.eclipse.userstorage:1.2.0.v20191120-1614"/>
+	</list>
+	<section name="ChooseWorkspaceDialogSettings">
+		<item key="DIALOG_X_ORIGIN" value="203"/>
+		<item key="DIALOG_Y_ORIGIN" value="177"/>
+	</section>
+	<section name="ExternalProjectImportWizard">
+		<item key="WizardProjectsImportPage.STORE_NESTED_PROJECTS" value="false"/>
+		<item key="WizardProjectsImportPage.STORE_COPY_PROJECT_ID" value="false"/>
+		<item key="WizardProjectsImportPage.STORE_ARCHIVE_SELECTED" value="false"/>
+		<item key="WizardProjectsImportPage.STORE_CLOSE_CREATED_PROJECTS_ID" value="false"/>
+		<item key="WizardProjectsImportPage.STORE_HIDE_CONFLICTING_PROJECTS_ID" value="false"/>
+		<list key="WizardProjectsImportPage.STORE_DIRECTORIES">
+			<item value="C:\workspaces\tinyengine\tutorial\TinyEngine_vww_tutorial"/>
+		</list>
+		<list key="WizardProjectsImportPage.STORE_ARCHIVES">
+			<item value=""/>
+		</list>
+	</section>
+</section>

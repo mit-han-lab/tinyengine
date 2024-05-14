@@ -1,0 +1,955 @@
+!SESSION 2024-04-27 21:40:02.912 -----------------------------------------------
+eclipse.buildId=Version 1.5.0
+java.version=1.8.0_272
+java.vendor=AdoptOpenJDK
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=ko_KR
+Command-line arguments:  -os win32 -ws win32 -arch x86_64
+
+This is a continuation of log file C:\workspaces\tinyengine\tutorial\TinyEngine_vww_tutorial - 복사본\.metadata\.bak_0.log
+Created Time: 2024-04-27 22:05:53.912
+
+!ENTRY org.eclipse.equinox.p2.operations 4 0 2024-04-27 22:05:53.912
+!MESSAGE Operation details
+!SUBENTRY 1 org.eclipse.equinox.p2.operations 2 10001 2024-04-27 22:05:53.912
+!MESSAGE Your original request has been modified.
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE MCU External Tools SEGGER J-Link GDB server" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE Project's Common Resource File(s)" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE Project's Extended Resource File(s)" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE ST-LINK" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE MPU Project Tree Generator" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE Project Converters" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE Stack Analyzer" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 1 10003 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE IDE Utilities" is already installed, so an update will be performed instead.
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 1 10003 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE Common Services" is already installed, so an update will be performed instead.
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE MPU Serial" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE MPU Extended Project Resources" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE MPU Debug" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE RCP" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 1 10003 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE Project Creation" is already installed, so an update will be performed instead.
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE MCU External Tools ST-LINK Server" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 1 10003 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE Project Creation UI" is already installed, so an update will be performed instead.
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 1 10003 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE MCU Product Database" is already installed, so an update will be performed instead.
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 1 10003 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE Common Utilities" is already installed, so an update will be performed instead.
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE OpenOCD (ST-LINK)" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 1 10003 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE MCU Advanced Linker Script Files" is already installed, so an update will be performed instead.
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 1 10003 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE EcoSystem Integration (ST Insider)" is already installed, so an update will be performed instead.
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 1 10003 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE Common Preferences" is already installed, so an update will be performed instead.
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE MCU External Tools GNU Tools for STM32 - Binaries (7-2018-q2-update)" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE SWV" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 1 10003 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE MCU External Tools GNU Tools for STM32 - Core (9-2020-q2-update)" is already installed, so an update will be performed instead.
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE SFR view" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE Build UI" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE OpenSTLinux Integration Core" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE C/C++ Embedded Development Tools for MPU" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE IDE Analytics" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE Build" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 1 10003 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE Target Adapter" is already installed, so an update will be performed instead.
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 1 10003 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE EcoSystem Integration UI" is already installed, so an update will be performed instead.
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE C/C++ Debugging Tools for MCU" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 1 10003 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE Common UI" is already installed, so an update will be performed instead.
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE MPU OpenOCD (ST-LINK)" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE SEGGER J-Link" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE Information Center" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE MPU Linker Script File Generator" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE GNU Arm Embedded" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE MPU Project Natures" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 1 10003 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE Documentation" is already installed, so an update will be performed instead.
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE MPU Product Database" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE Linker Script Editor" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 1 10003 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeMX (ST Insider)" is already installed, so an update will be performed instead.
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE MCU External Tools GNU Tools for STM32 - Core (7-2018-q2-update)" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE Core Toolchain Helper UI" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE GNU Tools for STM32" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE MPU Advanced Linker Script Files" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE MCU External Tools ST-LINK GDB Server" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE ARM Toolchain Definition" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE MPU Common Project Resources" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 1 10003 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE Common Adapted Services" is already installed, so an update will be performed instead.
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE C/C++ Embedded Development Tools for MCU" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 1 10003 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE Common Logger" is already installed, so an update will be performed instead.
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE MCU Project Natures" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE MCU External Tools OpenOCD" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE Startup File" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE MPU Linux Debug" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 1 10003 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE EcoSystem Integration" is already installed, so an update will be performed instead.
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE MCU External Tools STM32CubeProgrammer" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE Live Expression" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE Fault Analyzer" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE MPU Linux Project Creation" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE Core Toolchain Helper" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE MPU SSH" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE Build Analyzer" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE MPU Target Adapter" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 1 10003 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE Common Logger UI" is already installed, so an update will be performed instead.
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE MCU External Tools UI" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 1 10003 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE Common STM32CubeMX Services" is already installed, so an update will be performed instead.
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE MCU External Tools Make Utilities" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE C/C++ Embedded Development Tools for MPU Linux" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE C/C++ Embedded Development Tools for MPU Linux" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE MCU External Tools" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 1 10003 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE MCU Product Debug Database" is already installed, so an update will be performed instead.
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 1 10003 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE MCU External Tools GNU Tools for STM32 - Binaries (9-2020-q2-update)" is already installed, so an update will be performed instead.
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 1 10003 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeMX" is already installed, so an update will be performed instead.
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE MPU Product Database for Debug" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 1 10003 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE MPU Product Database" is already installed, so an update will be performed instead.
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE Linker Script" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.912
+!MESSAGE "STM32CubeIDE MPU Startup File" will be ignored because a newer version is already installed. 
+!SUBENTRY 1 org.eclipse.equinox.p2.director 4 10054 2024-04-27 22:05:53.912
+!MESSAGE Cannot complete the install because of a conflicting dependency.
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 0 2024-04-27 22:05:53.912
+!MESSAGE Software being installed: STM32CubeIDE Project Creation UI 2.2.0.202310241407 (com.st.stm32cube.common.feature.projectcreation.ui.feature.group 2.2.0.202310241407)
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 0 2024-04-27 22:05:53.912
+!MESSAGE Software currently installed: STM32CubeIDE 1.5.0 (com.st.stm32cube.ide.mcu.rcp.product 1.5.0)
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2024-04-27 22:05:53.914
+!MESSAGE Only one of the following can be installed at once: 
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2024-04-27 22:05:53.914
+!MESSAGE STM32CubeIDE Project Creation UI 1.0.0.201904171457 (com.st.stm32cube.common.projectcreation.ui 1.0.0.201904171457)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2024-04-27 22:05:53.914
+!MESSAGE STM32CubeIDE Project Creation UI 1.3.0.202002181050 (com.st.stm32cube.common.projectcreation.ui 1.3.0.202002181050)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2024-04-27 22:05:53.914
+!MESSAGE STM32CubeIDE Project Creation UI 2.0.0.202105030704 (com.st.stm32cube.common.projectcreation.ui 2.0.0.202105030704)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2024-04-27 22:05:53.914
+!MESSAGE STM32CubeIDE Project Creation UI 1.5.0.202011040924 (com.st.stm32cube.common.projectcreation.ui 1.5.0.202011040924)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2024-04-27 22:05:53.914
+!MESSAGE STM32CubeIDE Project Creation UI 2.0.200.202202141412 (com.st.stm32cube.common.projectcreation.ui 2.0.200.202202141412)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2024-04-27 22:05:53.914
+!MESSAGE STM32CubeIDE Project Creation UI 1.2.0.201912201802 (com.st.stm32cube.common.projectcreation.ui 1.2.0.201912201802)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2024-04-27 22:05:53.914
+!MESSAGE STM32CubeIDE Project Creation UI 2.2.100.202402151347 (com.st.stm32cube.common.projectcreation.ui 2.2.100.202402151347)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2024-04-27 22:05:53.914
+!MESSAGE STM32CubeIDE Project Creation UI 2.2.0.202310241407 (com.st.stm32cube.common.projectcreation.ui 2.2.0.202310241407)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2024-04-27 22:05:53.914
+!MESSAGE STM32CubeIDE Project Creation UI 2.0.300.202302091318 (com.st.stm32cube.common.projectcreation.ui 2.0.300.202302091318)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2024-04-27 22:05:53.914
+!MESSAGE STM32CubeIDE Project Creation UI 2.0.100.202108020651 (com.st.stm32cube.common.projectcreation.ui 2.0.100.202108020651)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2024-04-27 22:05:53.914
+!MESSAGE STM32CubeIDE Project Creation UI 1.1.0.201910081550 (com.st.stm32cube.common.projectcreation.ui 1.1.0.201910081550)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2024-04-27 22:05:53.914
+!MESSAGE STM32CubeIDE Project Creation UI 2.1.0.202305091550 (com.st.stm32cube.common.projectcreation.ui 2.1.0.202305091550)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2024-04-27 22:05:53.914
+!MESSAGE STM32CubeIDE Project Creation UI 1.4.0.202007081208 (com.st.stm32cube.common.projectcreation.ui 1.4.0.202007081208)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2024-04-27 22:05:53.914
+!MESSAGE STM32CubeIDE Project Creation UI 1.0.1.201906051241 (com.st.stm32cube.common.projectcreation.ui 1.0.1.201906051241)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2024-04-27 22:05:53.914
+!MESSAGE STM32CubeIDE Project Creation UI 1.6.0.202102172205 (com.st.stm32cube.common.projectcreation.ui 1.6.0.202102172205)
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2024-04-27 22:05:53.914
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2024-04-27 22:05:53.914
+!MESSAGE From: STM32CubeIDE Project Creation UI 1.5.0.202011040924 (com.st.stm32cube.common.feature.projectcreation.ui.feature.group 1.5.0.202011040924)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2024-04-27 22:05:53.914
+!MESSAGE To: org.eclipse.equinox.p2.iu; com.st.stm32cube.common.projectcreation.ui [1.5.0.202011040924,1.5.0.202011040924]
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2024-04-27 22:05:53.914
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2024-04-27 22:05:53.914
+!MESSAGE From: STM32CubeIDE Project Creation UI 2.2.0.202310241407 (com.st.stm32cube.common.feature.projectcreation.ui.feature.group 2.2.0.202310241407)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2024-04-27 22:05:53.914
+!MESSAGE To: org.eclipse.equinox.p2.iu; com.st.stm32cube.common.projectcreation.ui [2.2.0.202310241407,2.2.0.202310241407]
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2024-04-27 22:05:53.914
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2024-04-27 22:05:53.914
+!MESSAGE From: STM32CubeIDE 1.5.0 (com.st.stm32cube.ide.mcu.rcp.product 1.5.0)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2024-04-27 22:05:53.914
+!MESSAGE To: org.eclipse.equinox.p2.iu; com.st.stm32cube.common.feature.projectcreation.ui.feature.group [1.5.0.202011040924,1.5.0.202011040924]
+
+!ENTRY org.eclipse.equinox.p2.operations 4 0 2024-04-27 22:05:53.915
+!MESSAGE Operation details
+!SUBENTRY 1 org.eclipse.equinox.p2.operations 2 10001 2024-04-27 22:05:53.915
+!MESSAGE Your original request has been modified.
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE MCU External Tools SEGGER J-Link GDB server" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE Project's Common Resource File(s)" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE Project's Extended Resource File(s)" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE ST-LINK" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE MPU Project Tree Generator" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE Project Converters" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE Stack Analyzer" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 1 10003 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE IDE Utilities" is already installed, so an update will be performed instead.
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 1 10003 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE Common Services" is already installed, so an update will be performed instead.
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE MPU Serial" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE MPU Extended Project Resources" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE MPU Debug" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE RCP" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 1 10003 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE Project Creation" is already installed, so an update will be performed instead.
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE MCU External Tools ST-LINK Server" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 1 10003 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE Project Creation UI" is already installed, so an update will be performed instead.
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 1 10003 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE MCU Product Database" is already installed, so an update will be performed instead.
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 1 10003 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE Common Utilities" is already installed, so an update will be performed instead.
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE OpenOCD (ST-LINK)" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 1 10003 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE MCU Advanced Linker Script Files" is already installed, so an update will be performed instead.
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 1 10003 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE EcoSystem Integration (ST Insider)" is already installed, so an update will be performed instead.
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 1 10003 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE Common Preferences" is already installed, so an update will be performed instead.
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE MCU External Tools GNU Tools for STM32 - Binaries (7-2018-q2-update)" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE SWV" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 1 10003 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE MCU External Tools GNU Tools for STM32 - Core (9-2020-q2-update)" is already installed, so an update will be performed instead.
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE SFR view" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE Build UI" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE OpenSTLinux Integration Core" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE C/C++ Embedded Development Tools for MPU" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE IDE Analytics" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE Build" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 1 10003 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE Target Adapter" is already installed, so an update will be performed instead.
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 1 10003 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE EcoSystem Integration UI" is already installed, so an update will be performed instead.
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE C/C++ Debugging Tools for MCU" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 1 10003 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE Common UI" is already installed, so an update will be performed instead.
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE MPU OpenOCD (ST-LINK)" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE SEGGER J-Link" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE Information Center" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE MPU Linker Script File Generator" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE GNU Arm Embedded" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE MPU Project Natures" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 1 10003 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE Documentation" is already installed, so an update will be performed instead.
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE MPU Product Database" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE Linker Script Editor" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 1 10003 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeMX (ST Insider)" is already installed, so an update will be performed instead.
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE MCU External Tools GNU Tools for STM32 - Core (7-2018-q2-update)" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE Core Toolchain Helper UI" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE GNU Tools for STM32" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE MPU Advanced Linker Script Files" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE MCU External Tools ST-LINK GDB Server" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE ARM Toolchain Definition" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE MPU Common Project Resources" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 1 10003 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE Common Adapted Services" is already installed, so an update will be performed instead.
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE C/C++ Embedded Development Tools for MCU" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 1 10003 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE Common Logger" is already installed, so an update will be performed instead.
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE MCU Project Natures" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE MCU External Tools OpenOCD" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE Startup File" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE MPU Linux Debug" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 1 10003 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE EcoSystem Integration" is already installed, so an update will be performed instead.
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE MCU External Tools STM32CubeProgrammer" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE Live Expression" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE Fault Analyzer" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE MPU Linux Project Creation" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE Core Toolchain Helper" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE MPU SSH" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE Build Analyzer" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE MPU Target Adapter" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 1 10003 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE Common Logger UI" is already installed, so an update will be performed instead.
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE MCU External Tools UI" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 1 10003 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE Common STM32CubeMX Services" is already installed, so an update will be performed instead.
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE MCU External Tools Make Utilities" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE C/C++ Embedded Development Tools for MPU Linux" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE C/C++ Embedded Development Tools for MPU Linux" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE MCU External Tools" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 1 10003 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE MCU Product Debug Database" is already installed, so an update will be performed instead.
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 1 10003 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE MCU External Tools GNU Tools for STM32 - Binaries (9-2020-q2-update)" is already installed, so an update will be performed instead.
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 1 10003 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeMX" is already installed, so an update will be performed instead.
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE MPU Product Database for Debug" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 1 10003 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE MPU Product Database" is already installed, so an update will be performed instead.
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE Linker Script" will be ignored because a newer version is already installed. 
+!SUBENTRY 2 org.eclipse.equinox.p2.operations 2 10004 2024-04-27 22:05:53.915
+!MESSAGE "STM32CubeIDE MPU Startup File" will be ignored because a newer version is already installed. 
+!SUBENTRY 1 org.eclipse.equinox.p2.director 4 10054 2024-04-27 22:05:53.915
+!MESSAGE Cannot complete the install because of a conflicting dependency.
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 0 2024-04-27 22:05:53.915
+!MESSAGE Software being installed: STM32CubeIDE Project Creation UI 2.2.0.202310241407 (com.st.stm32cube.common.feature.projectcreation.ui.feature.group 2.2.0.202310241407)
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 0 2024-04-27 22:05:53.915
+!MESSAGE Software currently installed: STM32CubeIDE 1.5.0 (com.st.stm32cube.ide.mcu.rcp.product 1.5.0)
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2024-04-27 22:05:53.915
+!MESSAGE Only one of the following can be installed at once: 
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2024-04-27 22:05:53.915
+!MESSAGE STM32CubeIDE Project Creation UI 1.0.0.201904171457 (com.st.stm32cube.common.projectcreation.ui 1.0.0.201904171457)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2024-04-27 22:05:53.915
+!MESSAGE STM32CubeIDE Project Creation UI 1.3.0.202002181050 (com.st.stm32cube.common.projectcreation.ui 1.3.0.202002181050)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2024-04-27 22:05:53.915
+!MESSAGE STM32CubeIDE Project Creation UI 2.0.0.202105030704 (com.st.stm32cube.common.projectcreation.ui 2.0.0.202105030704)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2024-04-27 22:05:53.915
+!MESSAGE STM32CubeIDE Project Creation UI 1.5.0.202011040924 (com.st.stm32cube.common.projectcreation.ui 1.5.0.202011040924)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2024-04-27 22:05:53.915
+!MESSAGE STM32CubeIDE Project Creation UI 2.0.200.202202141412 (com.st.stm32cube.common.projectcreation.ui 2.0.200.202202141412)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2024-04-27 22:05:53.915
+!MESSAGE STM32CubeIDE Project Creation UI 1.2.0.201912201802 (com.st.stm32cube.common.projectcreation.ui 1.2.0.201912201802)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2024-04-27 22:05:53.915
+!MESSAGE STM32CubeIDE Project Creation UI 2.2.100.202402151347 (com.st.stm32cube.common.projectcreation.ui 2.2.100.202402151347)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2024-04-27 22:05:53.915
+!MESSAGE STM32CubeIDE Project Creation UI 2.2.0.202310241407 (com.st.stm32cube.common.projectcreation.ui 2.2.0.202310241407)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2024-04-27 22:05:53.915
+!MESSAGE STM32CubeIDE Project Creation UI 2.0.300.202302091318 (com.st.stm32cube.common.projectcreation.ui 2.0.300.202302091318)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2024-04-27 22:05:53.915
+!MESSAGE STM32CubeIDE Project Creation UI 2.0.100.202108020651 (com.st.stm32cube.common.projectcreation.ui 2.0.100.202108020651)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2024-04-27 22:05:53.915
+!MESSAGE STM32CubeIDE Project Creation UI 1.1.0.201910081550 (com.st.stm32cube.common.projectcreation.ui 1.1.0.201910081550)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2024-04-27 22:05:53.915
+!MESSAGE STM32CubeIDE Project Creation UI 2.1.0.202305091550 (com.st.stm32cube.common.projectcreation.ui 2.1.0.202305091550)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2024-04-27 22:05:53.915
+!MESSAGE STM32CubeIDE Project Creation UI 1.4.0.202007081208 (com.st.stm32cube.common.projectcreation.ui 1.4.0.202007081208)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2024-04-27 22:05:53.915
+!MESSAGE STM32CubeIDE Project Creation UI 1.0.1.201906051241 (com.st.stm32cube.common.projectcreation.ui 1.0.1.201906051241)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2024-04-27 22:05:53.915
+!MESSAGE STM32CubeIDE Project Creation UI 1.6.0.202102172205 (com.st.stm32cube.common.projectcreation.ui 1.6.0.202102172205)
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2024-04-27 22:05:53.915
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2024-04-27 22:05:53.915
+!MESSAGE From: STM32CubeIDE Project Creation UI 1.5.0.202011040924 (com.st.stm32cube.common.feature.projectcreation.ui.feature.group 1.5.0.202011040924)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2024-04-27 22:05:53.915
+!MESSAGE To: org.eclipse.equinox.p2.iu; com.st.stm32cube.common.projectcreation.ui [1.5.0.202011040924,1.5.0.202011040924]
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2024-04-27 22:05:53.915
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2024-04-27 22:05:53.915
+!MESSAGE From: STM32CubeIDE Project Creation UI 2.2.0.202310241407 (com.st.stm32cube.common.feature.projectcreation.ui.feature.group 2.2.0.202310241407)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2024-04-27 22:05:53.915
+!MESSAGE To: org.eclipse.equinox.p2.iu; com.st.stm32cube.common.projectcreation.ui [2.2.0.202310241407,2.2.0.202310241407]
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2024-04-27 22:05:53.915
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2024-04-27 22:05:53.915
+!MESSAGE From: STM32CubeIDE 1.5.0 (com.st.stm32cube.ide.mcu.rcp.product 1.5.0)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2024-04-27 22:05:53.915
+!MESSAGE To: org.eclipse.equinox.p2.iu; com.st.stm32cube.common.feature.projectcreation.ui.feature.group [1.5.0.202011040924,1.5.0.202011040924]
+
+!ENTRY org.eclipse.e4.ui.workbench 4 0 2024-04-27 22:26:26.861
+!MESSAGE Failed to evaluate: <test property="hasAnyOfRuntimeArguments" args="'-unhideAll'" plug-in activation: lazy/>
+!STACK 0
+org.eclipse.core.runtime.CoreException: No property tester contributes a property com.st.stm32cube.ide.mcu.ide.hasAnyOfRuntimeArguments to type class java.util.Arrays$ArrayList
+	at org.eclipse.core.internal.expressions.TypeExtensionManager.getProperty(TypeExtensionManager.java:130)
+	at org.eclipse.core.internal.expressions.TestExpression.evaluate(TestExpression.java:100)
+	at org.eclipse.ui.internal.services.EvaluationReference.evaluate(EvaluationReference.java:74)
+	at org.eclipse.ui.internal.services.EvaluationReference.evaluate(EvaluationReference.java:100)
+	at org.eclipse.ui.internal.services.EvaluationReference.changed(EvaluationReference.java:94)
+	at org.eclipse.e4.core.internal.contexts.TrackableComputationExt.update(TrackableComputationExt.java:108)
+	at org.eclipse.e4.core.internal.contexts.EclipseContext.processScheduled(EclipseContext.java:364)
+	at org.eclipse.e4.core.internal.contexts.EclipseContext.set(EclipseContext.java:379)
+	at org.eclipse.ui.internal.services.EvaluationService$1.changed(EvaluationService.java:79)
+	at org.eclipse.e4.core.internal.contexts.TrackableComputationExt.update(TrackableComputationExt.java:108)
+	at org.eclipse.e4.core.internal.contexts.EclipseContext.processScheduled(EclipseContext.java:364)
+	at org.eclipse.e4.core.internal.contexts.EclipseContext.set(EclipseContext.java:379)
+	at org.eclipse.e4.ui.internal.workbench.swt.E4Application$4.changed(E4Application.java:802)
+	at org.eclipse.e4.core.internal.contexts.TrackableComputationExt.update(TrackableComputationExt.java:108)
+	at org.eclipse.e4.core.internal.contexts.EclipseContext.processScheduled(EclipseContext.java:364)
+	at org.eclipse.e4.core.internal.contexts.EclipseContext.set(EclipseContext.java:379)
+	at org.eclipse.e4.ui.internal.workbench.SelectionAggregator.setPart(SelectionAggregator.java:112)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.eclipse.e4.core.internal.di.MethodRequestor.execute(MethodRequestor.java:58)
+	at org.eclipse.e4.core.internal.contexts.ContextObjectSupplier$ContextInjectionListener.update(ContextObjectSupplier.java:95)
+	at org.eclipse.e4.core.internal.contexts.TrackableComputationExt.update(TrackableComputationExt.java:105)
+	at org.eclipse.e4.core.internal.contexts.EclipseContext.processScheduled(EclipseContext.java:364)
+	at org.eclipse.e4.core.internal.contexts.EclipseContext.set(EclipseContext.java:379)
+	at org.eclipse.e4.core.internal.contexts.EclipseContext.activate(EclipseContext.java:683)
+	at org.eclipse.e4.core.internal.contexts.EclipseContext.activateBranch(EclipseContext.java:692)
+	at org.eclipse.e4.ui.internal.workbench.PartActivationHistory.activate(PartActivationHistory.java:56)
+	at org.eclipse.e4.ui.internal.workbench.PartServiceImpl.activate(PartServiceImpl.java:764)
+	at org.eclipse.e4.ui.internal.workbench.PartServiceImpl.activate(PartServiceImpl.java:683)
+	at org.eclipse.e4.ui.internal.workbench.PartServiceImpl.activate(PartServiceImpl.java:678)
+	at org.eclipse.e4.ui.internal.workbench.PartServiceImpl.showPart(PartServiceImpl.java:1257)
+	at org.eclipse.ui.internal.WorkbenchPage.showPart(WorkbenchPage.java:1249)
+	at org.eclipse.ui.internal.WorkbenchPage.busyShowView(WorkbenchPage.java:1237)
+	at org.eclipse.ui.internal.WorkbenchPage.lambda$11(WorkbenchPage.java:4249)
+	at org.eclipse.swt.custom.BusyIndicator.showWhile(BusyIndicator.java:72)
+	at org.eclipse.ui.internal.WorkbenchPage.showView(WorkbenchPage.java:4247)
+	at org.eclipse.ui.internal.WorkbenchPage.showView(WorkbenchPage.java:4229)
+	at org.eclipse.ui.internal.progress.ProgressManagerUtil.openProgressView(ProgressManagerUtil.java:157)
+	at org.eclipse.ui.internal.progress.ProgressRegion.processDoubleClick(ProgressRegion.java:209)
+	at org.eclipse.ui.internal.progress.ProgressAnimationItem.doAction(ProgressAnimationItem.java:139)
+	at org.eclipse.ui.internal.progress.ProgressAnimationItem.lambda$2(ProgressAnimationItem.java:319)
+	at org.eclipse.swt.events.SelectionListener$1.widgetSelected(SelectionListener.java:84)
+	at org.eclipse.swt.widgets.TypedListener.handleEvent(TypedListener.java:252)
+	at org.eclipse.swt.widgets.EventTable.sendEvent(EventTable.java:89)
+	at org.eclipse.swt.widgets.Display.sendEvent(Display.java:4213)
+	at org.eclipse.swt.widgets.Widget.sendEvent(Widget.java:1037)
+	at org.eclipse.swt.widgets.Display.runDeferredEvents(Display.java:4030)
+	at org.eclipse.swt.widgets.Display.readAndDispatch(Display.java:3630)
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine$5.run(PartRenderingEngine.java:1158)
+	at org.eclipse.core.databinding.observable.Realm.runWithDefault(Realm.java:338)
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine.run(PartRenderingEngine.java:1047)
+	at org.eclipse.e4.ui.internal.workbench.E4Workbench.createAndRunUI(E4Workbench.java:155)
+	at org.eclipse.ui.internal.Workbench.lambda$3(Workbench.java:658)
+	at org.eclipse.core.databinding.observable.Realm.runWithDefault(Realm.java:338)
+	at org.eclipse.ui.internal.Workbench.createAndRunWorkbench(Workbench.java:557)
+	at org.eclipse.ui.PlatformUI.createAndRunWorkbench(PlatformUI.java:154)
+	at org.eclipse.ui.internal.ide.application.IDEApplication.start(IDEApplication.java:150)
+	at org.eclipse.equinox.internal.app.EclipseAppHandle.run(EclipseAppHandle.java:203)
+	at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.runApplication(EclipseAppLauncher.java:137)
+	at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.start(EclipseAppLauncher.java:107)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:401)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:255)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.eclipse.equinox.launcher.Main.invokeFramework(Main.java:657)
+	at org.eclipse.equinox.launcher.Main.basicRun(Main.java:594)
+	at org.eclipse.equinox.launcher.Main.run(Main.java:1447)
+
+!ENTRY org.eclipse.e4.ui.workbench 4 0 2024-04-27 22:26:26.862
+!MESSAGE Failed to evaluate: OrExpression [children=[WithExpression [variable=org.eclipse.core.runtime.Platform, children=[OrExpression [children=[<test property="isBundleInstalled" args="'org.eclipse.egit'" plug-in activation: lazy/>, <test property="isBundleInstalled" args="'org.eclipse.jgit'" plug-in activation: lazy/>, <test property="isBundleInstalled" args="'org.eclipse.team.svn'" plug-in activation: lazy/>, <test property="isBundleInstalled" args="'org.tigris.subversion.subclipse.core'" plug-in activation: lazy/>]]]], <test property="hasAnyOfRuntimeArguments" args="'-unhideAll', '-unhideTeamSynchronizing'" plug-in activation: lazy/>]]
+!STACK 0
+org.eclipse.core.runtime.CoreException: No property tester contributes a property com.st.stm32cube.ide.mcu.ide.hasAnyOfRuntimeArguments to type class java.util.Arrays$ArrayList
+	at org.eclipse.core.internal.expressions.TypeExtensionManager.getProperty(TypeExtensionManager.java:130)
+	at org.eclipse.core.internal.expressions.TestExpression.evaluate(TestExpression.java:100)
+	at org.eclipse.core.internal.expressions.CompositeExpression.evaluateOr(CompositeExpression.java:69)
+	at org.eclipse.core.internal.expressions.OrExpression.evaluate(OrExpression.java:25)
+	at org.eclipse.ui.internal.services.EvaluationReference.evaluate(EvaluationReference.java:74)
+	at org.eclipse.ui.internal.services.EvaluationReference.evaluate(EvaluationReference.java:100)
+	at org.eclipse.ui.internal.services.EvaluationReference.changed(EvaluationReference.java:94)
+	at org.eclipse.e4.core.internal.contexts.TrackableComputationExt.update(TrackableComputationExt.java:108)
+	at org.eclipse.e4.core.internal.contexts.EclipseContext.processScheduled(EclipseContext.java:364)
+	at org.eclipse.e4.core.internal.contexts.EclipseContext.set(EclipseContext.java:379)
+	at org.eclipse.ui.internal.services.EvaluationService$1.changed(EvaluationService.java:79)
+	at org.eclipse.e4.core.internal.contexts.TrackableComputationExt.update(TrackableComputationExt.java:108)
+	at org.eclipse.e4.core.internal.contexts.EclipseContext.processScheduled(EclipseContext.java:364)
+	at org.eclipse.e4.core.internal.contexts.EclipseContext.set(EclipseContext.java:379)
+	at org.eclipse.e4.ui.internal.workbench.swt.E4Application$4.changed(E4Application.java:802)
+	at org.eclipse.e4.core.internal.contexts.TrackableComputationExt.update(TrackableComputationExt.java:108)
+	at org.eclipse.e4.core.internal.contexts.EclipseContext.processScheduled(EclipseContext.java:364)
+	at org.eclipse.e4.core.internal.contexts.EclipseContext.set(EclipseContext.java:379)
+	at org.eclipse.e4.ui.internal.workbench.SelectionAggregator.setPart(SelectionAggregator.java:112)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.eclipse.e4.core.internal.di.MethodRequestor.execute(MethodRequestor.java:58)
+	at org.eclipse.e4.core.internal.contexts.ContextObjectSupplier$ContextInjectionListener.update(ContextObjectSupplier.java:95)
+	at org.eclipse.e4.core.internal.contexts.TrackableComputationExt.update(TrackableComputationExt.java:105)
+	at org.eclipse.e4.core.internal.contexts.EclipseContext.processScheduled(EclipseContext.java:364)
+	at org.eclipse.e4.core.internal.contexts.EclipseContext.set(EclipseContext.java:379)
+	at org.eclipse.e4.core.internal.contexts.EclipseContext.activate(EclipseContext.java:683)
+	at org.eclipse.e4.core.internal.contexts.EclipseContext.activateBranch(EclipseContext.java:692)
+	at org.eclipse.e4.ui.internal.workbench.PartActivationHistory.activate(PartActivationHistory.java:56)
+	at org.eclipse.e4.ui.internal.workbench.PartServiceImpl.activate(PartServiceImpl.java:764)
+	at org.eclipse.e4.ui.internal.workbench.PartServiceImpl.activate(PartServiceImpl.java:683)
+	at org.eclipse.e4.ui.internal.workbench.PartServiceImpl.activate(PartServiceImpl.java:678)
+	at org.eclipse.e4.ui.internal.workbench.PartServiceImpl.showPart(PartServiceImpl.java:1257)
+	at org.eclipse.ui.internal.WorkbenchPage.showPart(WorkbenchPage.java:1249)
+	at org.eclipse.ui.internal.WorkbenchPage.busyShowView(WorkbenchPage.java:1237)
+	at org.eclipse.ui.internal.WorkbenchPage.lambda$11(WorkbenchPage.java:4249)
+	at org.eclipse.swt.custom.BusyIndicator.showWhile(BusyIndicator.java:72)
+	at org.eclipse.ui.internal.WorkbenchPage.showView(WorkbenchPage.java:4247)
+	at org.eclipse.ui.internal.WorkbenchPage.showView(WorkbenchPage.java:4229)
+	at org.eclipse.ui.internal.progress.ProgressManagerUtil.openProgressView(ProgressManagerUtil.java:157)
+	at org.eclipse.ui.internal.progress.ProgressRegion.processDoubleClick(ProgressRegion.java:209)
+	at org.eclipse.ui.internal.progress.ProgressAnimationItem.doAction(ProgressAnimationItem.java:139)
+	at org.eclipse.ui.internal.progress.ProgressAnimationItem.lambda$2(ProgressAnimationItem.java:319)
+	at org.eclipse.swt.events.SelectionListener$1.widgetSelected(SelectionListener.java:84)
+	at org.eclipse.swt.widgets.TypedListener.handleEvent(TypedListener.java:252)
+	at org.eclipse.swt.widgets.EventTable.sendEvent(EventTable.java:89)
+	at org.eclipse.swt.widgets.Display.sendEvent(Display.java:4213)
+	at org.eclipse.swt.widgets.Widget.sendEvent(Widget.java:1037)
+	at org.eclipse.swt.widgets.Display.runDeferredEvents(Display.java:4030)
+	at org.eclipse.swt.widgets.Display.readAndDispatch(Display.java:3630)
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine$5.run(PartRenderingEngine.java:1158)
+	at org.eclipse.core.databinding.observable.Realm.runWithDefault(Realm.java:338)
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine.run(PartRenderingEngine.java:1047)
+	at org.eclipse.e4.ui.internal.workbench.E4Workbench.createAndRunUI(E4Workbench.java:155)
+	at org.eclipse.ui.internal.Workbench.lambda$3(Workbench.java:658)
+	at org.eclipse.core.databinding.observable.Realm.runWithDefault(Realm.java:338)
+	at org.eclipse.ui.internal.Workbench.createAndRunWorkbench(Workbench.java:557)
+	at org.eclipse.ui.PlatformUI.createAndRunWorkbench(PlatformUI.java:154)
+	at org.eclipse.ui.internal.ide.application.IDEApplication.start(IDEApplication.java:150)
+	at org.eclipse.equinox.internal.app.EclipseAppHandle.run(EclipseAppHandle.java:203)
+	at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.runApplication(EclipseAppLauncher.java:137)
+	at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.start(EclipseAppLauncher.java:107)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:401)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:255)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.eclipse.equinox.launcher.Main.invokeFramework(Main.java:657)
+	at org.eclipse.equinox.launcher.Main.basicRun(Main.java:594)
+	at org.eclipse.equinox.launcher.Main.run(Main.java:1447)
+
+!ENTRY org.eclipse.ui 4 0 2024-04-27 23:07:38.946
+!MESSAGE Unable to create perspective 'org.eclipse.cdt.ui.CPerspective'. There is no corresponding perspective extension.
+
+!ENTRY org.eclipse.e4.ui.workbench 4 0 2024-04-27 23:07:38.970
+!MESSAGE Failed to evaluate: <test property="hasAnyOfRuntimeArguments" args="'-unhideAll'" plug-in activation: lazy/>
+!STACK 0
+org.eclipse.core.runtime.CoreException: No property tester contributes a property com.st.stm32cube.ide.mcu.ide.hasAnyOfRuntimeArguments to type class java.util.Collections$EmptyList
+	at org.eclipse.core.internal.expressions.TypeExtensionManager.getProperty(TypeExtensionManager.java:130)
+	at org.eclipse.core.internal.expressions.TestExpression.evaluate(TestExpression.java:100)
+	at org.eclipse.ui.internal.services.EvaluationReference.evaluate(EvaluationReference.java:74)
+	at org.eclipse.ui.internal.services.EvaluationReference.evaluate(EvaluationReference.java:100)
+	at org.eclipse.ui.internal.services.EvaluationReference.changed(EvaluationReference.java:94)
+	at org.eclipse.e4.core.internal.contexts.TrackableComputationExt.update(TrackableComputationExt.java:108)
+	at org.eclipse.e4.core.internal.contexts.EclipseContext.processScheduled(EclipseContext.java:364)
+	at org.eclipse.e4.core.internal.contexts.EclipseContext.remove(EclipseContext.java:338)
+	at org.eclipse.ui.internal.services.EvaluationService$1.changed(EvaluationService.java:77)
+	at org.eclipse.e4.core.internal.contexts.TrackableComputationExt.update(TrackableComputationExt.java:108)
+	at org.eclipse.e4.core.internal.contexts.EclipseContext.processScheduled(EclipseContext.java:364)
+	at org.eclipse.e4.core.internal.contexts.EclipseContext.set(EclipseContext.java:379)
+	at org.eclipse.e4.ui.internal.workbench.swt.E4Application$4.changed(E4Application.java:802)
+	at org.eclipse.e4.core.internal.contexts.TrackableComputationExt.update(TrackableComputationExt.java:108)
+	at org.eclipse.e4.core.internal.contexts.EclipseContext.processScheduled(EclipseContext.java:364)
+	at org.eclipse.e4.core.internal.contexts.EclipseContext.set(EclipseContext.java:379)
+	at org.eclipse.e4.ui.internal.workbench.SelectionAggregator.setPart(SelectionAggregator.java:103)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.eclipse.e4.core.internal.di.MethodRequestor.execute(MethodRequestor.java:58)
+	at org.eclipse.e4.core.internal.contexts.ContextObjectSupplier$ContextInjectionListener.update(ContextObjectSupplier.java:95)
+	at org.eclipse.e4.core.internal.contexts.TrackableComputationExt.update(TrackableComputationExt.java:105)
+	at org.eclipse.e4.core.internal.contexts.EclipseContext.processScheduled(EclipseContext.java:364)
+	at org.eclipse.e4.core.internal.contexts.EclipseContext.set(EclipseContext.java:379)
+	at org.eclipse.e4.core.internal.contexts.EclipseContext.deactivate(EclipseContext.java:703)
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine.clearContext(PartRenderingEngine.java:987)
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine.safeRemoveGui(PartRenderingEngine.java:964)
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine.access$1(PartRenderingEngine.java:871)
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine$4.run(PartRenderingEngine.java:866)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine.removeGui(PartRenderingEngine.java:850)
+	at org.eclipse.e4.ui.workbench.renderers.swt.ElementReferenceRenderer.disposeWidget(ElementReferenceRenderer.java:115)
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine.safeRemoveGui(PartRenderingEngine.java:943)
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine.access$1(PartRenderingEngine.java:871)
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine$4.run(PartRenderingEngine.java:866)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine.removeGui(PartRenderingEngine.java:850)
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine.safeRemoveGui(PartRenderingEngine.java:905)
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine.access$1(PartRenderingEngine.java:871)
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine$4.run(PartRenderingEngine.java:866)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine.removeGui(PartRenderingEngine.java:850)
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine.safeRemoveGui(PartRenderingEngine.java:905)
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine.access$1(PartRenderingEngine.java:871)
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine$4.run(PartRenderingEngine.java:866)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine.removeGui(PartRenderingEngine.java:850)
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine.safeRemoveGui(PartRenderingEngine.java:905)
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine.access$1(PartRenderingEngine.java:871)
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine$4.run(PartRenderingEngine.java:866)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine.removeGui(PartRenderingEngine.java:850)
+	at org.eclipse.ui.internal.WorkbenchWindow.hardClose(WorkbenchWindow.java:2117)
+	at org.eclipse.ui.internal.WorkbenchWindow.busyClose(WorkbenchWindow.java:1748)
+	at org.eclipse.ui.internal.WorkbenchWindow.lambda$3(WorkbenchWindow.java:1773)
+	at org.eclipse.swt.custom.BusyIndicator.showWhile(BusyIndicator.java:72)
+	at org.eclipse.ui.internal.WorkbenchWindow.close(WorkbenchWindow.java:1773)
+	at org.eclipse.ui.internal.Workbench$11.run(Workbench.java:1142)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.ui.internal.Workbench.busyClose(Workbench.java:1125)
+	at org.eclipse.ui.internal.Workbench.lambda$4(Workbench.java:1426)
+	at org.eclipse.swt.custom.BusyIndicator.showWhile(BusyIndicator.java:72)
+	at org.eclipse.ui.internal.Workbench.close(Workbench.java:1426)
+	at org.eclipse.ui.internal.Workbench.restart(Workbench.java:2532)
+	at org.eclipse.equinox.internal.p2.ui.ProvisioningOperationRunner.lambda$0(ProvisioningOperationRunner.java:94)
+	at org.eclipse.swt.widgets.RunnableLock.run(RunnableLock.java:40)
+	at org.eclipse.swt.widgets.Synchronizer.runAsyncMessages(Synchronizer.java:185)
+	at org.eclipse.swt.widgets.Display.runAsyncMessages(Display.java:4005)
+	at org.eclipse.swt.widgets.Display.readAndDispatch(Display.java:3633)
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine$5.run(PartRenderingEngine.java:1158)
+	at org.eclipse.core.databinding.observable.Realm.runWithDefault(Realm.java:338)
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine.run(PartRenderingEngine.java:1047)
+	at org.eclipse.e4.ui.internal.workbench.E4Workbench.createAndRunUI(E4Workbench.java:155)
+	at org.eclipse.ui.internal.Workbench.lambda$3(Workbench.java:658)
+	at org.eclipse.core.databinding.observable.Realm.runWithDefault(Realm.java:338)
+	at org.eclipse.ui.internal.Workbench.createAndRunWorkbench(Workbench.java:557)
+	at org.eclipse.ui.PlatformUI.createAndRunWorkbench(PlatformUI.java:154)
+	at org.eclipse.ui.internal.ide.application.IDEApplication.start(IDEApplication.java:150)
+	at org.eclipse.equinox.internal.app.EclipseAppHandle.run(EclipseAppHandle.java:203)
+	at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.runApplication(EclipseAppLauncher.java:137)
+	at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.start(EclipseAppLauncher.java:107)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:401)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:255)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.eclipse.equinox.launcher.Main.invokeFramework(Main.java:657)
+	at org.eclipse.equinox.launcher.Main.basicRun(Main.java:594)
+	at org.eclipse.equinox.launcher.Main.run(Main.java:1447)
+
+!ENTRY org.eclipse.e4.ui.workbench 4 0 2024-04-27 23:07:38.971
+!MESSAGE Failed to evaluate: OrExpression [children=[WithExpression [variable=org.eclipse.core.runtime.Platform, children=[OrExpression [children=[<test property="isBundleInstalled" args="'org.eclipse.egit'" plug-in activation: lazy/>, <test property="isBundleInstalled" args="'org.eclipse.jgit'" plug-in activation: lazy/>, <test property="isBundleInstalled" args="'org.eclipse.team.svn'" plug-in activation: lazy/>, <test property="isBundleInstalled" args="'org.tigris.subversion.subclipse.core'" plug-in activation: lazy/>]]]], <test property="hasAnyOfRuntimeArguments" args="'-unhideAll', '-unhideTeamSynchronizing'" plug-in activation: lazy/>]]
+!STACK 0
+org.eclipse.core.runtime.CoreException: No property tester contributes a property com.st.stm32cube.ide.mcu.ide.hasAnyOfRuntimeArguments to type class java.util.Collections$EmptyList
+	at org.eclipse.core.internal.expressions.TypeExtensionManager.getProperty(TypeExtensionManager.java:130)
+	at org.eclipse.core.internal.expressions.TestExpression.evaluate(TestExpression.java:100)
+	at org.eclipse.core.internal.expressions.CompositeExpression.evaluateOr(CompositeExpression.java:69)
+	at org.eclipse.core.internal.expressions.OrExpression.evaluate(OrExpression.java:25)
+	at org.eclipse.ui.internal.services.EvaluationReference.evaluate(EvaluationReference.java:74)
+	at org.eclipse.ui.internal.services.EvaluationReference.evaluate(EvaluationReference.java:100)
+	at org.eclipse.ui.internal.services.EvaluationReference.changed(EvaluationReference.java:94)
+	at org.eclipse.e4.core.internal.contexts.TrackableComputationExt.update(TrackableComputationExt.java:108)
+	at org.eclipse.e4.core.internal.contexts.EclipseContext.processScheduled(EclipseContext.java:364)
+	at org.eclipse.e4.core.internal.contexts.EclipseContext.remove(EclipseContext.java:338)
+	at org.eclipse.ui.internal.services.EvaluationService$1.changed(EvaluationService.java:77)
+	at org.eclipse.e4.core.internal.contexts.TrackableComputationExt.update(TrackableComputationExt.java:108)
+	at org.eclipse.e4.core.internal.contexts.EclipseContext.processScheduled(EclipseContext.java:364)
+	at org.eclipse.e4.core.internal.contexts.EclipseContext.set(EclipseContext.java:379)
+	at org.eclipse.e4.ui.internal.workbench.swt.E4Application$4.changed(E4Application.java:802)
+	at org.eclipse.e4.core.internal.contexts.TrackableComputationExt.update(TrackableComputationExt.java:108)
+	at org.eclipse.e4.core.internal.contexts.EclipseContext.processScheduled(EclipseContext.java:364)
+	at org.eclipse.e4.core.internal.contexts.EclipseContext.set(EclipseContext.java:379)
+	at org.eclipse.e4.ui.internal.workbench.SelectionAggregator.setPart(SelectionAggregator.java:103)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.eclipse.e4.core.internal.di.MethodRequestor.execute(MethodRequestor.java:58)
+	at org.eclipse.e4.core.internal.contexts.ContextObjectSupplier$ContextInjectionListener.update(ContextObjectSupplier.java:95)
+	at org.eclipse.e4.core.internal.contexts.TrackableComputationExt.update(TrackableComputationExt.java:105)
+	at org.eclipse.e4.core.internal.contexts.EclipseContext.processScheduled(EclipseContext.java:364)
+	at org.eclipse.e4.core.internal.contexts.EclipseContext.set(EclipseContext.java:379)
+	at org.eclipse.e4.core.internal.contexts.EclipseContext.deactivate(EclipseContext.java:703)
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine.clearContext(PartRenderingEngine.java:987)
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine.safeRemoveGui(PartRenderingEngine.java:964)
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine.access$1(PartRenderingEngine.java:871)
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine$4.run(PartRenderingEngine.java:866)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine.removeGui(PartRenderingEngine.java:850)
+	at org.eclipse.e4.ui.workbench.renderers.swt.ElementReferenceRenderer.disposeWidget(ElementReferenceRenderer.java:115)
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine.safeRemoveGui(PartRenderingEngine.java:943)
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine.access$1(PartRenderingEngine.java:871)
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine$4.run(PartRenderingEngine.java:866)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine.removeGui(PartRenderingEngine.java:850)
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine.safeRemoveGui(PartRenderingEngine.java:905)
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine.access$1(PartRenderingEngine.java:871)
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine$4.run(PartRenderingEngine.java:866)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine.removeGui(PartRenderingEngine.java:850)
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine.safeRemoveGui(PartRenderingEngine.java:905)
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine.access$1(PartRenderingEngine.java:871)
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine$4.run(PartRenderingEngine.java:866)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine.removeGui(PartRenderingEngine.java:850)
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine.safeRemoveGui(PartRenderingEngine.java:905)
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine.access$1(PartRenderingEngine.java:871)
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine$4.run(PartRenderingEngine.java:866)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine.removeGui(PartRenderingEngine.java:850)
+	at org.eclipse.ui.internal.WorkbenchWindow.hardClose(WorkbenchWindow.java:2117)
+	at org.eclipse.ui.internal.WorkbenchWindow.busyClose(WorkbenchWindow.java:1748)
+	at org.eclipse.ui.internal.WorkbenchWindow.lambda$3(WorkbenchWindow.java:1773)
+	at org.eclipse.swt.custom.BusyIndicator.showWhile(BusyIndicator.java:72)
+	at org.eclipse.ui.internal.WorkbenchWindow.close(WorkbenchWindow.java:1773)
+	at org.eclipse.ui.internal.Workbench$11.run(Workbench.java:1142)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.ui.internal.Workbench.busyClose(Workbench.java:1125)
+	at org.eclipse.ui.internal.Workbench.lambda$4(Workbench.java:1426)
+	at org.eclipse.swt.custom.BusyIndicator.showWhile(BusyIndicator.java:72)
+	at org.eclipse.ui.internal.Workbench.close(Workbench.java:1426)
+	at org.eclipse.ui.internal.Workbench.restart(Workbench.java:2532)
+	at org.eclipse.equinox.internal.p2.ui.ProvisioningOperationRunner.lambda$0(ProvisioningOperationRunner.java:94)
+	at org.eclipse.swt.widgets.RunnableLock.run(RunnableLock.java:40)
+	at org.eclipse.swt.widgets.Synchronizer.runAsyncMessages(Synchronizer.java:185)
+	at org.eclipse.swt.widgets.Display.runAsyncMessages(Display.java:4005)
+	at org.eclipse.swt.widgets.Display.readAndDispatch(Display.java:3633)
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine$5.run(PartRenderingEngine.java:1158)
+	at org.eclipse.core.databinding.observable.Realm.runWithDefault(Realm.java:338)
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine.run(PartRenderingEngine.java:1047)
+	at org.eclipse.e4.ui.internal.workbench.E4Workbench.createAndRunUI(E4Workbench.java:155)
+	at org.eclipse.ui.internal.Workbench.lambda$3(Workbench.java:658)
+	at org.eclipse.core.databinding.observable.Realm.runWithDefault(Realm.java:338)
+	at org.eclipse.ui.internal.Workbench.createAndRunWorkbench(Workbench.java:557)
+	at org.eclipse.ui.PlatformUI.createAndRunWorkbench(PlatformUI.java:154)
+	at org.eclipse.ui.internal.ide.application.IDEApplication.start(IDEApplication.java:150)
+	at org.eclipse.equinox.internal.app.EclipseAppHandle.run(EclipseAppHandle.java:203)
+	at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.runApplication(EclipseAppLauncher.java:137)
+	at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.start(EclipseAppLauncher.java:107)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:401)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:255)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.eclipse.equinox.launcher.Main.invokeFramework(Main.java:657)
+	at org.eclipse.equinox.launcher.Main.basicRun(Main.java:594)
+	at org.eclipse.equinox.launcher.Main.run(Main.java:1447)
+
+!ENTRY org.eclipse.e4.ui.workbench 4 0 2024-04-27 23:07:39.144
+!MESSAGE Failed to evaluate: <test property="hasAnyOfRuntimeArguments" args="'-unhideAll'" plug-in activation: lazy/>
+!STACK 0
+org.eclipse.core.runtime.CoreException: No property tester contributes a property com.st.stm32cube.ide.mcu.ide.hasAnyOfRuntimeArguments to type class java.util.Collections$EmptyList
+	at org.eclipse.core.internal.expressions.TypeExtensionManager.getProperty(TypeExtensionManager.java:130)
+	at org.eclipse.core.internal.expressions.TestExpression.evaluate(TestExpression.java:100)
+	at org.eclipse.ui.internal.services.EvaluationReference.evaluate(EvaluationReference.java:74)
+	at org.eclipse.ui.internal.services.EvaluationReference.evaluate(EvaluationReference.java:100)
+	at org.eclipse.ui.internal.services.EvaluationService.invalidate(EvaluationService.java:248)
+	at org.eclipse.ui.internal.services.EvaluationService.dispose(EvaluationService.java:193)
+	at org.eclipse.ui.internal.services.ServiceLocator$3.run(ServiceLocator.java:182)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.ui.internal.services.ServiceLocator.disposeServices(ServiceLocator.java:179)
+	at org.eclipse.ui.internal.services.ServiceLocator.dispose(ServiceLocator.java:152)
+	at org.eclipse.ui.internal.Workbench.shutdown(Workbench.java:2999)
+	at org.eclipse.ui.internal.Workbench.busyClose(Workbench.java:1158)
+	at org.eclipse.ui.internal.Workbench.lambda$4(Workbench.java:1426)
+	at org.eclipse.swt.custom.BusyIndicator.showWhile(BusyIndicator.java:72)
+	at org.eclipse.ui.internal.Workbench.close(Workbench.java:1426)
+	at org.eclipse.ui.internal.Workbench.restart(Workbench.java:2532)
+	at org.eclipse.equinox.internal.p2.ui.ProvisioningOperationRunner.lambda$0(ProvisioningOperationRunner.java:94)
+	at org.eclipse.swt.widgets.RunnableLock.run(RunnableLock.java:40)
+	at org.eclipse.swt.widgets.Synchronizer.runAsyncMessages(Synchronizer.java:185)
+	at org.eclipse.swt.widgets.Display.runAsyncMessages(Display.java:4005)
+	at org.eclipse.swt.widgets.Display.readAndDispatch(Display.java:3633)
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine$5.run(PartRenderingEngine.java:1158)
+	at org.eclipse.core.databinding.observable.Realm.runWithDefault(Realm.java:338)
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine.run(PartRenderingEngine.java:1047)
+	at org.eclipse.e4.ui.internal.workbench.E4Workbench.createAndRunUI(E4Workbench.java:155)
+	at org.eclipse.ui.internal.Workbench.lambda$3(Workbench.java:658)
+	at org.eclipse.core.databinding.observable.Realm.runWithDefault(Realm.java:338)
+	at org.eclipse.ui.internal.Workbench.createAndRunWorkbench(Workbench.java:557)
+	at org.eclipse.ui.PlatformUI.createAndRunWorkbench(PlatformUI.java:154)
+	at org.eclipse.ui.internal.ide.application.IDEApplication.start(IDEApplication.java:150)
+	at org.eclipse.equinox.internal.app.EclipseAppHandle.run(EclipseAppHandle.java:203)
+	at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.runApplication(EclipseAppLauncher.java:137)
+	at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.start(EclipseAppLauncher.java:107)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:401)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:255)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.eclipse.equinox.launcher.Main.invokeFramework(Main.java:657)
+	at org.eclipse.equinox.launcher.Main.basicRun(Main.java:594)
+	at org.eclipse.equinox.launcher.Main.run(Main.java:1447)
+
+!ENTRY org.eclipse.e4.ui.workbench 4 0 2024-04-27 23:07:39.146
+!MESSAGE Failed to evaluate: OrExpression [children=[WithExpression [variable=org.eclipse.core.runtime.Platform, children=[OrExpression [children=[<test property="isBundleInstalled" args="'org.eclipse.egit'" plug-in activation: lazy/>, <test property="isBundleInstalled" args="'org.eclipse.jgit'" plug-in activation: lazy/>, <test property="isBundleInstalled" args="'org.eclipse.team.svn'" plug-in activation: lazy/>, <test property="isBundleInstalled" args="'org.tigris.subversion.subclipse.core'" plug-in activation: lazy/>]]]], <test property="hasAnyOfRuntimeArguments" args="'-unhideAll', '-unhideTeamSynchronizing'" plug-in activation: lazy/>]]
+!STACK 0
+org.eclipse.core.runtime.CoreException: No property tester contributes a property com.st.stm32cube.ide.mcu.ide.hasAnyOfRuntimeArguments to type class java.util.Collections$EmptyList
+	at org.eclipse.core.internal.expressions.TypeExtensionManager.getProperty(TypeExtensionManager.java:130)
+	at org.eclipse.core.internal.expressions.TestExpression.evaluate(TestExpression.java:100)
+	at org.eclipse.core.internal.expressions.CompositeExpression.evaluateOr(CompositeExpression.java:69)
+	at org.eclipse.core.internal.expressions.OrExpression.evaluate(OrExpression.java:25)
+	at org.eclipse.ui.internal.services.EvaluationReference.evaluate(EvaluationReference.java:74)
+	at org.eclipse.ui.internal.services.EvaluationReference.evaluate(EvaluationReference.java:100)
+	at org.eclipse.ui.internal.services.EvaluationService.invalidate(EvaluationService.java:248)
+	at org.eclipse.ui.internal.services.EvaluationService.dispose(EvaluationService.java:193)
+	at org.eclipse.ui.internal.services.ServiceLocator$3.run(ServiceLocator.java:182)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.ui.internal.services.ServiceLocator.disposeServices(ServiceLocator.java:179)
+	at org.eclipse.ui.internal.services.ServiceLocator.dispose(ServiceLocator.java:152)
+	at org.eclipse.ui.internal.Workbench.shutdown(Workbench.java:2999)
+	at org.eclipse.ui.internal.Workbench.busyClose(Workbench.java:1158)
+	at org.eclipse.ui.internal.Workbench.lambda$4(Workbench.java:1426)
+	at org.eclipse.swt.custom.BusyIndicator.showWhile(BusyIndicator.java:72)
+	at org.eclipse.ui.internal.Workbench.close(Workbench.java:1426)
+	at org.eclipse.ui.internal.Workbench.restart(Workbench.java:2532)
+	at org.eclipse.equinox.internal.p2.ui.ProvisioningOperationRunner.lambda$0(ProvisioningOperationRunner.java:94)
+	at org.eclipse.swt.widgets.RunnableLock.run(RunnableLock.java:40)
+	at org.eclipse.swt.widgets.Synchronizer.runAsyncMessages(Synchronizer.java:185)
+	at org.eclipse.swt.widgets.Display.runAsyncMessages(Display.java:4005)
+	at org.eclipse.swt.widgets.Display.readAndDispatch(Display.java:3633)
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine$5.run(PartRenderingEngine.java:1158)
+	at org.eclipse.core.databinding.observable.Realm.runWithDefault(Realm.java:338)
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine.run(PartRenderingEngine.java:1047)
+	at org.eclipse.e4.ui.internal.workbench.E4Workbench.createAndRunUI(E4Workbench.java:155)
+	at org.eclipse.ui.internal.Workbench.lambda$3(Workbench.java:658)
+	at org.eclipse.core.databinding.observable.Realm.runWithDefault(Realm.java:338)
+	at org.eclipse.ui.internal.Workbench.createAndRunWorkbench(Workbench.java:557)
+	at org.eclipse.ui.PlatformUI.createAndRunWorkbench(PlatformUI.java:154)
+	at org.eclipse.ui.internal.ide.application.IDEApplication.start(IDEApplication.java:150)
+	at org.eclipse.equinox.internal.app.EclipseAppHandle.run(EclipseAppHandle.java:203)
+	at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.runApplication(EclipseAppLauncher.java:137)
+	at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.start(EclipseAppLauncher.java:107)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:401)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:255)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.eclipse.equinox.launcher.Main.invokeFramework(Main.java:657)
+	at org.eclipse.equinox.launcher.Main.basicRun(Main.java:594)
+	at org.eclipse.equinox.launcher.Main.run(Main.java:1447)
+
+!ENTRY org.eclipse.e4.ui.workbench 4 0 2024-04-27 23:07:39.147
+!MESSAGE Failed to evaluate: ReferenceExpression [definitionId=org.eclipse.cdt.dsf.debug.ui.testIsUpdateModesActionSetActive]
+!STACK 0
+org.eclipse.core.runtime.CoreException: Unable to locate expression definition org.eclipse.cdt.dsf.debug.ui.testIsUpdateModesActionSetActive
+	at org.eclipse.core.internal.expressions.DefinitionRegistry.getExpression(DefinitionRegistry.java:82)
+	at org.eclipse.core.internal.expressions.ReferenceExpression.evaluate(ReferenceExpression.java:73)
+	at org.eclipse.ui.internal.services.EvaluationReference.evaluate(EvaluationReference.java:74)
+	at org.eclipse.ui.internal.services.EvaluationReference.evaluate(EvaluationReference.java:100)
+	at org.eclipse.ui.internal.services.EvaluationService.invalidate(EvaluationService.java:248)
+	at org.eclipse.ui.internal.services.EvaluationService.dispose(EvaluationService.java:193)
+	at org.eclipse.ui.internal.services.ServiceLocator$3.run(ServiceLocator.java:182)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.ui.internal.services.ServiceLocator.disposeServices(ServiceLocator.java:179)
+	at org.eclipse.ui.internal.services.ServiceLocator.dispose(ServiceLocator.java:152)
+	at org.eclipse.ui.internal.Workbench.shutdown(Workbench.java:2999)
+	at org.eclipse.ui.internal.Workbench.busyClose(Workbench.java:1158)
+	at org.eclipse.ui.internal.Workbench.lambda$4(Workbench.java:1426)
+	at org.eclipse.swt.custom.BusyIndicator.showWhile(BusyIndicator.java:72)
+	at org.eclipse.ui.internal.Workbench.close(Workbench.java:1426)
+	at org.eclipse.ui.internal.Workbench.restart(Workbench.java:2532)
+	at org.eclipse.equinox.internal.p2.ui.ProvisioningOperationRunner.lambda$0(ProvisioningOperationRunner.java:94)
+	at org.eclipse.swt.widgets.RunnableLock.run(RunnableLock.java:40)
+	at org.eclipse.swt.widgets.Synchronizer.runAsyncMessages(Synchronizer.java:185)
+	at org.eclipse.swt.widgets.Display.runAsyncMessages(Display.java:4005)
+	at org.eclipse.swt.widgets.Display.readAndDispatch(Display.java:3633)
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine$5.run(PartRenderingEngine.java:1158)
+	at org.eclipse.core.databinding.observable.Realm.runWithDefault(Realm.java:338)
+	at org.eclipse.e4.ui.internal.workbench.swt.PartRenderingEngine.run(PartRenderingEngine.java:1047)
+	at org.eclipse.e4.ui.internal.workbench.E4Workbench.createAndRunUI(E4Workbench.java:155)
+	at org.eclipse.ui.internal.Workbench.lambda$3(Workbench.java:658)
+	at org.eclipse.core.databinding.observable.Realm.runWithDefault(Realm.java:338)
+	at org.eclipse.ui.internal.Workbench.createAndRunWorkbench(Workbench.java:557)
+	at org.eclipse.ui.PlatformUI.createAndRunWorkbench(PlatformUI.java:154)
+	at org.eclipse.ui.internal.ide.application.IDEApplication.start(IDEApplication.java:150)
+	at org.eclipse.equinox.internal.app.EclipseAppHandle.run(EclipseAppHandle.java:203)
+	at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.runApplication(EclipseAppLauncher.java:137)
+	at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.start(EclipseAppLauncher.java:107)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:401)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:255)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.eclipse.equinox.launcher.Main.invokeFramework(Main.java:657)
+	at org.eclipse.equinox.launcher.Main.basicRun(Main.java:594)
+	at org.eclipse.equinox.launcher.Main.run(Main.java:1447)

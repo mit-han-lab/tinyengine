@@ -1,0 +1,1 @@
+patchpadding_convolve_s8_kernel3_inputch3_stride2.c:28:19:patchpadding_convolve_s8_kernel3_inputch3_stride2	184	static,ignoring_inline_asm

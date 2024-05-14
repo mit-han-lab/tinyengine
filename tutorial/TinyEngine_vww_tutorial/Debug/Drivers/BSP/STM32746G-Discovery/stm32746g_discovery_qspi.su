@@ -1,0 +1,11 @@
+stm32746g_discovery_qspi.c:188:9:BSP_QSPI_Read	80	static
+stm32746g_discovery_qspi.c:228:9:BSP_QSPI_Write	184	static
+stm32746g_discovery_qspi.c:308:9:BSP_QSPI_Erase_Block	168	static
+stm32746g_discovery_qspi.c:350:9:BSP_QSPI_Erase_Chip	168	static
+stm32746g_discovery_qspi.c:390:9:BSP_QSPI_GetStatus	80	static
+stm32746g_discovery_qspi.c:443:9:BSP_QSPI_GetInfo	4	static
+stm32746g_discovery_qspi.c:459:9:BSP_QSPI_MemoryMappedMode	80	static
+stm32746g_discovery_qspi.c:504:13:BSP_QSPI_MspInit	80	static
+stm32746g_discovery_qspi.c:118:9:BSP_QSPI_Init	176	static,ignoring_inline_asm
+stm32746g_discovery_qspi.c:570:13:BSP_QSPI_MspDeInit	16	static
+stm32746g_discovery_qspi.c:165:9:BSP_QSPI_DeInit	16	static

@@ -1,0 +1,6 @@
+profile.h:28:6:void printLog(const char*)	24	static
+profile.h:52:6:void recieveChar(char*)	24	static
+vit.h:33:14:signed char* getInput()	0	static
+vit.h:51:5:int main_vision_transformer(uint16_t*)	0	static
+main.cpp:65:6:void invoke_new_weights_givenimg(signed char*)	8	static
+main.cpp:97:5:int main()	272	static,ignoring_inline_asm

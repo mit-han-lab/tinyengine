@@ -1,0 +1,2 @@
+main.cpp:69:6:void invoke_new_weights_givenimg(signed char*)	8	static
+main.cpp:101:5:int main()	272	static,ignoring_inline_asm

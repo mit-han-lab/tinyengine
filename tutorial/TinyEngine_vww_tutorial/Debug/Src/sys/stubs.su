@@ -1,0 +1,7 @@
+stubs.c:25:5:_write	16	static
+stubs.c:35:5:_read	16	static
+stubs.c:45:5:_close	0	static
+stubs.c:47:5:_fstat	0	static
+stubs.c:49:5:_isatty	0	static
+stubs.c:51:6:_lseek	0	static
+stubs.c:53:6:_exit	0	static

@@ -1,0 +1,4 @@
+where_fp.c:23:22:where	8	static
+where_fp.c:35:22:where_zeros	8	static
+where_fp.c:46:22:where_zeros_inplace	4	static
+where_fp.c:57:22:where_zeros_inplace_bit	24	static

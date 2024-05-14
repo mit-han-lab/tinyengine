@@ -1,0 +1,5 @@
+profile.h:28:6:printLog	24	static
+profile.h:52:6:recieveChar	24	static
+MHSA.c:28:8:cluster_fork	88	static
+MHSA.c:92:6:kernel_task	56	static
+MHSA.c:122:5:submain	56	static

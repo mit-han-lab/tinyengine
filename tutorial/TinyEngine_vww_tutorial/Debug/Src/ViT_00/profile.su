@@ -1,0 +1,2 @@
+profile.cpp:3:6:void printLog(const char*)	24	static
+profile.cpp:27:6:void recieveChar(char*)	24	static

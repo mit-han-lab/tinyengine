@@ -1,0 +1,10 @@
+exc7200.c:130:6:exc7200_Reset	0	static
+exc7200.c:140:10:exc7200_ReadID	0	static
+exc7200.c:182:6:exc7200_TS_GetXY	4	static
+exc7200.c:215:9:exc7200_TS_ITStatus	0	static
+exc7200.c:118:6:exc7200_Init	0	static
+exc7200.c:159:9:exc7200_TS_DetectTouch	8	static
+exc7200.c:206:6:exc7200_TS_DisableIT	0	static
+exc7200.c:225:6:exc7200_TS_ClearIT	0	static
+exc7200.c:150:6:exc7200_TS_Start	0	static
+exc7200.c:197:6:exc7200_TS_EnableIT	0	static

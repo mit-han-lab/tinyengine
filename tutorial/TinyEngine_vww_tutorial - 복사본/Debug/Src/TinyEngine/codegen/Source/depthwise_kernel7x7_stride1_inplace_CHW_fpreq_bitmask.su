@@ -1,0 +1,2 @@
+depthwise_kernel7x7_stride1_inplace_CHW_fpreq_bitmask.c:81:6:depthwise_kernel7x7_stride1_inplace_kernel_CHW_fpreq_bitmask	152	static
+depthwise_kernel7x7_stride1_inplace_CHW_fpreq_bitmask.c:16:19:depthwise_kernel7x7_stride1_inplace_CHW_fpreq_bitmask	120	static

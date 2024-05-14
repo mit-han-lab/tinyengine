@@ -1,0 +1,7 @@
+vit.cpp:9:6:void layer_normalization(float*, float*, float)	24	static
+vit.cpp:34:6:void arm_softmax_f32(float*, int, float*)	40	static
+vit.cpp:51:6:void multi_head_self_attention(float*, float*)	40	static
+vit.cpp:80:6:void linear_layer(float*, float*)	24	static
+vit.cpp:92:5:int classification_layer(float*)	8	static
+vit.cpp:108:5:int vision_transformer(float*)	224	static
+vit.cpp:130:5:int main_vision_transformer(uint16_t*)	224	static

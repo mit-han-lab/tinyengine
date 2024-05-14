@@ -1,0 +1,3 @@
+add_fpreq.c:23:19:add_fpreq	48	static
+add_fpreq.c:38:19:add_fpreq_mask	48	static
+add_fpreq.c:60:19:add_fpreq_bitmask	64	static

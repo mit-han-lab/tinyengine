@@ -1,0 +1,37 @@
+namespace MnistProt;
+
+enum Command : byte {
+    CMD_GET_STATS,
+    CMD_INFERENCE_INPUT,
+    CMD_INFERENCE_OUTPUT
+}
+
+enum Mode : byte {
+    ACCELERATION_NONE,
+    ACCELERATION_CMSIS_NN
+}
+
+table Stats {
+    version:ubyte;
+    freq:uint;
+    mode:Mode;
+}
+
+table InferenceInput {
+    digit:[float];
+}
+
+table InferenceOutput {
+    output_f:[float];
+    output_n:ubyte;
+    timer_ms:float;
+}
+
+table Commands {
+    cmd:Command;
+    stats:Stats;
+    input:InferenceInput;
+    ouput:InferenceOutput;
+}
+
+root_type Commands;
