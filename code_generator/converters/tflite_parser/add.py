@@ -5,7 +5,17 @@ import numpy as np
 from code_generator.operators import add
 from code_generator.tflite import Model
 
-from .utils import get_input_tensors, get_nhwc_from_shape, get_output_tensors, getOpCodeStr, getTensorTypeStr
+from .utils import (
+    get_input_tensors, 
+    get_nhwc_from_shape, 
+    get_output_tensors, 
+    getOpCodeStr, 
+    getTensorTypeStr,
+    getMultiplierShift_,
+    getSigShift,
+    getADDMultiplierShift
+)
+    
 
 
 def parse_add(op, model: Model.Model):
@@ -14,73 +24,66 @@ def parse_add(op, model: Model.Model):
 
     # get input, weight, and output tensors
     input_tensors = get_input_tensors(op, model)
-    input_tensor_count = len(input_tensors)
-    assert input_tensor_count == 2, "input should be 2 tensors"
+    output_tensors = get_output_tensors(op, model)
+
+    assert len(input_tensors) == 2, "ADD operation requires 2 input tensors"
+    assert len(output_tensors) == 1, "ADD operation requires 1 output tensor"
 
     input_tensor = input_tensors[0]
     input2_tensor = input_tensors[1]
-
-    output_tensors = get_output_tensors(op, model)
-    assert len(output_tensors) == 1, "output tensors length should be 1"
     output_tensor = output_tensors[0]
+    
+    input_shape = np.array(input_tensor.tensor.ShapeAsNumpy())
+    input2_shape = np.array(input2_tensor.tensor.ShapeAsNumpy())
+    output_shape = np.array(output_tensor.tensor.ShapeAsNumpy())
 
-    # shapes
-    _, input_h, input_w, input_c = get_nhwc_from_shape(input_tensor.tensor.ShapeAsNumpy())
-    _, input2_h, input2_w, input2_c = get_nhwc_from_shape(input2_tensor.tensor.ShapeAsNumpy())
-    _, output_h, output_w, output_c = get_nhwc_from_shape(output_tensor.tensor.ShapeAsNumpy())
-    assert input_h == input2_h == output_h, "tensor shpae not consistent"
-    assert input_w == input2_w == output_w, "tensor shpae not consistent"
-    assert input_c == input2_c == output_c, "tensor shpae not consistent"
+    # Debug: Print shapes for verification
+    print(f"Input Shape 1: {input_shape}")
+    print(f"Input Shape 2: {input2_shape}")
+    print(f"Output Shape: {output_shape}")
+    
+    # Handle broadcasting by checking if shapes are broadcastable
+    try:
+        broadcast_shape = np.broadcast_shapes(input_shape, input2_shape)
+    except ValueError:
+        raise AssertionError("tensor shape not consistent and not broadcastable")
 
-    # tensor types
-    input_type = getTensorTypeStr(input_tensor.tensor.Type())
-    input_type2 = getTensorTypeStr(input2_tensor.tensor.Type())
-    output_type = getTensorTypeStr(output_tensor.tensor.Type())
-    assert input_type == input_type2 == output_type, "tensor type not consistent"
+    assert np.array_equal(broadcast_shape, output_shape), "output shape is not consistent with broadcast shape"
 
-    # initialize quantized parameters as None for floating-pointer ops
-    input_zero_point = None
-    input_scale = None
-    input2_zero_point = None
-    input2_scale = None
-    output_zero_point = None
-    output_scale = None
 
-    left_shift = None
-    input_multiplier = None
-    input_shift = None
-    input2_multiplier = None
-    input2_shift = None
-    output_multiplier = None
-    output_shift = None
+    input_idx = input_tensor.tensor_idx
+    input2_idx = input2_tensor.tensor_idx
+    output_idx = output_tensor.tensor_idx
 
-    # quantized setting
-    if input_type != "float32":
-        input_zero_point = input_tensor.qnn_params["zero_point"]
-        input_scale = input_tensor.qnn_params["scale"]
-    if input_type2 != "float32":
-        input2_zero_point = input2_tensor.qnn_params["zero_point"]
-        input2_scale = input2_tensor.qnn_params["scale"]
-    if output_type != "float32":
-        output_zero_point = output_tensor.qnn_params["zero_point"]
-        output_scale = output_tensor.qnn_params["scale"]
+    input_dtype = getTensorTypeStr(input_tensor.tensor.Type())
+    output_dtype = getTensorTypeStr(output_tensor.tensor.Type())
 
-    if "float32" not in [output_type, input_type, input_type2]:
-        # get multipliers and shifts
-        (
-            left_shift,
-            input_multiplier,
-            input_shift,
-            input2_multiplier,
-            input2_shift,
-            output_multiplier,
-            output_shift,
-        ) = _getADDMultiplierShift(input_scale, input2_scale, output_scale)
+    # Extract dimensions
+    input_h, input_w, input_c = input_shape[-3:]
+    output_h, output_w, output_c = output_shape[-3:]
+
+    # Handle quantization parameters
+    input_scale = input_tensor.qnn_params["scale"] if input_tensor.qnn_params else None
+    input_zero_point = input_tensor.qnn_params["zero_point"] if input_tensor.qnn_params else None
+    input2_scale = input2_tensor.qnn_params["scale"] if input2_tensor.qnn_params else None
+    input2_zero_point = input2_tensor.qnn_params["zero_point"] if input2_tensor.qnn_params else None
+    output_scale = output_tensor.qnn_params["scale"] if output_tensor.qnn_params else None
+    output_zero_point = output_tensor.qnn_params["zero_point"] if output_tensor.qnn_params else None
+
+    # Calculate multiplier and shift if quantized
+    if input_scale and input2_scale and output_scale:
+        left_shift = 20  # example value, can be adjusted based on needs
+        input_multiplier, input_shift = getSigShift(input_scale, input_scale, output_scale)
+        input2_multiplier, input2_shift = getSigShift(input2_scale, input2_scale, output_scale)
+        output_multiplier, output_shift = getADDMultiplierShift(input_scale * input2_scale, output_scale)
+    else:
+        left_shift, input_multiplier, input_shift = None, None, None
+        input2_multiplier, input2_shift, output_multiplier, output_shift = None, None, None, None
 
     # assign params
     params = {
         # operator
-        "op": op_code_str,
+        "op": "ADD",
         # tensor
         "input_idx": input_tensor.tensor_idx,
         "input2_idx": input2_tensor.tensor_idx,
@@ -97,7 +100,10 @@ def parse_add(op, model: Model.Model):
         "output_h": output_h,
         "output_w": output_w,
         "output_c": output_c,
-        "dtypte": input_type,
+        "input_dtype": input_dtype,
+        "input2_dtype": input_dtype,
+        "output_dtype": output_dtype,
+        
         # trainable parameters
         "input_zero_point": input_zero_point,
         "input2_zero_point": input2_zero_point,
@@ -118,6 +124,25 @@ def parse_add(op, model: Model.Model):
 
     return op
 
+# def getMultiplierShift(real_multiplier):
+#     if real_multiplier == 0:
+#         return 0, 0
+#     shift = 0
+#     while real_multiplier < 0.5:
+#         real_multiplier *= 2
+#         shift += 1
+#     multiplier = int(round(real_multiplier * (1 << 31)))
+#     return multiplier, shift
+
+# def getSigShift(input_scale, input_product_scale, output_scale):
+#     product_scale = input_product_scale / output_scale
+#     product_multiplier, product_shift = getMultiplierShift(product_scale)
+#     input_multiplier, input_shift = getMultiplierShift(input_scale / output_scale)
+#     return input_multiplier, input_shift
+
+# def getADDMultiplierShift(input_product_scale, output_scale):
+#     output_multiplier, output_shift = getMultiplierShift(input_product_scale / output_scale)
+#     return output_multiplier, output_shift
 
 def _getSigShift(s):
     sig, shi = math.frexp(s)

@@ -8,7 +8,7 @@ from code_generator.tflite.BuiltinOperator import BuiltinOperator
 from code_generator.tflite.TensorType import TensorType
 
 
-class TFLiteTensorWrpper:
+class TFLiteTensorWrapper:
     def __init__(self, tensor_idx, tensor, buffer, qnn_params):
         self.tensor_idx = tensor_idx
         self.tensor = tensor
@@ -58,11 +58,36 @@ def get_input_tensors(op, model: Model.Model):
 def get_output_tensors(op, model: Model.Model):
     return _get_wrapper_tensors(op.OutputsAsNumpy(), model)
 
+def create_dummy_tensor(tensor_idx):
+    class DummyTensor:
+        def Buffer(self):
+            return 0
+
+        def Quantization(self):
+            return None
+
+        def Type(self):
+            return TensorType.FLOAT32  # or another suitable default
+
+        def ShapeAsNumpy(self):
+            return np.array([1])
+
+        def ShapeLength(self):
+            return len(self.ShapeAsNumpy())
+
+    class DummyBuffer:
+        def DataAsNumpy(self):
+            return np.zeros([1], dtype=np.float32)
+
+    return TFLiteTensorWrapper(tensor_idx, DummyTensor(), DummyBuffer(), None)
 
 def _get_wrapper_tensors(tensor_index_list, model: Model.Model):
     ret = []
     subgraph = model.Subgraphs(0)
     for idx in tensor_index_list:
+        if idx == -1:
+            ret.append(create_dummy_tensor(idx))
+            continue
         tensor = subgraph.Tensors(idx)
         buffer_idx = tensor.Buffer()
         buffer = model.Buffers(buffer_idx)
@@ -87,7 +112,7 @@ def _get_wrapper_tensors(tensor_index_list, model: Model.Model):
         else:
             logging.warn("Quantization parameters not found in the model! Floating-point opeartos are experimental.")
 
-        ret.append(TFLiteTensorWrpper(idx, tensor, buffer, qparams_to_tensor_wrapper))
+        ret.append(TFLiteTensorWrapper(idx, tensor, buffer, qparams_to_tensor_wrapper))
     return ret
 
 
@@ -144,6 +169,9 @@ def getTensorTypeStr(type):
         return "uint8"
     if TensorType.FLOAT32 == type:
         return "float32"
+    if TensorType.INT32 == type:
+        return "int32"
+    return None
 
 
 def get_hwc_from_chwshape(shape):
@@ -181,3 +209,24 @@ def get_nhwc_from_shape(shape):
     elif len(shape) == 1:
         c = shape[0]
     return n, h, w, c
+
+
+def getMultiplierShift_(real_multiplier):
+    if real_multiplier == 0:
+        return 0, 0
+    shift = 0
+    while real_multiplier < 0.5:
+        real_multiplier *= 2
+        shift += 1
+    multiplier = int(round(real_multiplier * (1 << 31)))
+    return multiplier, shift
+
+def getSigShift(input_scale, input_product_scale, output_scale):
+    product_scale = input_product_scale / output_scale
+    product_multiplier, product_shift = getMultiplierShift_(product_scale)
+    input_multiplier, input_shift = getMultiplierShift_(input_scale / output_scale)
+    return input_multiplier, input_shift
+
+def getADDMultiplierShift(input_product_scale, output_scale):
+    output_multiplier, output_shift = getMultiplierShift_(input_product_scale / output_scale)
+    return output_multiplier, output_shift

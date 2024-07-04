@@ -15,4 +15,8 @@ class TensorType(object):
     INT8 = 9
     FLOAT64 = 10
     COMPLEX128 = 11
+    UINT64 = 12
+    RESOURCE = 13
+    VARIANT = 14
+    UINT32 = 15
 

@@ -20,7 +20,12 @@ import logging
 
 import code_generator.converters.tflite_parser as TF_Parser
 from code_generator.converters.tflite_parser.mean1dto2d import MEAN2D
-from code_generator.converters.tflite_parser.utils import get_input_tensors, get_output_tensors, getOpCodeStr
+from code_generator.converters.tflite_parser.utils import (
+    get_input_tensors, 
+    get_output_tensors, 
+    getOpCodeStr,
+    getTensorTypeStr
+)
 
 from .constant import SKIP_OPs
 from .tflite import Model
@@ -80,42 +85,81 @@ class TfliteConvertor(object):
                 )
 
     def parseOperatorInfo(self):
-        operators_len = self.subgraph.OperatorsLength()
+        op_count = self.model.Subgraphs(0).OperatorsLength()
+        op_idx = 0
 
-        skip_next_ops = 0
-        for i in range(operators_len):
-            if skip_next_ops > 0:
-                skip_next_ops -= 1
-                continue
+        while op_idx < op_count:
+            op = self.model.Subgraphs(0).Operators(op_idx)
+            op_code_str = getOpCodeStr(op, self.model)
 
-            op = self.subgraph.Operators(i)
-            if i + 2 < operators_len - 2:
-                next_op = self.subgraph.Operators(i + 1)
-                next_next_op = self.subgraph.Operators(i + 2)
-                three_op_sequence = [op, next_op, next_next_op]
-
-                if self.checkIfRequireSEelementmult(three_op_sequence):
-                    logging.info("found SE block")
-                    skip_next_ops = 2
-                    #         -> MEAN -> MEAN -> PWCONV -> PWCONV -> | ADD -> MUL ->     |
-                    #  DWCONV                                        |            -> MUL |
-                    #                                                |   SEelementmult   |
-                    SEelementmult_op = TF_Parser.parse_SEelement(three_op_sequence, self.model, self.layer)
-
-                    self.layer.append(SEelementmult_op)
+            if op_code_str == "RESHAPE":
+                # Check the next 5 operators
+                if self.check_fusion_pattern(op_idx):
+                    self.layer.append(TF_Parser.parse_fusion(op, self.model, op_idx))
+                    op_idx += 5  # Skip the next 5 operators as they are fused
                     continue
 
-            # parse the op
+            # Handle the current operator if not part of fusion
             self._handleOperator(op)
+            op_idx += 1
+
+    def check_fusion_pattern(self, start_idx):
+        fusion_pattern = ['BLOCKING_PATTERN', 'RESHAPE', 'ADD', 'RESHAPE', 'TRANSPOSE', 'FULLY_CONNECTED']
+        op_count = self.model.Subgraphs(0).OperatorsLength()
+
+        if start_idx + 4 >= op_count:
+            return False
+
+        for i, pattern in enumerate(fusion_pattern):
+            op_code_str = getOpCodeStr(self.model.Subgraphs(0).Operators(start_idx + i), self.model)
+            if op_code_str != pattern:
+                return False
+
+        return True
 
     # handle one op and parse it into layers[] for supported operators
     def _handleOperator(self, op):
         op_code_str = getOpCodeStr(op, self.model)
+        
+        print(op_code_str)
         if op_code_str == "CONV_2D":
             self.layer.append(TF_Parser.parse_conv2d(op, self.model, self.tmpPADIndice))
             self.tmpPADIndice = None
+        elif op_code_str == "GATHER":
+            self.layer.append(TF_Parser.parse_gather(op, self.model))
+        elif op_code_str == "SHAPE":
+            self.layer.append(TF_Parser.parse_shape(op, self.model))
+        elif op_code_str == "STRIDED_SLICE":
+            self.layer.append(TF_Parser.parse_strided_slice(op, self.model))
+        elif op_code_str == "PACK":
+            self.layer.append(TF_Parser.parse_pack(op, self.model)) 
+        elif op_code_str == "TILE":
+            self.layer.append(TF_Parser.parse_tile(op, self.model)) 
+        elif op_code_str == "CONCATENATION":
+            self.layer.append(TF_Parser.parse_concatenation(op, self.model))  
+        elif op_code_str == "SQUARED_DIFFERENCE":
+            self.layer.append(TF_Parser.parse_squared_difference(op, self.model))
+        elif op_code_str == "RSQRT":
+            self.layer.append(TF_Parser.parse_rsqrt(op, self.model))    
+        elif op_code_str == "MUL":
+            self.layer.append(TF_Parser.parse_mul(op, self.model))  
+            
         elif op_code_str == "ADD":
             self.layer.append(TF_Parser.parse_add(op, self.model))
+        elif op_code_str == "SUB":
+            self.layer.append(TF_Parser.parse_sub(op, self.model))  
+        elif op_code_str == "REDUCE_PROD":
+            self.layer.append(TF_Parser.parse_reduce_prod(op, self.model))
+        elif op_code_str == "FULLY_CONNECTED":
+            self.layer.append(TF_Parser.parse_fully_connected(op, self.model))
+        elif op_code_str == "BATCH_MATMUL":
+            self.layer.append(TF_Parser.parse_batch_matmul(op, self.model))
+        elif op_code_str == "SOFTMAX":
+            self.layer.append(TF_Parser.parse_softmax(op, self.model))
+        elif op_code_str == "PLACEHOLDER_FOR_GREATER_OP_CODES":
+            self.layer.append(TF_Parser.parse_placeholder_for_greater_op_codes(op, self.model))
+
+        
         elif op_code_str == "AVERAGE_POOL_2D":
             self.layer.append(TF_Parser.parse_avgpool(op, self.model))
         elif op_code_str == "DEPTHWISE_CONV_2D":
@@ -137,24 +181,22 @@ class TfliteConvertor(object):
                 self.layer.append(ret_op)
         elif op_code_str == "TRANSPOSE":
             self._convert_TRANSPOSE(op)
-        elif op_code_str == "FULLY_CONNECTED":
-            self.layer.append(TF_Parser.parse_fc(op, self.model))
         elif op_code_str in SKIP_OPs:
             pass
         else:
             raise NotImplementedError(f"Unsupported {op_code_str}")
 
-    #         -> MEAN -> MEAN -> PWCONV -> PWCONV -> | ADD -> MUL ->     |
-    #  DWCONV                                        |            -> MUL |
-    #                                                |    Fuse Target    |
-    def checkIfRequireSEelementmult(self, three_op_sequence):
-        if (
-            getOpCodeStr(three_op_sequence[0], self.model) == "ADD"
-            and getOpCodeStr(three_op_sequence[1], self.model) == "MUL"
-            and getOpCodeStr(three_op_sequence[2], self.model) == "MUL"
-        ):
-            return True
-        return False
+    # #         -> MEAN -> MEAN -> PWCONV -> PWCONV -> | ADD -> MUL ->     |
+    # #  DWCONV                                        |            -> MUL |
+    # #                                                |    Fuse Target    |
+    # def checkIfRequireSEelementmult(self, three_op_sequence):
+    #     if (
+    #         getOpCodeStr(three_op_sequence[0], self.model) == "ADD"
+    #         and getOpCodeStr(three_op_sequence[1], self.model) == "MUL"
+    #         and getOpCodeStr(three_op_sequence[2], self.model) == "MUL"
+    #     ):
+    #         return True
+    #     return False
 
     def _convert_PAD(self, op):
         # get input, weight, and output tensors
@@ -179,7 +221,6 @@ class TfliteConvertor(object):
 
         # fuse pad into conv
         self.skip_transpose = PAD_tensorIndice(input_tensor.tensor_idx, output_tensor.tensor_idx)
-
 
 class PAD_tensorIndice(object):
     def __init__(self, input_idx, output_idx):

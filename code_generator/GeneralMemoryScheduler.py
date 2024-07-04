@@ -164,6 +164,7 @@ class GeneralMemoryScheduler:
         all_t_size = 0
         # go through all tensors in the model
         for i, op in enumerate(self.layer):
+            print("Allocating layer", i, "op", op.params["op"])
             # get all unallocated tensors for this layer
             unallocated_tensors = []
             for t in op.input_tensors:

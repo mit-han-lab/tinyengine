@@ -108,4 +108,13 @@ class BuiltinOptions(object):
     CumsumOptions = 102
     CallOnceOptions = 103
     BroadcastToOptions = 104
+    Rfft2dOptions = 105
+    Conv3DOptions = 106
+    HashtableOptions = 107
+    HashtableFindOptions = 108
+    HashtableImportOptions = 109
+    HashtableSizeOptions = 110
+    VarHandleOptions = 111
+    ReadVariableOptions = 112
+    AssignVariableOptions = 113
 
