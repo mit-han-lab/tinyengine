@@ -3,23 +3,18 @@
 import warnings
 from .basic_utils import basicOperator, deep_copy_dicts, overwrite_dicts
 
+__all__ = ["RsqrtOperator"]
+
 default_params = {
+    # Operator related
     "op": "RSQRT",
+    # Tensor related
     "input_idx": None,
     "output_idx": None,
-    "input_dtype": None,
-    "output_dtype": None,
     "input_shape": None,
     "output_shape": None,
-    "input_zero_point": None,
-    "output_zero_point": None,
-    "input_scale": None,
-    "output_scale": None,
-    "left_shift": None,
-    "input_multiplier": None,
-    "input_shift": None,
-    "output_multiplier": None,
-    "output_shift": None,
+    "input_dtype": "float32",
+    "output_dtype": "float32",
 }
 
 class RsqrtOperator(basicOperator):
@@ -28,6 +23,7 @@ class RsqrtOperator(basicOperator):
         overwrite_dicts(self.params, params)
         super().__init__()
 
+        # Handle input/output tensors
         self._add_input(
             self.params["input_idx"],
             self.params["input_dtype"],
@@ -39,23 +35,20 @@ class RsqrtOperator(basicOperator):
             *self.params["output_shape"]
         )
 
-        if None in default_params.values():
+        if None in self.params.values():
             warnings.warn(f"parameters are not all set for op {self.params['op']}")
 
     def generate_inference_str(self):
-        params = self.params
-        input_str = self._getBufferstrCast(params["input_idx"], 0, dtype=params["input_dtype"])
-        output_str = self._getBufferstrCast(params["output_idx"], 0, dtype=params["output_dtype"])
-        
-        if params["input_scale"] and params["output_scale"]:
-            string = (
-                f"quantized_rsqrt({input_str}, {output_str}, "
-                f"{params['left_shift']}, {params['input_multiplier']}, {params['input_shift']}, "
-                f"{params['output_multiplier']}, {params['output_shift']});\n"
-            )
-        else:
-            string = (
-                f"rsqrt({input_str}, {output_str});\n"
-            )
+        input_str = self._getBufferstrCast(
+            self.params['input_buf_add'], self.params['input_buf_add_offset'], dtype=self.params["input_dtype"]
+        )
+        output_str = self._getBufferstrCast(
+            self.params['output_buf_add'], self.params['output_buf_add_offset'], dtype=self.params["output_dtype"]
+        )
+
+        string = (
+            f"rsqrt({input_str}, {output_str}, "
+            f"{self.params['input_shape'][0]}, {self.params['input_shape'][1]});\n"
+        )
 
         return string

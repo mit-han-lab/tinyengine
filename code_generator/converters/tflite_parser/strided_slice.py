@@ -31,7 +31,7 @@ def parse_strided_slice(op, model):
     strides = [model.Buffers(i).DataAsNumpy() for i in range(n)]
 
     params = {
-        "op": op,
+        "op": "STRIDED_SLICE",
         "input_idx": input_tensors[0].tensor_idx,
         "output_idx": output_tensors[0].tensor_idx,
         "input_dtype": getTensorTypeStr(input_tensors[0].tensor.Type()),

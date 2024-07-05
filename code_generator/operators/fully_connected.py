@@ -3,22 +3,17 @@
 import warnings
 from .basic_utils import basicOperator, deep_copy_dicts, overwrite_dicts
 
-__all__ = ["FullyConnectedOperator"]
-
 default_params = {
-    # Operator related
     "op": "FULLY_CONNECTED",
-    # Tensor related
     "input_idx": None,
     "weight_idx": None,
     "bias_idx": None,
     "output_idx": None,
     "input_shape": None,
     "output_shape": None,
-    "input_dtype": "float32",
-    "weight_dtype": "float32",
-    "output_dtype": "float32",
-    # Quantization related
+    "input_dtype": None,
+    "weight_dtype": None,
+    "output_dtype": None,
     "input_zero_point": None,
     "weight_zero_point": None,
     "output_zero_point": None,
@@ -31,9 +26,16 @@ default_params = {
     "input_shift": None,
     "weight_shift": None,
     "output_shift": None,
-    # Additional parameters
     "activation": None,
-    "use_bias": True,
+    "use_bias": None,
+    "input_buf_add": None,
+    "input_buf_add_offset": 0,
+    "input2_buf_add": None,  # Renamed to input2_buf_add
+    "input2_buf_add_offset": 0,  # Renamed to input2_buf_add_offset
+    "input3_buf_add": None,  # Renamed to input3_buf_add for bias
+    "input3_buf_add_offset": 0,  # Renamed to input3_buf_add_offset for bias
+    "output_buf_add": None,
+    "output_buf_add_offset": 0,
 }
 
 class FullyConnectedOperator(basicOperator):
@@ -41,52 +43,39 @@ class FullyConnectedOperator(basicOperator):
         self.params = deep_copy_dicts(default_params)
         overwrite_dicts(self.params, params)
         super().__init__()
-        
-        # Handle input/output tensors
-        self._add_input(
-            self.params["input_idx"],
-            self.params["input_dtype"],
-            *self.params["input_shape"]
-        )
-        self._add_output(
-            self.params["output_idx"],
-            self.params["output_dtype"],
-            *self.params["output_shape"]
-        )
-
+        # handle input/output tensors
+        self._add_input(self.params["input_idx"], self.params["input_dtype"])
+        self._add_input(self.params["weight_idx"], self.params["weight_dtype"])
         if self.params["use_bias"]:
-            self._add_input(
-                self.params["bias_idx"],
-                self.params["input_dtype"],
-                1
-            )
+            self._add_input(self.params["bias_idx"], self.params["output_dtype"])
+        self._add_output(self.params["output_idx"], self.params["output_dtype"])
 
-        if None in self.params.values():
+        if None in default_params.values():
             warnings.warn(f"parameters are not all set for op {self.params['op']}")
 
     def generate_inference_str(self):
-        input_str = self._getBufferstrCast(
-            self.params['input_buf_add'], self.params['input_buf_add_offset'], dtype=self.params["input_dtype"]
-        )
-        weight_str = self._getBufferstrCast(
-            self.params['weight_buf_add'], self.params['weight_buf_add_offset'], dtype=self.params["weight_dtype"]
-        )
-        output_str = self._getBufferstrCast(
-            self.params['output_buf_add'], self.params['output_buf_add_offset'], dtype=self.params["output_dtype"]
-        )
-        
-        if self.params["use_bias"]:
-            bias_str = self._getBufferstrCast(
-                self.params['bias_buf_add'], self.params['bias_buf_add_offset'], dtype=self.params["input_dtype"]
-            )
-            bias_str = f", {bias_str}"
-        else:
-            bias_str = ""
-        
-        string = (
-            f"fully_connected({input_str}, {weight_str}{bias_str}, {output_str}, "
-            f"{self.params['input_shape'][0]}, {self.params['input_shape'][1]}, "
-            f"{self.params['output_shape'][1]});\n"
-        )
+        params = self.params
 
-        return string
+        # Ensure buffer addresses are not None
+        if params["input_buf_add"] is None:
+            raise ValueError("input_buf_add must not be None")
+        if params["input2_buf_add"] is None:
+            raise ValueError("input2_buf_add must not be None")
+        if params["output_buf_add"] is None:
+            raise ValueError("output_buf_add must not be None")
+        if self.params["use_bias"] and params["input3_buf_add"] is None:
+            raise ValueError("input3_buf_add must not be None if use_bias is True")
+
+        input_str = self._getBufferstrCast(params["input_buf_add"], params["input_buf_add_offset"], dtype=params["input_dtype"])
+        weight_str = self._getBufferstrCast(params["input2_buf_add"], params["input2_buf_add_offset"], dtype=params["weight_dtype"])
+        output_str = self._getBufferstrCast(params["output_buf_add"], params["output_buf_add_offset"], dtype=params["output_dtype"])
+        bias_str = "NULL"
+        if self.params["use_bias"] and params["bias_idx"] != -1:
+            bias_str = self._getBufferstrCast(params["input3_buf_add"], params["input3_buf_add_offset"], dtype=params["output_dtype"])
+
+        return (f"fully_connected({input_str}, {weight_str}, {bias_str}, {output_str}, "
+                f"{params['input_zero_point']}, {params['weight_zero_point']}, {params['output_zero_point']}, "
+                f"{params['input_scale']}, {params['weight_scale']}, {params['output_scale']}, "
+                f"{params['input_multiplier']}, {params['weight_multiplier']}, {params['output_multiplier']}, "
+                f"{params['input_shift']}, {params['weight_shift']}, {params['output_shift']}, "
+                f"{params['activation']});")

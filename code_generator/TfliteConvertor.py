@@ -92,12 +92,12 @@ class TfliteConvertor(object):
             op = self.model.Subgraphs(0).Operators(op_idx)
             op_code_str = getOpCodeStr(op, self.model)
 
-            if op_code_str == "RESHAPE":
-                # Check the next 5 operators
-                if self.check_fusion_pattern(op_idx):
-                    self.layer.append(TF_Parser.parse_fusion(op, self.model, op_idx))
-                    op_idx += 5  # Skip the next 5 operators as they are fused
-                    continue
+            # if op_code_str == "RESHAPE":
+            #     # Check the next 5 operators
+            #     if self.check_fusion_pattern(op_idx):
+            #         self.layer.append(TF_Parser.parse_fusion(op, self.model, op_idx))
+            #         op_idx += 5  # Skip the next 5 operators as they are fused
+            #         continue
 
             # Handle the current operator if not part of fusion
             self._handleOperator(op)

@@ -72,8 +72,16 @@ class tile(basicOperator):
                 + f"{self.params['output_h']},"
                 + f"{self.params['output_w']},{self.params['output_c']});\n"
             )
-            tile.rep_cnt += 1
+        elif params["input_dtype"] == "int8":
+            string = (
+                f"tile_3D_int8({self._getBufferstrCast(params['input_buf_add'], params['input_buf_add_offset'], dtype='int8')},"
+                + f"{self.params['input_h']},{self.params['input_w']},{self.params['input_c']},"
+                + f"{self._getBufferstrCast(params['output_buf_add'], params['output_buf_add_offset'], dtype='int8')},"
+                + f"{self.params['output_h']},"
+                + f"{self.params['output_w']},{self.params['output_c']});\n"
+            )            
         else:
             raise NotImplementedError
+        tile.rep_cnt += 1
 
         return string

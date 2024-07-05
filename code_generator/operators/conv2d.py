@@ -254,6 +254,8 @@ class Conv2d(basicOperator):
                         function_name = "convolve_s8_kernel3_inputch3_stride2_pad1"
             elif kernel_h == 3 and params["stride_h"] == 1 and params["padding"] == 1:
                 function_name = "convolve_s8_kernel3_stride1_pad1"
+            elif kernel_h == 16:
+                function_name = "conv2d_16x16"
             else:
                 raise NotImplementedError
 

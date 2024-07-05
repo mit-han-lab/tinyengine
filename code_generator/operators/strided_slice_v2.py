@@ -58,44 +58,35 @@ class StridedSliceOperator(basicOperator):
             function_name = "strided_slice_4Dto4D"
         elif params["input_dtype"] == "int8":
             function_name = "strided_slice_4Dto4D_int8"
+        elif params["input_dtype"] == "int32":
+            function_name = "strided_slice_4Dto4D_int32"
         else:
             raise NotImplementedError
 
-        begin_var = f"begin{StridedSliceOperator.ss_cnt}"
-        end_var = f"end{StridedSliceOperator.ss_cnt}"
-        strides_var = f"strides{StridedSliceOperator.ss_cnt}"
+        # Formatting the array data correctly
+        def format_array(array_name, array_data):
+            formatted_array = ", ".join(map(str, array_data))
+            return f"const uint16_t {array_name}{StridedSliceOperator.ss_cnt}[] = {{{formatted_array}}};\n"
 
-        string = (
-            f"const uint16_t {begin_var}[] = "
-            + "{"
-            + str(params["begin"]).replace("[", "").replace("]", "").replace("'", "")
-            + "};\n"
-        )
-        string += (
-            f"const uint16_t {end_var}[] = "
-            + "{"
-            + str(params["end"]).replace("[", "").replace("]", "").replace("'", "")
-            + "};\n"
-        )
-        string += (
-            f"const uint16_t {strides_var}[] = "
-            + "{"
-            + str(params["strides"]).replace("[", "").replace("]", "").replace("'", "")
-            + "};\n"
-        )
+        begin_str = format_array("begin", params["begin"])
+        end_str = format_array("end", params["end"])
+        strides_str = format_array("strides", params["strides"])
+
         input_str = self._getBufferstrCast(
             params["input_buf_add"], params["input_buf_add_offset"], dtype=params["input_dtype"]
         )
         output_str = self._getBufferstrCast(
             params["output_buf_add"], params["output_buf_add_offset"], dtype=params["output_dtype"]
         )
-        string += (
-            f"{function_name}({input_str},{str(params['d1'])},{str(params['d2'])},"
-            + f"{str(params['d3'])},{str(params['d4'])},"
-            + f"{begin_var},{end_var},{strides_var},"
-            + f"{output_str},{str(params['o_d1'])},{str(params['o_d2'])},{str(params['o_d3'])},"
-            + f"{str(params['o_d4'])});\n"
-        )
-        StridedSliceOperator.ss_cnt += 1
 
-        return string
+        inference_str = (
+            f"{begin_str}"
+            f"{end_str}"
+            f"{strides_str}"
+            f"{function_name}({input_str}, {params['d1']}, {params['d2']}, {params['d3']}, {params['d4']}, "
+            f"begin{StridedSliceOperator.ss_cnt}, end{StridedSliceOperator.ss_cnt}, strides{StridedSliceOperator.ss_cnt}, "
+            f"{output_str}, {params['o_d1']}, {params['o_d2']}, {params['o_d3']}, {params['o_d4']});\n"
+        )
+        
+        StridedSliceOperator.ss_cnt += 1
+        return inference_str

@@ -375,6 +375,14 @@ void invoke_1patch(uint16_t pad_t, uint16_t pad_b, uint16_t pad_l ,uint16_t pad_
         schedule = self.MemSche
         for i, op in enumerate(schedule.layer):
             layer_info = op.get_layer_info()
+            # print layer_info["op"] datatype
+            print(layer_info)
+            # print(type(layer_info))
+            print(layer_info["op"])
+            # print(type(layer_info["op"]))
+            
+            
+            
             string = "/* layer " + str(i) + ":" + layer_info["op"] + " */\n"
             fp.write(string)
 

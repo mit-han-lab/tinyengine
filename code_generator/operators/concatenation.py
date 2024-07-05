@@ -30,8 +30,16 @@ class ConcatenationOperator(basicOperator):
 
     def generate_inference_str(self):
         params = self.params
-        input_str = ", ".join([self._getBufferstrCast(f"input{idx}", 0, dtype=params["input_dtype"]) for idx in params["input_indices"]])
-        output_str = self._getBufferstrCast(f"output{params['output_idx']}", 0, dtype=params["output_dtype"])
+        input_str = ", ".join([
+            self._getBufferstrCast(params[f"input_buf_add"], 
+                                params[f"input_buf_add_offset"], 
+                                dtype=params["input_dtype"]) 
+            , 
+            self._getBufferstrCast(params[f"input2_buf_add"], 
+                                    params[f"input2_buf_add_offset"], 
+                                    dtype=params["input_dtype"]) 
+        ])
+        output_str = self._getBufferstrCast(params["output_buf_add"], params["output_buf_add_offset"], dtype=params["output_dtype"])
         
         string = (
             f"concatenate({input_str}, {output_str}, {params['axis']});\n"
