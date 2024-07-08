@@ -21,9 +21,10 @@ import os
 from .constant import FUSE_SGD_UPDATE_STR, FUSHION_CONFIG
 from .OpGenerator import OpGenerator
 
-Codegen_root = "./codegen/"
-include_path = Codegen_root + "Include/"
-source_path = Codegen_root + "Source/"
+#tinyengine\experimental\vit\build
+Codegen_root = "./tinyengine/experimental/vit/build/"
+include_path = Codegen_root 
+source_path = Codegen_root 
 
 use_hard_switsh = False
 gen_kernels = True
@@ -130,14 +131,17 @@ void update_SGD(float learning_rate){\n"""
         # generate patch-based
         self._genPatchInference()
 
-        # generate invoke function
-        self._genInvoke()
+        # # generate invoke function
+        # self._genInvoke()
 
         # generate inference-only invoke function
         self._genInvokeInf()
 
         # generate SGD update if any
         self._generateSGD()
+        
+        # generate genModel function
+        self._genGenModel()
 
         self._closefp()
 
@@ -485,10 +489,17 @@ void invoke_1patch(uint16_t pad_t, uint16_t pad_b, uint16_t pad_l ,uint16_t pad_
         return None
 
     def _genMemBuffer(self):
+        # #include <stdint.h>
+        string = "#include <stdint.h>\n"
+        fp = self.header_handle
+        fp.write(string)
+        
+        string = "void genModel(signed char* input, signed char* output);\n"
+        fp.write(string)
+                
         schedule = self.MemSche
         # define output tensor
         string = "#define NNoutput &buffer0[" + str(_findtheinferenceOutput(schedule.layer)) + "];"
-        fp = self.header_handle
         fp.write("\n" + string + "\n")
 
         # activation buffers
@@ -535,7 +546,8 @@ ADD_params add_params;
 int i;
 int8_t *int8ptr,*int8ptr2;
 int32_t *int32ptr;
-float *fptr,*fptr2,*fptr3;
+//float *fptr,*fptr2,*fptr3;
+signed char *fptr,*fptr2,*fptr3;
 
 signed char* getInput() {
     return &buffer0["""
@@ -966,6 +978,13 @@ signed char* getOutput() {
     def _closefp(self):
         self.header_handle.close()
         self.source_handle.close()
+        
+    def _genGenModel(self):
+        fp = self.source_handle
+        string = """void genModel(signed char* input, signed char* output){
+    invoke_inf();
+    }"""
+        fp.write(string)
 
 
 def _findtheinferenceOutput(layers):
@@ -973,7 +992,6 @@ def _findtheinferenceOutput(layers):
         if op.params["output_dtype"] != "int8":
             return layers[cnt - 1].params["output_buf_add_offset"]
     return layers[-1].params["output_buf_add_offset"]
-
 
 class tensorRecorder:
     def __init__(self, name, len, dtype):

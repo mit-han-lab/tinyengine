@@ -1,5 +1,3 @@
-# code_generator/converters/tflite_parser/strided_slice.py
-
 from code_generator.operators.strided_slice_v2 import StridedSliceOperator
 from .utils import get_input_tensors, get_output_tensors, getTensorTypeStr
 import tflite
@@ -25,10 +23,13 @@ def parse_strided_slice(op, model):
     shrink_axis_mask = options.ShrinkAxisMask()
 
     # Manually extract begin, end, and strides
-    n = model.BuffersLength()
-    begin = [model.Buffers(i).DataAsNumpy() for i in range(n)]
-    end = [model.Buffers(i).DataAsNumpy() for i in range(n)]
-    strides = [model.Buffers(i).DataAsNumpy() for i in range(n)]
+    begin_idx = input_tensors[1].tensor.Buffer()
+    end_idx = input_tensors[2].tensor.Buffer()
+    strides_idx = input_tensors[3].tensor.Buffer()
+
+    begin = model.Buffers(begin_idx).DataAsNumpy().tolist()
+    end = model.Buffers(end_idx).DataAsNumpy().tolist()
+    strides = model.Buffers(strides_idx).DataAsNumpy().tolist()
 
     params = {
         "op": "STRIDED_SLICE",

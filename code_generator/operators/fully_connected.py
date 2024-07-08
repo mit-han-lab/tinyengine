@@ -73,9 +73,23 @@ class FullyConnectedOperator(basicOperator):
         if self.params["use_bias"] and params["bias_idx"] != -1:
             bias_str = self._getBufferstrCast(params["input3_buf_add"], params["input3_buf_add_offset"], dtype=params["output_dtype"])
 
+        input_zero_point = params["input_zero_point"] if params["input_zero_point"] is not None else 0
+        weight_zero_point = params["weight_zero_point"] if params["weight_zero_point"] is not None else 0
+        output_zero_point = params["output_zero_point"] if params["output_zero_point"] is not None else 0
+        input_scale = params["input_scale"] if params["input_scale"] is not None else 0.0
+        weight_scale = params["weight_scale"] if params["weight_scale"] is not None else 0.0
+        output_scale = params["output_scale"] if params["output_scale"] is not None else 0.0
+        input_multiplier = params["input_multiplier"] if params["input_multiplier"] is not None else 0
+        weight_multiplier = params["weight_multiplier"] if params["weight_multiplier"] is not None else 0
+        output_multiplier = params["output_multiplier"] if params["output_multiplier"] is not None else 0
+        input_shift = params["input_shift"] if params["input_shift"] is not None else 0
+        weight_shift = params["weight_shift"] if params["weight_shift"] is not None else 0
+        output_shift = params["output_shift"] if params["output_shift"] is not None else 0
+        activation = params["activation"] if params["activation"] is not None else 0
+        
         return (f"fully_connected({input_str}, {weight_str}, {bias_str}, {output_str}, "
-                f"{params['input_zero_point']}, {params['weight_zero_point']}, {params['output_zero_point']}, "
-                f"{params['input_scale']}, {params['weight_scale']}, {params['output_scale']}, "
-                f"{params['input_multiplier']}, {params['weight_multiplier']}, {params['output_multiplier']}, "
-                f"{params['input_shift']}, {params['weight_shift']}, {params['output_shift']}, "
-                f"{params['activation']});")
+                f"{input_zero_point}, {weight_zero_point}, {output_zero_point}, "
+                f"{input_scale}, {weight_scale}, {output_scale}, "
+                f"{input_multiplier}, {weight_multiplier}, {output_multiplier}, "
+                f"{input_shift}, {weight_shift}, {output_shift}, "
+                f"{activation});")

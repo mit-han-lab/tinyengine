@@ -60,11 +60,15 @@ class BatchMatMulOperator(basicOperator):
             self.params['output_buf_add'], self.params['output_buf_add_offset'], dtype=self.params["output_dtype"]
         )
 
+        # Convert boolean parameters to C++-style true/false
+        adj_x = 'true' if self.params['adj_x'] else 'false'
+        adj_y = 'true' if self.params['adj_y'] else 'false'
+
         string = (
             f"batch_matmul({input_str}, {input2_str}, {output_str}, "
             f"{self.params['input_shape'][0]}, {self.params['input_shape'][1]}, {self.params['input_shape'][2]}, "
             f"{self.params['input2_shape'][1]}, "
-            f"{self.params['adj_x']}, {self.params['adj_y']});\n"
+            f"{adj_x}, {adj_y});\n"
         )
 
         return string

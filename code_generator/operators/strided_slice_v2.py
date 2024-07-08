@@ -1,6 +1,6 @@
 import warnings
 from .basic_utils import basicOperator, deep_copy_dicts, overwrite_dicts
-
+import numpy as np
 __all__ = ["stridedSlice"]
 
 default_params = {
@@ -49,7 +49,7 @@ class StridedSliceOperator(basicOperator):
             self.params["o_d3"] * self.params["o_d4"],
         )
 
-        if None in default_params:
+        if None in default_params.values():
             warnings.warn(f"parameters are not all set for op {self.params['op']}")
 
     def generate_inference_str(self):
@@ -63,14 +63,32 @@ class StridedSliceOperator(basicOperator):
         else:
             raise NotImplementedError
 
-        # Formatting the array data correctly
+        #Flatten the arrays and format them correctly
+        def flatten_and_format_array(array_data):
+            formatted_array = []
+            for item in array_data:                
+                if isinstance(item, (list, np.ndarray)):  # array 처리 조건 추가
+                    formatted_array.extend(flatten_and_format_array(item))
+                elif isinstance(item, (int, np.int8, np.int32, np.uint8)):
+                    formatted_array.append(item)
+                else:
+                    print(type(item))
+                    raise ValueError("Array contains non-integer elements")
+            return formatted_array
+
         def format_array(array_name, array_data):
-            formatted_array = ", ".join(map(str, array_data))
-            return f"const uint16_t {array_name}{StridedSliceOperator.ss_cnt}[] = {{{formatted_array}}};\n"
+            flattened_array = flatten_and_format_array(array_data)
+            formatted_array_str = ", ".join(map(str, flattened_array))
+            return f"const uint16_t {array_name}{StridedSliceOperator.ss_cnt}[] = {{{formatted_array_str}}};\n"
 
         begin_str = format_array("begin", params["begin"])
         end_str = format_array("end", params["end"])
         strides_str = format_array("strides", params["strides"])
+        
+        # 이 부분에서 실제로 출력하여 확인
+        print("begin_str:", begin_str)
+        print("end_str:", end_str)
+        print("strides_str:", strides_str)
 
         input_str = self._getBufferstrCast(
             params["input_buf_add"], params["input_buf_add_offset"], dtype=params["input_dtype"]
