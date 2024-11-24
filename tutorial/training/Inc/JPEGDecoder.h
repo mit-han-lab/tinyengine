@@ -21,6 +21,7 @@
 
 #include "User_Config.h"
 #include <stdio.h>
+#include <cstdint>
 
 #if defined(ESP8266) || defined(ESP32)
 
