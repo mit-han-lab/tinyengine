@@ -19,6 +19,7 @@
 #ifndef LCD_H_
 #define LCD_H_
 #include <stdio.h>
+#include <cstdint>
 
 void loadRGB565LCD(uint32_t x, uint32_t y, uint32_t width, uint32_t height,
                    uint16_t *src, uint8_t resize);

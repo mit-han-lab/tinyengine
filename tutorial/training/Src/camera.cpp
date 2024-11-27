@@ -173,6 +173,7 @@ int DecodeandProcessRGB565(int image_width, int image_height,
       }
     }
   }
+  return 0;
 }
 
 int DecodeandProcessAndRGB(int image_width, int image_height,
@@ -271,6 +272,7 @@ int DecodeandProcessAndRGB(int image_width, int image_height,
       }
     }
   }
+  return 0;
 }
 
 int DecodeandProcess(int image_width, int image_height, uint8_t *image_data) {
