@@ -22,6 +22,7 @@ from .FusionUtil import (
     _castisFusable,
     _castisFusable_for_gconv,
     _fileTileRepAsWeights,
+    _findAbsMaxDivideDivide,
     _findBinMaskPattern,
     _findBinMaskPatternint8,
     _findConv2dwithScaleName,
@@ -29,6 +30,7 @@ from .FusionUtil import (
     _findMultiplyAbsMaxDivide,
     _findPartialConv,
     _findTargetWeightforGconv,
+    _findTransposeMaxDivideDivide,
     _findTransposeMultiplyAbsMaxDivide,
     _findWhereTensorFrom,
     _removeLayers,
@@ -420,6 +422,16 @@ class TTEParser(object):
             # assume weights are updated once we obtain its gradient
             elif op_type == "transpose" and FUSHION_CONFIG[FUSE_SGD_UPDATE_STR]:
                 fuseable, op_dict = _findTransposeMultiplyAbsMaxDivide(self.model, op)
+                if not fuseable:
+                    # Some sparse weight-gradient graphs use a
+                    # [transpose -> abs -> max -> divide -> divide -> cast]
+                    # normalization pattern instead of the
+                    # [transpose -> (cast1) -> multiply / abs -> max -> (cast2)
+                    # -> divide -> cast] one above. _findTransposeMaxDivideDivide
+                    # already exists in FusionUtil for exactly this pattern but
+                    # was never called from here, so any sparse_bp config whose
+                    # graph takes this shape hits the NotImplementedError below.
+                    fuseable, op_dict = _findTransposeMaxDivideDivide(self.model, op)
                 # old IR
                 if op["outputs"][0]["meta"]["children"] == 0:
                     # update tensors
@@ -499,6 +511,16 @@ class TTEParser(object):
             elif op_type == "abs":
                 if FUSHION_CONFIG[FUSE_SGD_UPDATE_STR]:
                     cliping_pattern, op_dict = _findMultiplyAbsMaxDivide(self.model, abs_op=op)
+                    if not cliping_pattern:
+                        # Some sparse weight-gradient graphs use a
+                        # [abs -> max -> divide -> divide -> cast] gradient
+                        # normalization pattern instead of the
+                        # [abs/multiply -> max -> divide -> cast] one above.
+                        # _findAbsMaxDivideDivide already exists in FusionUtil
+                        # for exactly this pattern but was never called from
+                        # here, so any sparse_bp config whose graph takes this
+                        # shape hits the NotImplementedError below.
+                        cliping_pattern, op_dict = _findAbsMaxDivideDivide(self.model, abs_op=op)
                     if cliping_pattern:
                         # For transpose conv2d, this could be float32 -> int8 if it connects to abs
                         previous_op = _findWhereTensorFrom(self.layer, op["inputs"][0]["name"])
