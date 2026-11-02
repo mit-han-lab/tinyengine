@@ -21,16 +21,17 @@
 #include "arm_nnsupportfunctions.h"
 #include "img2col_element.h"
 #include "tinyengine_function.h"
+#include "right_inplace.h"
 
 tinyengine_status convolve_s8_kernel3_inputch3_stride2_pad1_fpreq(
-		const q7_t *input, const uint16_t input_x, const uint16_t input_y,
+		q7_t *input, const uint16_t input_x, const uint16_t input_y,
 		const uint16_t input_ch, const q7_t *kernel, const int32_t *bias,
 		const float *scales, const int32_t output_offset,
 		const int32_t input_offset, const int32_t output_activation_min,
 		const int32_t output_activation_max, q7_t *output,
 		const uint16_t output_x, const uint16_t output_y,
 		const uint16_t output_ch, q15_t *runtime_buf, q15_t *kbuf,
-		q7_t pad_value) {
+		q7_t pad_value, const uint32_t gap, const uint8_t right_shift) {
 	const int kernel_y = 3;
 	const int kernel_x = 3;
 
@@ -39,6 +40,8 @@ tinyengine_status convolve_s8_kernel3_inputch3_stride2_pad1_fpreq(
 	/* Generate two columns from the input tensor a GEMM computation */
 	q15_t *two_column_buf = runtime_buf;
 	q7_t *out = output;
+
+	if (right_shift) RIGHT_INPLACE_SHIFT_INPUT(input, output, input_x, input_y, input_ch, gap);
 
 	q15_t pad16 = pad_value;
 	const int16_t inoff16 = input_offset;
@@ -55,8 +58,8 @@ tinyengine_status convolve_s8_kernel3_inputch3_stride2_pad1_fpreq(
 		const q7_t *ip_a1 = ip_a0 + 27;
 
 		//27 for each output_ch
-		q31_t *dst1_31 = dst1;
-		q31_t *dst2_31 = dst2;
+		q31_t *dst1_31 = (q31_t *)dst1;
+		q31_t *dst2_31 = (q31_t *)dst2;
 		ip_a0 = read_and_pad(ip_a0, &dst1_31[0], &dst1_31[1]);
 		ip_a1 = read_and_pad(ip_a1, &dst2_31[0], &dst2_31[1]);
 		dst1_31 += 2;
@@ -87,8 +90,8 @@ tinyengine_status convolve_s8_kernel3_inputch3_stride2_pad1_fpreq(
 		dst1_31 += 2;
 		dst2_31 += 2;
 		//25, 26, 27
-		dst1 = dst1_31;
-		dst2 = dst2_31;
+		dst1 = (q15_t *)dst1_31;
+		dst2 = (q15_t *)dst2_31;
 		dst1[0] = *ip_a0++;
 		dst1[1] = *ip_a0++;
 		dst1[2] = *ip_a0++;
@@ -105,7 +108,6 @@ tinyengine_status convolve_s8_kernel3_inputch3_stride2_pad1_fpreq(
 			/* This part implements the im2col function */
 			const int16_t base_idx_y = (i_out_y * 2) - 1;
 			const int16_t base_idx_x = (i_out_x * 2) - 1;
-			const q15_t *col_buffer = two_column_buf;
 
 			//use variables
 			q31_t in_q7x4;
@@ -125,7 +127,7 @@ tinyengine_status convolve_s8_kernel3_inputch3_stride2_pad1_fpreq(
 			q15_t *dst3;
 
 			int input_row_offset = 3 * input_x;
-			dst = col_buffer;
+			dst = two_column_buf;
 			dst2 = dst + 9;
 			dst3 = dst2 + 9;
 			if (base_idx_y != -1) {
@@ -181,7 +183,7 @@ tinyengine_status convolve_s8_kernel3_inputch3_stride2_pad1_fpreq(
 			} else {						// first row is padded
 											//3x3 = 9 elements
 				*dst++ = pad_out;
-				q31_t *dst_31 = dst;
+				q31_t *dst_31 = (q31_t *)dst;
 				*dst_31++ = pad_out_q15x2;
 				*dst_31++ = pad_out_q15x2;
 				*dst_31++ = pad_out_q15x2;

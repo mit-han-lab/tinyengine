@@ -89,6 +89,10 @@ def parse_fc(op, model: Model.Model):
         "dtypte": input_type,
         "kernel_h": 1,
         "kernel_w": 1,
+        # needed for campatablily with conv
+        "padding": 0,
+        "stride_h": 1,
+        "stride_w": 1,
         # trainable parameters
         "weight_value": weight,
         "bias": bias,

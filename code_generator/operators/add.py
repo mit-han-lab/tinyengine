@@ -1,7 +1,7 @@
 import warnings
 
 from ..constant import USE_BIT_MASK
-from .basic_utils import basicOperator, deep_copy_dicts, overwrite_dicts
+from .basic_utils import basicOperator, deep_copy_dicts, overwrite_dicts, op_inplace_type
 
 __all__ = ["Add"]
 
@@ -51,6 +51,9 @@ default_params = {
     "output2_c": None,
     "output2_idx": None,
     "output2_dtype": "int8",
+    "inplace": op_inplace_type.flexible_inplace,
+    "color": "#78d957", # green
+    "op_needs_right_shift": False
 }
 
 

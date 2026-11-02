@@ -63,6 +63,10 @@ class CodeGenerator:
 
         self.header_handle = open(include_path + "genModel.h", "w")
         self.source_handle = open(source_path + "genModel.c", "w")
+        # Shapes only. genModel.h cannot serve this, since it also defines the
+        # weight and scale arrays, so including it from a second translation
+        # unit is a duplicate definition at link time.
+        self.shape_handle = open(include_path + "genModelShape.h", "w")
         self.inplace = inplace
         self.BIT = precision
         self.unsigned_input = unsigned_input
@@ -488,6 +492,26 @@ void invoke_1patch(uint16_t pad_t, uint16_t pad_b, uint16_t pad_l ,uint16_t pad_
         fp.write(string)
         string = "#define PEAK_MEM " + str(schedule.peakmem) + "\n" + "#define MODEL_SIZE " + str(schedule.flash) + "\n"
         fp.write(string + "\n")
+
+        # Shapes of the tensors getInput() and getOutput() return, so a caller
+        # can fill the input and read the result without hardcoding one model's
+        # resolution or class count.
+        in_params = schedule.layer[0].params
+        out_params = schedule.layer[-1].params
+        self.shape_handle.write(
+            "#ifndef GEN_MODEL_SHAPE_H_\n"
+            "#define GEN_MODEL_SHAPE_H_\n\n"
+            "/* Shape of the tensors getInput() and getOutput() return. */\n\n"
+            "#define INPUT_H " + str(in_params["input_h"]) + "\n"
+            "#define INPUT_W " + str(in_params["input_w"]) + "\n"
+            "#define INPUT_C " + str(in_params["input_c"]) + "\n"
+            "#define INPUT_SIZE (INPUT_H * INPUT_W * INPUT_C)\n\n"
+            "#define OUTPUT_H " + str(out_params["output_h"]) + "\n"
+            "#define OUTPUT_W " + str(out_params["output_w"]) + "\n"
+            "#define OUTPUT_C " + str(out_params["output_c"]) + "\n"
+            "#define OUTPUT_SIZE (OUTPUT_H * OUTPUT_W * OUTPUT_C)\n\n"
+            "#endif /* GEN_MODEL_SHAPE_H_ */\n"
+        )
 
         string = "static signed char buffer[" + str(schedule.peakmem) + "];\n"
         fp.write(string)
@@ -961,6 +985,7 @@ signed char* getOutput() {
     def _closefp(self):
         self.header_handle.close()
         self.source_handle.close()
+        self.shape_handle.close()
 
 
 def _findtheinferenceOutput(layers):

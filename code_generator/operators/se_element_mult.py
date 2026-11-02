@@ -1,6 +1,6 @@
 import warnings
 
-from .basic_utils import basicOperator, deep_copy_dicts, overwrite_dicts
+from .basic_utils import basicOperator, deep_copy_dicts, overwrite_dicts, op_inplace_type
 
 __all__ = ["SEelementmult"]
 
@@ -43,6 +43,9 @@ default_params = {
     "input2_shift": None,
     "output_shift": None,
     "left_shift": None,
+    "inplace": op_inplace_type.flexible_inplace,
+    "color": "#000000", # black
+    "op_needs_right_shift": False
 }
 
 

@@ -1,3 +1,4 @@
+
 # ----------------------------------------------------------------------
 # Project: TinyEngine
 # Title:   PatchBasedUtil.py
@@ -19,10 +20,15 @@
 def getPatchParams(layers, split_idx, n_patch):
     patch_params = {}
 
-    feat_stride = 8
+    feat_stride = None
     patch_params["n_patch"] = n_patch
     patch_params["layer_cnt"] = split_idx
 
+    # the patch grid below uses one resolution for both axes, so the input must be square
+    assert layers[0].get_layer_info()["input_h"] == layers[0].get_layer_info()["input_w"], (
+        "Uneven input grids are not currently supported, received "
+        f"{(layers[0].get_layer_info()['input_h'], layers[0].get_layer_info()['input_w'])}"
+    )
     resolution = max(layers[0].get_layer_info()["input_h"], layers[0].get_layer_info()["input_w"])
     layer_cnt = layers[patch_params["layer_cnt"]].get_layer_info()
     out_shape = max(layer_cnt["input_h"], layer_cnt["input_w"])
@@ -30,9 +36,11 @@ def getPatchParams(layers, split_idx, n_patch):
     grain_size = out_shape // n_patch
 
     patch_params["single_rf"] = compute_receptive_field(layers, patch_params["layer_cnt"], 1)
+    # the output of the patch stage is the input of the split layer, the concat buffer it is
+    # assembled into; its output differs once the split layer is strided
     patch_params["output_c"] = layer_cnt["input_c"]
-    patch_params["output_h"] = layer_cnt["output_h"]
-    patch_params["output_w"] = layer_cnt["output_w"]
+    patch_params["output_h"] = layer_cnt["input_h"]
+    patch_params["output_w"] = layer_cnt["input_w"]
     patch_params["grain_rf"] = compute_receptive_field(layers, patch_params["layer_cnt"], grain_size)
     patch_params["grain_rf_height"] = compute_receptive_field(
         layers, patch_params["layer_cnt"], layer_cnt["input_h"] // n_patch
@@ -79,7 +87,9 @@ def compute_receptive_field(layers, layer_cnt, grain=1):
                     grain += kernel_size - 1
                 else:
                     grain = (grain - 1) * 2 + kernel_size
+            else:
+                raise NotImplementedError(f"receptive field through stride {stride}")
         else:
-            pass
+            raise NotImplementedError(f"receptive field through {layer_info['op']}")
 
     return grain

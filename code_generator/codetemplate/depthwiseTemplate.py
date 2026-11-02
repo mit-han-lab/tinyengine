@@ -294,7 +294,7 @@ class depthwiseInplace:
         retString += """
     for (c = 0; c < input_ch; c++){"""
         retString += self._genFixedLoadHWC2CWH()
-        retString += self._assignInplaceOut(2, "input")
+        retString += self._assignInplaceOut(2, "output")
         retString += self._genHandle1CH_CWH(2, "input_ch")
         retString += """
     }\n"""
@@ -332,7 +332,7 @@ class depthwiseInplace:
         retString += """
     for (c = 0; c < input_ch; c++){"""
         retString += self._genFixedLoadHWC2CHW()
-        retString += self._assignInplaceOut(2, "input")
+        retString += self._assignInplaceOut(2, "output")
         retString += self._genHandle1CH(2, "input_ch")
         retString += """
     }\n"""
@@ -391,7 +391,8 @@ class depthwiseInplace:
                 + ");\n"
             )
         retString += "    " * pre_indent + "ksrc += " + str(self.kernel_h * self.kernel_w) + ";\n"
-        retString += "    " * pre_indent + "input++;"
+        retString += "    " * pre_indent + "input++;\n"
+        retString += "    " * pre_indent + "output++;"
         return retString
 
     def _genHandle1CH_CWH(self, pre_indent, out_offset_str):
@@ -414,7 +415,8 @@ class depthwiseInplace:
                 + ");\n"
             )
         retString += "    " * pre_indent + "ksrc += " + str(self.kernel_h * self.kernel_w) + ";\n"
-        retString += "    " * pre_indent + "input++;"
+        retString += "    " * pre_indent + "input++;\n"
+        retString += "    " * pre_indent + "output++;"
         return retString
 
     def genFile(self, path):

@@ -18,7 +18,7 @@
 
 import warnings
 
-from .basic_utils import basicOperator, deep_copy_dicts, overwrite_dicts
+from .basic_utils import basicOperator, deep_copy_dicts, overwrite_dicts, op_inplace_type
 
 __all__ = ["upSample"]
 
@@ -46,6 +46,10 @@ default_params = {
     "output_zero_point": None,
     "input_scale": None,
     "output_scale": None,
+    "inplace": op_inplace_type.flexible_inplace,
+    "color": "#b4b4b4",
+    "op_needs_right_shift": False
+
 }
 
 
@@ -79,5 +83,4 @@ class upSample(basicOperator):
         string += f"{str(params['input_h'])}, {str(params['input_w'])}, {str(params['input_c'])}, "
         string += f"{self._getBufferstr(params['output_buf_add'], params['output_buf_add_offset'])}, "
         string += f"{str(int(params['factor']))});\n"
-
         return string

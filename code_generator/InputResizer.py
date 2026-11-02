@@ -171,8 +171,18 @@ class PatchResizer:
         # 2. set the lifetime of the input tensor of the first layer in the second stage to start from begging
         # so the memory buffers can be allocated successfully
         if PatchLayers > 0:
-            self.layer[PatchLayers].params["input_idx"] = (
-                str(self.layer[PatchLayers].params["input_idx"]) + "_start_normal_infernece_block"
-            )
-            self.layer[PatchLayers].input_tensors[0].graph_idx = self.layer[PatchLayers].params["input_idx"]
+            split_idx = str(self.layer[PatchLayers].params["input_idx"])
+            assembled_idx = split_idx + "_start_normal_infernece_block"
+            patch_stage_outputs = {str(t.graph_idx) for op in self.layer[:PatchLayers] for t in op.output_tensors}
+            # every downstream reader of the split tensor (e.g. a residual ADD's skip input)
+            # must read the assembled full-size copy, not the one-patch tensor of that name
+            for op in self.layer[PatchLayers:]:
+                for slot, t in enumerate(op.input_tensors):
+                    if str(t.graph_idx) == split_idx:
+                        t.graph_idx = assembled_idx
+                        op.params["input_idx" if slot == 0 else "input2_idx"] = assembled_idx
+                    else:
+                        # any other patch-stage tensor only ever holds one patch, so nothing can serve it
+                        assert str(t.graph_idx) not in patch_stage_outputs, (
+                            f"{op.params['op']} reads patch-stage tensor {t.graph_idx} after the split")
             self.layer[PatchLayers].params["is_start_of_normal_inference_block"] = True

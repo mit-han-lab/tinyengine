@@ -20,7 +20,7 @@ import logging
 
 import code_generator.converters.tflite_parser as TF_Parser
 from code_generator.converters.tflite_parser.mean1dto2d import MEAN2D
-from code_generator.converters.tflite_parser.utils import get_input_tensors, get_output_tensors, getOpCodeStr
+from code_generator.converters.tflite_parser.utils import get_input_tensors, get_output_tensors, getOpCodeStr, get_nhwc_from_shape
 
 from .constant import SKIP_OPs
 from .tflite import Model
@@ -89,10 +89,39 @@ class TfliteConvertor(object):
                 continue
 
             op = self.subgraph.Operators(i)
-            if i + 2 < operators_len - 2:
+            if i < operators_len - 2:
                 next_op = self.subgraph.Operators(i + 1)
                 next_next_op = self.subgraph.Operators(i + 2)
                 three_op_sequence = [op, next_op, next_next_op]
+
+                op_str = getOpCodeStr(op, self.model)
+                if  op_str == "MEAN":
+                    prev_op = self.subgraph.Operators(i - 1) if i > 0 else None
+                    prev_op_str = getOpCodeStr(prev_op, self.model) 
+                    next_op_str = getOpCodeStr(next_op, self.model) 
+                    next_next_op_str = getOpCodeStr(next_next_op, self.model)
+
+                    if prev_op_str != "MEAN":
+                        # Only a MEAN,MEAN pair is supported: parse_mead1dto2d holds the
+                        # first and emits nothing, the second builds the avgpool.
+                        assert next_op_str == "MEAN", (
+                            f"op {i} MEAN is followed by {next_op_str}, expected MEAN; a lone MEAN "
+                            "emits no layer and its held shape would pair with the next one in the graph"
+                        )
+                        assert next_next_op_str != "MEAN", (
+                            f"ops {i}..{i + 2} are three consecutive MEANs, expected a pair; "
+                            "the third would open a new pair and match against a later MEAN"
+                        )
+                elif op_str == "TRANSPOSE":
+                    next_op_str = getOpCodeStr(next_op, self.model)
+                    next_next_op_str = getOpCodeStr(next_next_op, self.model)
+                    # The transpose is skipped, because we currently on support on that is followed by a global
+                    # average pooling and an fc. The global average pool reduces the HxW to 1x1, so it is 
+                    # comfortably skipped
+                    assert next_op_str == "MEAN" and next_next_op_str == "MEAN", (
+                        f"op {i} TRANSPOSE is followed by {next_op_str},{next_next_op_str}, "
+                        "expected MEAN,MEAN; otherwise it is dropped and the data never permuted"
+                    )
 
                 if self.checkIfRequireSEelementmult(three_op_sequence):
                     logging.info("found SE block")
@@ -133,7 +162,7 @@ class TfliteConvertor(object):
                 # TODO: This only handle a specific graph: TRANSPOSE -> MEAN -> MEANS
                 if self.skip_transpose is not None:
                     ret_op.params["input_idx"] = self.skip_transpose.input_idx
-                    ret_op.input_tensors[0].graph_idx = self.skip_transpose.input_idx
+                    ret_op.input_tensors[0].graph_idx = str(self.skip_transpose.input_idx)
                 self.layer.append(ret_op)
         elif op_code_str == "TRANSPOSE":
             self._convert_TRANSPOSE(op)
@@ -176,6 +205,15 @@ class TfliteConvertor(object):
         output_tensors = get_output_tensors(op, self.model)
         assert len(output_tensors) == 1, "output tensors length should be 1"
         output_tensor = output_tensors[0]
+
+        _, input_h, input_w, input_c = get_nhwc_from_shape(input_tensor.tensor.ShapeAsNumpy())
+        _, output_c, output_h, output_w = get_nhwc_from_shape(output_tensor.tensor.ShapeAsNumpy())
+        # The only transpose supported is one that converts NHWC to NCHW, which mostly occurs just before a
+        # global average pooling and fully connected layer
+        assert_reason = f"transpose {(input_h, input_w, input_c)} -> {(output_h, output_w, output_c)} is not an NHWC -> NCHW relabel"
+        assert input_h == output_h, assert_reason
+        assert input_w == output_w, assert_reason
+        assert input_c == output_c, assert_reason
 
         # fuse pad into conv
         self.skip_transpose = PAD_tensorIndice(input_tensor.tensor_idx, output_tensor.tensor_idx)

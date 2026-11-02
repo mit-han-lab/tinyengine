@@ -18,7 +18,7 @@
 
 import warnings
 
-from .basic_utils import basicOperator, deep_copy_dicts, overwrite_dicts
+from .basic_utils import basicOperator, deep_copy_dicts, overwrite_dicts, op_inplace_type
 
 __all__ = ["maxPool2d"]
 
@@ -50,6 +50,9 @@ default_params = {
     "output_zero_point": None,
     "input_scale": None,
     "output_scale": None,
+    "inplace": op_inplace_type.flexible_inplace,
+    "color": "#ffde59", # yellow
+    "op_needs_right_shift": False
 }
 
 

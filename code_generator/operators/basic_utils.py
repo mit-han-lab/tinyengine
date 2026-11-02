@@ -18,7 +18,7 @@
 
 import math
 from copy import deepcopy
-
+from enum import Enum, auto
 import numpy as np
 
 __all__ = [
@@ -182,6 +182,44 @@ sprintf(buf, \""""
         return ret
 
 
+class InplaceMode(Enum):
+    """
+    To select different inplace modes:
+
+    dual_buffer: the naive mode output and input are stored in different
+                 memory.
+    depthwise_only: the tinyengine inplace mode, which only depthwise convolutions
+                    are done inplace
+    full: all operations that can be done inplace are optimized for inplace.
+          The current implemented operations that can be optimized for being
+          inplace are:
+            - Conv
+            - Depthwise conv
+            - Add
+            - Average
+    """
+    dual_buffer = "dual_buffer"
+    depthwise_only = "depthwise_only"
+    full = "full"
+
+
+class op_inplace_type(Enum):
+    """Specifies what an op supports as regards being inplace"""
+    force_not_inplace = 0
+    force_inplace = 1
+    flexible_inplace = 2
+
+class tensor_io(Enum):
+    """A tensors io relation to the op it interacts with either input or output"""
+    in_ = 0
+    out_ = 1
+
+class RightShift(Enum):
+    """Specifies different right shift chose"""
+    force_not_right_shift = "force_not"
+    force_right_shift = "force" # this should never be choosen, it has no benefit
+    flexible_right_shift = "flexible"
+
 class tensor:
     byte_size = {
         "bool": 1,
@@ -191,7 +229,7 @@ class tensor:
         "float32": 4,
     }
 
-    def __init__(self, graph_idx, dtype, dims) -> None:
+    def __init__(self, graph_idx, dtype, dims, io=None) -> None:
         size_list = []
         for dim in dims:
             try:
@@ -210,6 +248,7 @@ class tensor:
         self.buffer_address = None
         self.allocator_idx = None
         self.graph_idx = str(graph_idx)
+        self.io = io
 
     def input_c(self):
         return self.size[0]
@@ -227,10 +266,90 @@ class tensor:
         self.size = (self.size[0], self.size[1], h)
 
     def len(self):
-        byte_cnt = math.ceil(np.prod(self.size) * self.byte_size[self.dtype])
-        # align the memory to 4
-        byte_cnt = math.ceil(byte_cnt / 4) * 4
-        return byte_cnt
+        return align_byte_to_n(np.prod(self.size) * self.byte_size[self.dtype], self.align_to_n_bytes)
+
+    @property
+    def inplace(self):
+        return getattr(self, "_inplace", None)
+
+    @inplace.setter
+    def inplace(self, value: op_inplace_type):
+        # when a tensor is set to a forced inplace type (force_inplace or force_not_inplace)
+        # one should be careful not to change it
+        if self.inplace is not None:
+            if self.inplace == value: return
+            if self._inplace != op_inplace_type.flexible_inplace:
+                raise ValueError(
+                    f"Cannot overwrite a tensor inplace which is of {op_inplace_type.force_inplace.name} or "
+                    f"{op_inplace_type.force_inplace.name}, as they are forced, used "
+                    f"{self.force_change_inplace.__name__}, if you want to force this change."
+                )
+        self._inplace = value
+
+
+    def force_change_inplace(self, value: op_inplace_type, reject=None):
+        """
+        Force tensor's inplace type change, it allows for rejection to be safe
+        reject: iterable((dst, src)) gives a filter of not allowed assignment option,
+                None is seen as all in src, put it is not a valid value for dst
+
+        When reject is not set, no assignment check is made 
+        """
+        if self.inplace is None:
+            self._inplace = value
+            return
+        if reject is None or self.inplace == value:
+            self._inplace = value
+        else:
+            assignment_rejected = False
+            for dst, src in reject:
+                assert dst is not None, "dst cannot be None in reject"
+                if self.inplace == dst and (src is None or src == value):
+                    assignment_rejected = True
+                    break
+            if assignment_rejected:
+                raise ValueError(
+                    f"tensor inplace assignment rejected, dst={self.inplace}, source={value}, "
+                    f"in rejection {reject}"
+                )
+            self._inplace = value
+
+
+    @property
+    def is_last_consumed(self):
+        return getattr(self, "_is_last_consumed", False)
+
+    @is_last_consumed.setter
+    def is_last_consumed(self, value: bool):
+        self._is_last_consumed = value
+
+    @property
+    def gap(self):
+        return getattr(self, "_gap", 0)
+
+    @gap.setter
+    def gap(self, value: int):
+        self._gap = value
+
+    @property
+    def inplace_tensor_out(self):
+        return getattr(self, "_inplace_tensor_out", None)
+
+    @inplace_tensor_out.setter
+    def inplace_tensor_out(self, value: "tensor"):
+        assert self.inplace_tensor_out is None or self.inplace_tensor_out is value, (
+            f"tensor {self.graph_idx} is already overwritten by "
+            f"{self.inplace_tensor_out.graph_idx}; a tensor can only be given away once"
+        )
+        self._inplace_tensor_out = value
+
+    @property
+    def align_to_n_bytes(self):
+        return getattr(self, "_align_to_n_bytes", 4)
+
+    @align_to_n_bytes.setter
+    def align_to_n_bytes(self, value: int):
+        self._align_to_n_bytes = value
 
 
 def overwrite_dicts(src, dst):
@@ -241,6 +360,9 @@ def overwrite_dicts(src, dst):
             pass
             # warnings.warn(f"given key:{k} is not used in src dict")
 
+def align_byte_to_n(byte_cnt, n=None):
+    n = n or 4
+    return math.ceil(byte_cnt / n) * n
 
 def deep_copy_dicts(dst):
     return deepcopy(dst)

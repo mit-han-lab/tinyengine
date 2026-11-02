@@ -1848,15 +1848,15 @@ q7_t* mat_mult_kernel3_input3_s8_s16_fpreq(const q7_t *input_a,
 		/* setup pointers for B */
 		const q15_t *ip_b0 = input_b;
 		const q15_t *ip_b1 = ip_b0 + num_col_a;
-		const q31_t *ip31_b0 = ip_b0;
-		const q31_t *ip31_b1 = ip_b1;
+		const q31_t *ip31_b0 = (q31_t *)ip_b0;
+		const q31_t *ip31_b1 = (q31_t *)ip_b1;
 		const float scale_0 = scales[0];
 		const float scale_1 = scales[1];
 
 		/* align the second pointer for A */
 		const q15_t *ksrc2 = ksrc + 27;
-		q31_t *ksrc_31 = ksrc;
-		q31_t *ksrc2_31 = ksrc2;
+		q31_t *ksrc_31 = (q31_t *)ksrc;
+		q31_t *ksrc2_31 = (q31_t *)ksrc2;
 
 		/* Init accumulator with bias for channel N and N + 1 */
 		q31_t ch_0_out_0 = *bias;
