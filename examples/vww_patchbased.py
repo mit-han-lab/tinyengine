@@ -17,24 +17,48 @@
 # ----------------------------------------------------------------------
 
 import os
+import argparse
 from tempfile import TemporaryDirectory
 
 from code_generator.CodeGenerator import CodeGenerator
-from code_generator.GeneralMemoryScheduler import GeneralMemoryScheduler
+from code_generator.GeneralMemoryScheduler import GeneralMemoryScheduler, AllocatorType, InplaceMode
 from code_generator.InputResizer import PatchResizer
 from code_generator.PatchBasedUtil import getPatchParams
 from code_generator.TfliteConvertor import TfliteConvertor
 from mcunet.mcunet.model_zoo import download_tflite
 
+parser = argparse.ArgumentParser("vww_patchbased")
+parser.add_argument(
+    "-f", "--life_cycle_file", type=str, default="./lifecycle.png",
+    help="the location to save the tensor lifecycle visualization"
+)
+parser.add_argument(
+    "-a", "--allocator_type", type=str, default="first_fit", choices=[t.name for t in AllocatorType],
+    help="selects the allocator type to use"
+)
+parser.add_argument(
+    "-m", "--inplace_mode", default="depthwise_only", choices=[mode.name for mode in InplaceMode],
+    help="selects the inplace mode",
+)
+parser.add_argument(
+    "-p", "--n_patches", type=int, default=2,
+    help="patches per side, so 2 runs the patch stage on a 2x2 grid"
+)
+parser.add_argument(
+    "-s", "--split_index", type=int, default=5,
+    help="the layer the patch stage ends before"
+)
+args = parser.parse_args()
+
 # 1: Let's first build our pretrained VWW model
 # 2: To deploy the model on MCU, we need to first convert the model to an Intermediate Representation (IR) and
 # get the weight parameters and scale parameters.
 tflite_path = download_tflite(net_id="mcunet-vww1")
-life_cycle_path = "./lifecycle.png"
+life_cycle_path = args.life_cycle_file
 # 3. Set up patchbased parameters
 use_inplace = True
-n_patches = 2  # 2x2 patches
-split_index = 5  # split at the fifth conv later
+n_patches = args.n_patches  # n_patches x n_patches patches
+split_index = args.split_index  # split at the split_index-th layer
 # 4. Let's generate source code for on-device deployment
 
 with TemporaryDirectory() as WORKING_DIR:
@@ -62,6 +86,8 @@ with TemporaryDirectory() as WORKING_DIR:
         inplace=use_inplace,
         mem_visual_path=schedule_image_path,
         VisaulizeTrainable=VisaulizeTrainable,
+        allocator_type=AllocatorType(args.allocator_type),
+        inplace_mode=InplaceMode(args.inplace_mode),
     )
     memory_scheduler.USE_INPLACE = use_inplace
     memory_scheduler.allocateMemory()
