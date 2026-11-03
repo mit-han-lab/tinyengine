@@ -21,25 +21,41 @@
 
 tinyengine_status upsample_byte(const q7_t *input, const uint16_t input_x,
 	const uint16_t input_y, const uint16_t input_ch, q7_t *output, const uint16_t sample_factor) {
+	/*
+	Does upsample inplace: To achieve this it does the sampling in reverse order.
+	
+	Upsampling makes the output grid larger than the input grid by a factor of s**2,
+	We can exploit this to use the same memory or make it inplace for both the input
+	and output without no cost by changing the upsampling order to reverse.
+
+	Basically we start copy and writing to the output for the back this ensures that
+	we never overwrite an input before it is needed.
+	*/ 
+
+	
 	//get output resolution
 	const uint16_t output_x = input_x * sample_factor, output_y = input_y * sample_factor , output_ch = input_ch;
+	// pointer to each element in each of the grid
+	const q7_t* reverse_input = input + ((input_x * input_y) * input_ch);
+	q7_t* reverse_output = output + ((output_x * output_y) * output_ch);
 
-	//upsample in a repeated manner
-	for(int ih = 0; ih < input_y; ih++){
-		q7_t* out_head = output;
+	//upsample in a repeated and reversed manner
+	for(int ih = input_y-1; ih >= 0; ih--){
 		//place 1 row
-		for(int iw = 0; iw < input_x; iw++){
+		for(int iw = input_x-1; iw >= 0; iw--){
+			reverse_input -= input_ch;
 			for(int s = 0; s < sample_factor; s++){
-				memcpy(output, input, input_ch);
-				output += input_ch;
+				reverse_output -= input_ch;
+				memcpy(reverse_output, reverse_input, input_ch);
 			}
-			input += input_ch;
 		}
 
 		//copy the remaining rows
+		q7_t* row_start = reverse_output;
 		for(int s = 1; s < sample_factor; s++){
-			memcpy(output, out_head, output_ch * output_x);
-			output += output_ch * output_x;
+			// move it to the preceeding row
+			reverse_output -= output_ch * output_x;
+			memcpy(reverse_output, row_start, output_ch * output_x);
 		}
 	}
 	return STATE_SUCCESS;

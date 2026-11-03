@@ -21,15 +21,16 @@
 #include "arm_nnsupportfunctions.h"
 #include "img2col_element.h"
 #include "tinyengine_function.h"
+#include "right_inplace.h"
 
-tinyengine_status convolve_s8_kernel3_inputch3_stride2_pad1(const q7_t *input, const uint16_t input_x, const uint16_t input_y,
+tinyengine_status convolve_s8_kernel3_inputch3_stride2_pad1(q7_t *input, const uint16_t input_x, const uint16_t input_y,
 		const uint16_t input_ch, const q7_t *kernel, const int32_t *bias,
 		const int32_t *output_shift, const int32_t *output_mult,
 		const int32_t output_offset, const int32_t input_offset,
 		const int32_t output_activation_min,
 		const int32_t output_activation_max, q7_t *output,
 		const uint16_t output_x, const uint16_t output_y,
-		const uint16_t output_ch, q15_t *runtime_buf, q15_t *kbuf, q7_t pad_value) {
+		const uint16_t output_ch, q15_t *runtime_buf, q15_t *kbuf, q7_t pad_value, const uint32_t gap, const uint8_t right_shift) {
 	const int kernel_y = 3;
 	const int kernel_x = 3;
 
@@ -38,6 +39,8 @@ tinyengine_status convolve_s8_kernel3_inputch3_stride2_pad1(const q7_t *input, c
 	/* Generate two columns from the input tensor a GEMM computation */
 	q15_t *two_column_buf = runtime_buf;
 	q7_t *out = output;
+
+	if (right_shift) RIGHT_INPLACE_SHIFT_INPUT(input, output, input_x, input_y, input_ch, gap);
 
 	q15_t pad16 = pad_value;
 	const int16_t inoff16 = input_offset;

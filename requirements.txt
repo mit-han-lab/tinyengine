@@ -3,4 +3,4 @@ matplotlib
 numpy
 torch
 torchvision
-tqdm
+# optional, for the MILP allocator (allocator_type=MILP): pyomo, and a solver it drives, such as SCIP

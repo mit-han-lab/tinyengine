@@ -1,7 +1,7 @@
 import warnings
 
 from ..constant import USE_BIT_MASK, USE_TTE_INT8
-from .basic_utils import basicOperator, deep_copy_dicts, isweightstr, overwrite_dicts
+from .basic_utils import basicOperator, deep_copy_dicts, isweightstr, overwrite_dicts, op_inplace_type
 
 __all__ = ["DepthwiseConv2d"]
 
@@ -55,6 +55,9 @@ default_params = {
     "output2_c": None,
     "output2_idx": None,
     "output2_dtype": "int8",
+    "inplace": op_inplace_type.force_inplace,
+    "color": "#ff914d", # orange
+    "op_needs_right_shift": False
 }
 
 

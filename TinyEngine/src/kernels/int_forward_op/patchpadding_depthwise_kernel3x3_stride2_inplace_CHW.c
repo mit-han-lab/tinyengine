@@ -43,8 +43,8 @@ tinyengine_status patchpadding_depthwise_kernel3x3_stride2_inplace_CHW(q7_t *inp
 	const q7_t *src;
 	const q7_t *ksrc = kernel;
 
-	//set the output for inplace update
-	q7_t *inplace_out = input;
+	//set the output, which is input itself when scheduled inplace
+	q7_t *inplace_out = output;
 
 	int padding_cnt = pad_t * input_x;
 	//shift the input ptr accordingly for HWC->CHW

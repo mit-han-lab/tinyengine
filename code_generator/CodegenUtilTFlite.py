@@ -20,13 +20,19 @@ import os
 from tempfile import TemporaryDirectory
 
 from .CodeGenerator import CodeGenerator
-from .GeneralMemoryScheduler import GeneralMemoryScheduler
+from .GeneralMemoryScheduler import GeneralMemoryScheduler, InplaceMode, AllocatorType, RightShift
 from .TfliteConvertor import TfliteConvertor
 
 
 def GenerateSourceFilesFromTFlite(
     tflite_path,
     life_cycle_path=None,
+    allocator_type=AllocatorType.first_fit,
+    inplace_mode=InplaceMode.depthwise_only,
+    optimize_right_shift=RightShift.flexible_right_shift,
+    optimize_inplace_flexible=True,
+    right_shift_cost = 1e-4,
+    model_name="mcunet_model",
 ):
     use_inplace = True
 
@@ -49,6 +55,12 @@ def GenerateSourceFilesFromTFlite(
             inplace=use_inplace,
             mem_visual_path=schedule_image_path,
             VisaulizeTrainable=VisaulizeTrainable,
+            model_name=model_name,
+            allocator_type=allocator_type,
+            inplace_mode=inplace_mode,
+            optimize_right_shift=optimize_right_shift,
+            optimize_inplace_flexible=optimize_inplace_flexible,
+            right_shift_cost = right_shift_cost,
         )
         memory_scheduler.USE_INPLACE = use_inplace
         memory_scheduler.allocateMemory()
